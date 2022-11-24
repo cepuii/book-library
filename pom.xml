@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ua.od.cepuii</groupId>
-    <artifactId>library</artifactId>
+    <artifactId>book-library</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>library</name>
+    <name>book-library</name>
     <packaging>war</packaging>
 
     <properties>
