@@ -12,8 +12,10 @@ public class User {
     private boolean enabled;
     private int fine;
 
+    private Role role;
+
     public User(int id, String name, String email, String password, LocalDateTime dateTime,
-                boolean enabled, int fine) {
+                boolean enabled, int fine, Role role) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -21,6 +23,7 @@ public class User {
         this.dateTime = dateTime;
         this.enabled = enabled;
         this.fine = fine;
+        this.role = role;
     }
 
     public int getId() {
@@ -119,5 +122,13 @@ public class User {
                 ", enabled=" + enabled +
                 ", fine=" + fine +
                 '}';
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

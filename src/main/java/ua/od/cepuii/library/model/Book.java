@@ -14,14 +14,14 @@ public class Book {
     private int noTotal;
     private int noActual;
 
-    public Book(int id, String title, String publication, LocalDate datePublication, Set<Author> authorSet, int noTotal, int noActual) {
+    public Book(int id, String title, String publication, LocalDate datePublication, Set<Author> authorSet, int noTotal) {
         this.id = id;
         this.title = title;
         this.publication = publication;
         this.datePublication = datePublication;
         this.authorSet = authorSet;
         this.noTotal = noTotal;
-        this.noActual = noActual;
+        this.noActual = noTotal;
     }
 
     public int getId() {
