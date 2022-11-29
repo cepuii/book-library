@@ -4,23 +4,25 @@ DROP TABLE IF EXISTS book_author;
 DROP TABLE IF EXISTS author;
 DROP TABLE IF EXISTS book;
 DROP TABLE IF EXISTS "user";
+DROP SEQUENCE IF EXISTS global_seq;
+
+CREATE SEQUENCE global_seq START WITH 100;
 
 CREATE TABLE book
 (
-    id               SERIAL PRIMARY KEY,
-    title            VARCHAR   NOT NULL,
-    publication      VARCHAR   NOT NULL,
-    date_publication TIMESTAMP NOT NULL,
-    language         VARCHAR   NOT NULL,
-    no_total         INTEGER   NOT NULL,
-    no_actual        INTEGER   NOT NULL
+    id               INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
+    title            VARCHAR                         NOT NULL,
+    publication      VARCHAR                         NOT NULL,
+    date_publication TIMESTAMP                       NOT NULL,
+    no_total         INTEGER                         NOT NULL,
+    no_actual        INTEGER             default '0' NOT NULL
 );
 
 CREATE UNIQUE INDEX books_unique_title_idx ON book (title);
 
 CREATE TABLE author
 (
-    id     SERIAL PRIMARY KEY,
+    id     INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
     author VARCHAR NOT NULL
 );
 
@@ -35,13 +37,13 @@ CREATE TABLE book_author
 
 CREATE TABLE "user"
 (
-    id         SERIAL PRIMARY KEY,
-    name       VARCHAR                 NOT NULL,
-    email      VARCHAR                 NOT NULL,
-    password   VARCHAR                 NOT NULL,
-    registered TIMESTAMP DEFAULT now() NOT NULL,
-    enabled    BOOLEAN   DEFAULT true  NOT NULL,
-    fine       INTEGER   DEFAULT 0     NOT NULL
+    id         INTEGER PRIMARY KEY DEFAULT nextval('global_seq'),
+    name       VARCHAR                           NOT NULL,
+    email      VARCHAR                           NOT NULL,
+    password   VARCHAR                           NOT NULL,
+    registered TIMESTAMP           DEFAULT now() NOT NULL,
+    blocked    BOOLEAN             DEFAULT false NOT NULL,
+    fine       INTEGER             DEFAULT 0     NOT NULL
 );
 
 CREATE UNIQUE INDEX users_unique_email_idx ON "user" (email);
