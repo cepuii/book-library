@@ -4,9 +4,8 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
-public class Book {
+public class Book extends AbstractEntity {
 
-    private int id;
     private String title;
     private String publication;
     private LocalDate datePublication;
@@ -15,21 +14,13 @@ public class Book {
     private int noActual;
 
     public Book(int id, String title, String publication, LocalDate datePublication, Set<Author> authorSet, int noTotal) {
-        this.id = id;
+        super(id);
         this.title = title;
         this.publication = publication;
         this.datePublication = datePublication;
         this.authorSet = authorSet;
         this.noTotal = noTotal;
         this.noActual = noTotal;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -84,10 +75,10 @@ public class Book {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         Book book = (Book) o;
 
-        if (id != book.id) return false;
         if (noTotal != book.noTotal) return false;
         if (noActual != book.noActual) return false;
         if (!Objects.equals(title, book.title)) return false;
@@ -99,7 +90,7 @@ public class Book {
 
     @Override
     public int hashCode() {
-        int result = id;
+        int result = super.hashCode();
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (publication != null ? publication.hashCode() : 0);
         result = 31 * result + (datePublication != null ? datePublication.hashCode() : 0);
@@ -111,8 +102,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book{" +
-                "id=" + id +
+        return super.toString() +
                 ", title='" + title + '\'' +
                 ", publication='" + publication + '\'' +
                 ", date_publication=" + datePublication +
