@@ -2,15 +2,8 @@ package ua.od.cepuii.library.repository;
 
 import ua.od.cepuii.library.model.User;
 
-public interface UserRepository {
+import java.sql.SQLException;
 
-    User create(User user);
-
-    User getById(int id);
-
-    User update(User user);
-
-    boolean delete(int id);
-
-    boolean blockUser(int id);
+public interface UserRepository extends AbstractEntityRepository<User> {
+    boolean blockUser(int id) throws SQLException;
 }

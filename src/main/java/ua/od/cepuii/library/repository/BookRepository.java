@@ -2,21 +2,13 @@ package ua.od.cepuii.library.repository;
 
 import ua.od.cepuii.library.model.Book;
 
-import java.util.List;
+import java.sql.SQLException;
+import java.util.Collection;
 
-public interface BookRepository {
+public interface BookRepository extends AbstractEntityRepository<Book> {
 
-    Book create(Book book);
+    Collection<Book> getByTitle(String title) throws SQLException;
 
-    Book getById(int id);
+    Collection<Book> getByAuthor(String author) throws SQLException;
 
-    Book update(Book book);
-
-    boolean delete(int id);
-
-    List<Book> getAll();
-
-    Book getByTitle(String title);
-
-    Book getByAuthor(String author);
 }
