@@ -1,6 +1,5 @@
 package ua.od.cepuii.library.model;
 
-import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 
@@ -8,19 +7,17 @@ public class Book extends AbstractEntity {
 
     private String title;
     private String publication;
-    private LocalDate datePublication;
+    private int datePublication;
     private Set<Author> authorSet;
-    private int noTotal;
-    private int noActual;
+    private int total;
 
-    public Book(int id, String title, String publication, LocalDate datePublication, Set<Author> authorSet, int noTotal) {
+    public Book(long id, String title, String publication, int datePublication, Set<Author> authorSet, int total) {
         super(id);
         this.title = title;
         this.publication = publication;
         this.datePublication = datePublication;
         this.authorSet = authorSet;
-        this.noTotal = noTotal;
-        this.noActual = noTotal;
+        this.total = total;
     }
 
     public String getTitle() {
@@ -39,11 +36,11 @@ public class Book extends AbstractEntity {
         this.publication = publication;
     }
 
-    public LocalDate getDatePublication() {
+    public int getDatePublication() {
         return datePublication;
     }
 
-    public void setDatePublication(LocalDate datePublication) {
+    public void setDatePublication(int datePublication) {
         this.datePublication = datePublication;
     }
 
@@ -55,20 +52,12 @@ public class Book extends AbstractEntity {
         this.authorSet = authorSet;
     }
 
-    public int getNoTotal() {
-        return noTotal;
+    public int getTotal() {
+        return total;
     }
 
-    public void setNoTotal(int noTotal) {
-        this.noTotal = noTotal;
-    }
-
-    public int getNoActual() {
-        return noActual;
-    }
-
-    public void setNoActual(int noActual) {
-        this.noActual = noActual;
+    public void setTotal(int total) {
+        this.total = total;
     }
 
     @Override
@@ -79,12 +68,10 @@ public class Book extends AbstractEntity {
 
         Book book = (Book) o;
 
-        if (noTotal != book.noTotal) return false;
-        if (noActual != book.noActual) return false;
+        if (total != book.total) return false;
+        if (datePublication != book.datePublication) return false;
         if (!Objects.equals(title, book.title)) return false;
         if (!Objects.equals(publication, book.publication)) return false;
-        if (!Objects.equals(datePublication, book.datePublication))
-            return false;
         return Objects.equals(authorSet, book.authorSet);
     }
 
@@ -93,10 +80,9 @@ public class Book extends AbstractEntity {
         int result = super.hashCode();
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (publication != null ? publication.hashCode() : 0);
-        result = 31 * result + (datePublication != null ? datePublication.hashCode() : 0);
+        result = 31 * result + datePublication;
         result = 31 * result + (authorSet != null ? authorSet.hashCode() : 0);
-        result = 31 * result + noTotal;
-        result = 31 * result + noActual;
+        result = 31 * result + total;
         return result;
     }
 
@@ -107,8 +93,7 @@ public class Book extends AbstractEntity {
                 ", publication='" + publication + '\'' +
                 ", date_publication=" + datePublication +
                 ", authorSet=" + authorSet +
-                ", noTotal=" + noTotal +
-                ", noActual=" + noActual +
+                ", noTotal=" + total +
                 '}';
     }
 }
