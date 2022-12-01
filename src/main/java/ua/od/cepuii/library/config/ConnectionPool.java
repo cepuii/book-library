@@ -20,10 +20,14 @@ public class ConnectionPool {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         ds = new HikariDataSource(config);
+
     }
 
     public static Connection getConnection() throws SQLException {
-        return ds.getConnection();
+        Connection connection = ds.getConnection();
+        connection.setAutoCommit(false);
+        connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        return connection;
     }
 
     private ConnectionPool() {
