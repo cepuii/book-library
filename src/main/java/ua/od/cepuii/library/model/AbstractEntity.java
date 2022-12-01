@@ -33,6 +33,6 @@ public abstract class AbstractEntity {
 
     @Override
     public String toString() {
-        return getClass() + " {id = " + id;
+        return getClass().getSimpleName() + " {id = " + id;
     }
 }
