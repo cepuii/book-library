@@ -17,7 +17,7 @@ CREATE TABLE publication_type
 
 CREATE TABLE book
 (
-    id               BIGINT PRIMARY KEY DEFAULT nextval('global_seq'),
+    id               BIGINT DEFAULT nextval('global_seq') PRIMARY KEY,
     title            VARCHAR NOT NULL,
     publication_id   INTEGER NOT NULL,
     date_publication INTEGER NOT NULL,
@@ -30,8 +30,8 @@ CREATE UNIQUE INDEX books_unique_title_idx ON book (title);
 
 CREATE TABLE author
 (
-    id   BIGINT PRIMARY KEY DEFAULT nextval('global_seq'),
-    name VARCHAR NOT NULL
+    id   BIGINT DEFAULT nextval('global_seq') PRIMARY KEY,
+    name VARCHAR UNIQUE NOT NULL
 );
 
 CREATE TABLE book_author
@@ -47,17 +47,17 @@ CREATE TABLE book_author
 CREATE TABLE user_role
 (
     id   INTEGER PRIMARY KEY NOT NULL,
-    role VARCHAR             NOT NULL
+    role VARCHAR UNIQUE NOT NULL
 );
 
 CREATE TABLE users
 (
-    id         BIGINT PRIMARY KEY DEFAULT nextval('global_seq'),
-    email      VARCHAR                          NOT NULL,
-    password   VARCHAR                          NOT NULL,
-    registered TIMESTAMP          DEFAULT now() NOT NULL,
-    blocked    BOOLEAN            DEFAULT false NOT NULL,
-    role_id    BIGINT             DEFAULT 1     NOT NULL,
+    id         BIGINT    DEFAULT nextval('global_seq') PRIMARY KEY,
+    email      VARCHAR                 NOT NULL,
+    password   VARCHAR                 NOT NULL,
+    registered TIMESTAMP DEFAULT now() NOT NULL,
+    blocked    BOOLEAN   DEFAULT false NOT NULL,
+    role_id    BIGINT    DEFAULT 0     NOT NULL,
 
     FOREIGN KEY (role_id) REFERENCES user_role (id) ON DELETE CASCADE
 );
@@ -68,14 +68,26 @@ CREATE UNIQUE INDEX users_unique_email_idx ON users (email);
 
 CREATE TABLE loan
 (
-    id         BIGINT PRIMARY KEY DEFAULT nextval('global_seq'),
-    user_id    INTEGER                            NOT NULL,
-    book_id    INTEGER                            NOT NULL,
-    start_time DATE               DEFAULT now()   NOT NULL,
-    duration   INTEGER            DEFAULT ('0')   NOT NULL,
-    status     VARCHAR            DEFAULT ('RAW') NOT NULL,
-    fine       INTEGER            DEFAULT 0       NOT NULL,
+    id         BIGINT  DEFAULT nextval('global_seq') PRIMARY KEY,
+    user_id    INTEGER                 NOT NULL,
+    book_id    INTEGER                 NOT NULL,
+    start_time DATE    DEFAULT now()   NOT NULL,
+    duration   INTEGER DEFAULT ('0')   NOT NULL,
+    status     VARCHAR DEFAULT ('RAW') NOT NULL,
+    fine       INTEGER DEFAULT 0       NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (book_id) REFERENCES book (id)
 );
+
+INSERT INTO user_role
+VALUES (0, 'UNREGISTER'),
+       (1, 'READER'),
+       (2, 'LIBRARIAN'),
+       (3, 'ADMIN');
+
+INSERT INTO publication_type
+VALUES (0, 'BOOK'),
+       (1, 'JOURNAL'),
+       (2, 'ARTICLE'),
+       (3, 'NEWSPAPER');
