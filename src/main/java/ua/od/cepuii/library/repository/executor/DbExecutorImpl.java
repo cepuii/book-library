@@ -18,9 +18,23 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
             preparedStatement.executeUpdate();
             try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
                 rs.next();
-                return rs.getLong("id");
+                long id = rs.getLong("id");
+                connection.commit();
+                return id;
             }
+        } catch (SQLException e) {
+            connection.rollback(savepoint);
+            throw e;
+        }
+    }
 
+    @Override
+    public void executeInsertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
+        Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            setParams(params, preparedStatement);
+            preparedStatement.execute();
+            connection.commit();
         } catch (SQLException e) {
             connection.rollback(savepoint);
             throw e;
@@ -58,7 +72,9 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
         Savepoint savepoint = connection.setSavepoint("UpdateSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            connection.commit();
+            return result;
         } catch (SQLException e) {
             connection.rollback(savepoint);
             throw e;
@@ -71,7 +87,9 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
         Savepoint savepoint = connection.setSavepoint("DeleteSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
-            return preparedStatement.executeUpdate() != 0;
+            boolean result = preparedStatement.executeUpdate() != 0;
+            connection.commit();
+            return result;
         } catch (SQLException e) {
             connection.rollback(savepoint);
             throw e;

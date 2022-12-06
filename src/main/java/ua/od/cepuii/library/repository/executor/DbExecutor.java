@@ -11,7 +11,10 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public interface DbExecutor<T extends AbstractEntity> {
+
     long executeInsert(Connection connection, String sql, List<Object> params) throws SQLException;
+
+    void executeInsertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException;
 
     Optional<T> executeSelect(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
 
