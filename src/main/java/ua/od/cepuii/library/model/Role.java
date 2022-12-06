@@ -1,8 +1,8 @@
 package ua.od.cepuii.library.model;
 
 public enum Role {
-    ADMIN,
+    UNREGISTER,
     READER,
     LIBRARIAN,
-    UNREGISTER
+    ADMIN
 }

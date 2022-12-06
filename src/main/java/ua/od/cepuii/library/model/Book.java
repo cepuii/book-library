@@ -6,18 +6,22 @@ import java.util.Set;
 public class Book extends AbstractEntity {
 
     private String title;
-    private String publication;
+    private PublicationType publicationType;
     private int datePublication;
     private Set<Author> authorSet;
     private int total;
 
-    public Book(long id, String title, String publication, int datePublication, Set<Author> authorSet, int total) {
+    public Book(long id, String title, PublicationType publicationType, int datePublication, Set<Author> authorSet, int total) {
         super(id);
         this.title = title;
-        this.publication = publication;
+        this.publicationType = publicationType;
         this.datePublication = datePublication;
         this.authorSet = authorSet;
         this.total = total;
+    }
+
+    public Book(String title, PublicationType publicationType, int datePublication, Set<Author> authorSet, int total) {
+        this(0, title, publicationType, datePublication, authorSet, total);
     }
 
     public String getTitle() {
@@ -28,12 +32,12 @@ public class Book extends AbstractEntity {
         this.title = title;
     }
 
-    public String getPublication() {
-        return publication;
+    public PublicationType getPublicationType() {
+        return publicationType;
     }
 
-    public void setPublication(String publication) {
-        this.publication = publication;
+    public void setPublicationType(PublicationType publicationType) {
+        this.publicationType = publicationType;
     }
 
     public int getDatePublication() {
@@ -68,10 +72,10 @@ public class Book extends AbstractEntity {
 
         Book book = (Book) o;
 
-        if (total != book.total) return false;
         if (datePublication != book.datePublication) return false;
+        if (total != book.total) return false;
         if (!Objects.equals(title, book.title)) return false;
-        if (!Objects.equals(publication, book.publication)) return false;
+        if (publicationType != book.publicationType) return false;
         return Objects.equals(authorSet, book.authorSet);
     }
 
@@ -79,7 +83,7 @@ public class Book extends AbstractEntity {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + (publication != null ? publication.hashCode() : 0);
+        result = 31 * result + (publicationType != null ? publicationType.hashCode() : 0);
         result = 31 * result + datePublication;
         result = 31 * result + (authorSet != null ? authorSet.hashCode() : 0);
         result = 31 * result + total;
@@ -90,7 +94,7 @@ public class Book extends AbstractEntity {
     public String toString() {
         return super.toString() +
                 ", title='" + title + '\'' +
-                ", publication='" + publication + '\'' +
+                ", publication='" + publicationType + '\'' +
                 ", date_publication=" + datePublication +
                 ", authorSet=" + authorSet +
                 ", noTotal=" + total +

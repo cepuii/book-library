@@ -67,10 +67,6 @@ public class User extends AbstractEntity {
         return role;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,6 +93,10 @@ public class User extends AbstractEntity {
         result = 31 * result + fine;
         result = 31 * result + (role != null ? role.hashCode() : 0);
         return result;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override

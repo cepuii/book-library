@@ -5,9 +5,14 @@ import java.util.Objects;
 public class Author extends AbstractEntity {
     private String name;
 
-    public Author(int id, String name) {
+    public Author(long id, String name) {
         super(id);
         this.name = name;
+    }
+
+    public Author(String name) {
+        this(0, name);
+
     }
 
     public String getName() {
