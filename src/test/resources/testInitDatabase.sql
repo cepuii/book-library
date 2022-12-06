@@ -11,22 +11,21 @@ CREATE SEQUENCE global_seq START WITH 1000;
 
 CREATE TABLE publication_type
 (
-    id   INTEGER PRIMARY KEY NOT NULL,
-    type VARCHAR             NOT NULL
+    id   INTEGER UNIQUE NOT NULL PRIMARY KEY,
+    type VARCHAR UNIQUE NOT NULL
 );
 
 CREATE TABLE book
 (
     id               BIGINT DEFAULT nextval('global_seq') PRIMARY KEY,
-    title            VARCHAR NOT NULL,
-    publication_id   INTEGER NOT NULL,
-    date_publication INTEGER NOT NULL,
-    total            INTEGER NOT NULL,
+    title            VARCHAR UNIQUE NOT NULL,
+    publication_id   INTEGER        NOT NULL,
+    date_publication INTEGER        NOT NULL,
+    total            INTEGER        NOT NULL,
 
     FOREIGN KEY (publication_id) REFERENCES publication_type (id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX books_unique_title_idx ON book (title);
 
 CREATE TABLE author
 (
@@ -36,10 +35,10 @@ CREATE TABLE author
 
 CREATE TABLE book_author
 (
-    book_id   INTEGER,
-    author_id INTEGER,
-    PRIMARY KEY (book_id, author_id),
+    book_id   INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
 
+    CONSTRAINT unique_pair_idx UNIQUE (book_id, author_id),
     FOREIGN KEY (book_id) REFERENCES book (id) ON DELETE CASCADE,
     FOREIGN KEY (author_id) REFERENCES author (id) ON DELETE CASCADE
 );
@@ -47,7 +46,7 @@ CREATE TABLE book_author
 CREATE TABLE user_role
 (
     id   INTEGER PRIMARY KEY NOT NULL,
-    role VARCHAR UNIQUE NOT NULL
+    role VARCHAR UNIQUE      NOT NULL
 );
 
 CREATE TABLE users

@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <title>JSP - Hello World</title>
+    <link href="resources/css/style.css" rel="stylesheet">
 </head>
 <body>
 <h1><%= "Hello World!" %>
