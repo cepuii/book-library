@@ -2,17 +2,19 @@
   Created by IntelliJ IDEA.
   User: cepuii
   Date: 12/8/2022
-  Time: 6:47 PM
+  Time: 9:35 PM
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page errorPage="WEB-INF/jsp/error_runtime.jsp" %>
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <title>Book library</title>
+    <title>Main</title>
 </head>
 <body>
-<jsp:forward page="WEB-INF/jsp/login.jsp"></jsp:forward>
+<h3> Welcome to the library</h3>
+<hr/>
+${user} hello!
+<hr/>
+<a href="controller?command=logout">Logout</a>
 </body>
 </html>
