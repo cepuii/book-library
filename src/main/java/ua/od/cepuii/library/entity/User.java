@@ -1,26 +1,35 @@
-package ua.od.cepuii.library.model;
+package ua.od.cepuii.library.entity;
 
+import ua.od.cepuii.library.entity.enums.Role;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class User extends AbstractEntity {
+public class User extends AbstractEntity implements Serializable {
+
+    private static final long serialVersionUID = 1;
     private String email;
     private String password;
     private LocalDateTime dateTime;
     private boolean enabled;
     private int fine;
-
     private Role role;
 
     public User(long id, String email, String password, LocalDateTime dateTime,
-                boolean enabled, int fine, Role role) {
+                boolean enabled, Role role) {
         super(id);
         this.email = email;
         this.password = password;
         this.dateTime = dateTime;
         this.enabled = enabled;
-        this.fine = fine;
+        this.fine = 0;
         this.role = role;
+    }
+
+    public User(String email, String password, LocalDateTime dateTime,
+                boolean enabled, Role role) {
+        this(0, email, password, dateTime, enabled, role);
     }
 
     public String getEmail() {

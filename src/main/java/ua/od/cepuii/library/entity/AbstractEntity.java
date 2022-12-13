@@ -1,8 +1,14 @@
-package ua.od.cepuii.library.model;
+package ua.od.cepuii.library.entity;
 
-public abstract class AbstractEntity {
+import java.io.Serializable;
 
+public abstract class AbstractEntity implements Serializable {
+
+    private static final long serialVersionUID = 1;
     private long id;
+
+    protected AbstractEntity() {
+    }
 
     protected AbstractEntity(long id) {
         this.id = id;

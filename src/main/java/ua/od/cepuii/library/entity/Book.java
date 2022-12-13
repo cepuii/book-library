@@ -1,10 +1,14 @@
-package ua.od.cepuii.library.model;
+package ua.od.cepuii.library.entity;
 
+import ua.od.cepuii.library.entity.enums.PublicationType;
+
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
-public class Book extends AbstractEntity {
+public class Book extends AbstractEntity implements Serializable {
 
+    private static final long serialVersionUID = 1;
     private String title;
     private PublicationType publicationType;
     private int datePublication;
