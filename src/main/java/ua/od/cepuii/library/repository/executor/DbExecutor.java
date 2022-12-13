@@ -1,6 +1,6 @@
 package ua.od.cepuii.library.repository.executor;
 
-import ua.od.cepuii.library.model.AbstractEntity;
+import ua.od.cepuii.library.entity.AbstractEntity;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
