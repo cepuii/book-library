@@ -1,8 +1,8 @@
 package ua.od.cepuii.library.util;
 
-import ua.od.cepuii.library.model.Author;
-import ua.od.cepuii.library.model.Book;
-import ua.od.cepuii.library.model.PublicationType;
+import ua.od.cepuii.library.entity.Author;
+import ua.od.cepuii.library.entity.Book;
+import ua.od.cepuii.library.entity.enums.PublicationType;
 
 import java.util.Set;
 
