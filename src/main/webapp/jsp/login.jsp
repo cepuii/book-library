@@ -10,7 +10,6 @@
 <html lang="en">
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/style.css">
 </head>
 <body>
 <div class="container">
@@ -18,7 +17,7 @@
     <hr>
     <form name="LoginForm" method="post" action="controller">
         <input type="hidden" name="command" value="login">
-        Login: <input type="text" name="login" value=""/>
+        Login: <input type="text" name="email" value=""/>
         <br/>
         Password: <input type="password" name="password" value=""/>
         <br/>

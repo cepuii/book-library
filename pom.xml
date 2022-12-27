@@ -14,14 +14,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
-        <junit.version>5.8.2</junit.version>
-        <jakarta.servlet-api.version>5.0.0</jakarta.servlet-api.version>
+        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <HikariCP.version>5.0.1</HikariCP.version>
-        <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <postgresql.version>42.5.1</postgresql.version>
-        <mockito-junit-jupiter.version>4.9.0</mockito-junit-jupiter.version>
         <log4j-api.version>2.19.0</log4j-api.version>
-        <h2.version>2.1.214</h2.version>
+        <junit.version>5.8.2</junit.version>
+        <mockito-junit-jupiter.version>4.9.0</mockito-junit-jupiter.version>
+        <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <mybatis.version>3.5.11</mybatis.version>
     </properties>
 
     <dependencies>
@@ -31,6 +32,23 @@
             <artifactId>jakarta.servlet-api</artifactId>
             <version>${jakarta.servlet-api.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <!--jsp-->
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet.jsp.jstl</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>3.0.1</version>
         </dependency>
         <!--DB-->
         <dependency>
@@ -58,7 +76,7 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.5.11</version>
+            <version>${mybatis.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -92,6 +110,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>

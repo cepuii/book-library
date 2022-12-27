@@ -6,13 +6,13 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page errorPage="WEB-INF/jsp/error_runtime.jsp" %>
+<%@ page errorPage="jsp/error/error.jsp" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Book library</title>
 </head>
 <body>
-<jsp:forward page="WEB-INF/jsp/login.jsp"></jsp:forward>
+<jsp:forward page="/jsp/login.jsp"></jsp:forward>
 </body>
 </html>

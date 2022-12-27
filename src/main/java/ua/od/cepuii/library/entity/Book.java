@@ -15,6 +15,9 @@ public class Book extends AbstractEntity implements Serializable {
     private Set<Author> authorSet;
     private int total;
 
+    public Book() {
+    }
+
     public Book(long id, String title, PublicationType publicationType, int datePublication, Set<Author> authorSet, int total) {
         super(id);
         this.title = title;

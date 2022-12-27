@@ -32,6 +32,10 @@ public class User extends AbstractEntity implements Serializable {
         this(0, email, password, dateTime, enabled, role);
     }
 
+    public User() {
+
+    }
+
     public String getEmail() {
         return email;
     }
@@ -112,10 +116,10 @@ public class User extends AbstractEntity implements Serializable {
     public String toString() {
         return super.toString() +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", dateTime=" + dateTime +
                 ", enabled=" + enabled +
                 ", fine=" + fine +
+                ", role=" + role.toString() +
                 '}';
     }
 }
