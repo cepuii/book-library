@@ -5,7 +5,7 @@ import ua.od.cepuii.library.entity.AbstractEntity;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
-
+//Layer supertype https://martinfowler.com/eaaCatalog/layerSupertype.html
 public interface AbstractEntityRepository<T extends AbstractEntity> {
 
     long insert(T entity) throws SQLException;
