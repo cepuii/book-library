@@ -54,7 +54,7 @@ CREATE TABLE user_role
 CREATE TABLE users
 (
     id         BIGINT    DEFAULT nextval('global_seq') PRIMARY KEY,
-    email      VARCHAR                 NOT NULL,
+    email      VARCHAR UNIQUE          NOT NULL,
     password   VARCHAR                 NOT NULL,
     registered TIMESTAMP DEFAULT now() NOT NULL,
     blocked    BOOLEAN   DEFAULT false NOT NULL,
