@@ -1,18 +1,17 @@
 <%--
   Created by IntelliJ IDEA.
   User: cepuii
-  Date: 12/8/2022
-  Time: 6:47 PM
+  Date: 12/27/2022
+  Time: 8:17 PM
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page errorPage="jsp/error/error.jsp" %>
-<!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
-    <title>Book library</title>
+    <title>Sign up</title>
 </head>
 <body>
-<jsp:forward page="jsp/main.jsp"></jsp:forward>
+sign up!
 </body>
 </html>

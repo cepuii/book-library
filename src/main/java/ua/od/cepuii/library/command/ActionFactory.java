@@ -7,12 +7,8 @@ public class ActionFactory {
 
 
     public ActionCommand defineCommand(HttpServletRequest request) {
-        ActionCommand current = CommandEnum.EMPTY.getCommand();
-
+        ActionCommand current = null;
         String commandString = request.getParameter("command");
-        if (commandString == null || commandString.isEmpty()) {
-            return current;
-        }
         try {
             CommandEnum commandEnum = CommandEnum.valueOf(commandString.toUpperCase());
             current = commandEnum.getCommand();

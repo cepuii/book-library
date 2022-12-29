@@ -1,18 +1,17 @@
 package ua.od.cepuii.library;
 
-import ua.od.cepuii.library.model.Book;
-import ua.od.cepuii.library.repository.BookRepository;
-import ua.od.cepuii.library.repository.JdbcBookRepository;
 
-import java.time.LocalDate;
+import ua.od.cepuii.library.service.UserService;
+
+import java.sql.SQLException;
 
 public class Demo {
 
-    public static void main(String[] args) {
-        BookRepository bookRepository = new JdbcBookRepository();
-        Book book = new Book(0, "title", "Четыре четверти", LocalDate.of(2013, 1, 1), null, 10);
-        bookRepository.create(book);
-        System.out.println(book);
+    public static void main(String[] args) throws SQLException {
+        UserService service = new UserService();
+
+        System.out.println(service.isExist("ivan@email", "qwerty"));
+
     }
 
 }

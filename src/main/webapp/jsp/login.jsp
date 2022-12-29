@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: cepuii
@@ -15,11 +16,17 @@
 <div class="container">
     <h5>Добро пожаловать в библиотеку</h5>
     <hr>
-    <form name="LoginForm" method="post" action="controller">
+    <form name="LoginForm" method="post" action="${pageContext.request.contextPath}/controller">
         <input type="hidden" name="command" value="login">
-        Login: <input type="text" name="email" value=""/>
+        <label>
+            Login:
+            <input type="text" name="email" value=""/>
+        </label>
         <br/>
-        Password: <input type="password" name="password" value=""/>
+        <label>
+            Password:
+            <input type="password" name="password" value=""/>
+        </label>
         <br/>
         ${errorLoginPassMessage}
         ${wrongAction}

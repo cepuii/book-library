@@ -38,6 +38,36 @@ FROM book
          JOIN author a ON a.id = ba.author_id
          JOIN publication_type pt ON pt.id = book.publication_id;
 
+INSERT INTO book (title, publication_id, date_publication, total)
+VALUES ('java from epam v3', 2, '2024', 10),
+       ('some book', 1, '1006', 10),
+       ('some book 2', 1, '1007', 10),
+       ('some book 3', 1, '1008', 10),
+       ('some book 4', 1, '1009', 10),
+       ('some book 5', 1, '1010', 10),
+       ('some book 6', 1, '1011', 10);
+
+INSERT INTO author
+VALUES (DEFAULT, 'surname0'),
+       (DEFAULT, 'surname1'),
+       (DEFAULT, 'surname2'),
+       (DEFAULT, 'surname3'),
+       (DEFAULT, 'surname4'),
+       (DEFAULT, 'surname5'),
+       (DEFAULT, 'surname6'),
+       (DEFAULT, 'surname7'),
+       (DEFAULT, 'surname8');
+
+INSERT INTO book_author
+VALUES (1005, 1012),
+       (1006, 1013),
+       (1007, 1014),
+       (1008, 1015),
+       (1009, 1016),
+       (1010, 1016),
+       (1010, 1017),
+       (1011, 1017),
+       (1011, 1018);
 
 SELECT *
 FROM author
