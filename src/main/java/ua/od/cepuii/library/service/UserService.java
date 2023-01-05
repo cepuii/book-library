@@ -1,32 +1,45 @@
 package ua.od.cepuii.library.service;
 
+import java.sql.SQLException;
+import java.util.Optional;
+import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.entity.enums.Role;
-import ua.od.cepuii.library.repository.RepositoryFactory;
+import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
 
 public class UserService {
-
-    RepositoryFactory factory = new JdbcRepositoryFactory();
-
-    public long create(String email, String password, Role role) {
-        return 0;
+  
+  private final UserRepository userRepository = new JdbcRepositoryFactory().getUserRepository();
+  
+  public long create(String email, String password, Role role) {
+    long insert;
+    try {
+      insert = userRepository.insert(new User(email, password, role));
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
-
-    public boolean isExist(String email, String password) {
-        return true;
+    return insert;
+  }
+  
+  public long getUserByEmailAndPassword(String email, String password) {
+    Optional<User> byEmail = userRepository.getByEmail(email);
+    if (byEmail.isPresent() && byEmail.get().getPassword().equals(password)) {
+      return byEmail.get().getId();
     }
-
-    public boolean delete(long id) {
-
-        return false;
-    }
-
-    public boolean block(long id) {
-        return false;
-    }
-
-    public boolean unblock(long id) {
-        return false;
-    }
-
+    return -1;
+  }
+  
+  public boolean delete(long id) {
+    
+    return false;
+  }
+  
+  public boolean block(long id) {
+    return false;
+  }
+  
+  public boolean unblock(long id) {
+    return false;
+  }
+  
 }

@@ -3,11 +3,8 @@
 
 <!doctype html>
 <html>
-    <jsp:include page="frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/frgments/headTag.jspf"/>
 <body>
-
-
-
 
 
 </body>

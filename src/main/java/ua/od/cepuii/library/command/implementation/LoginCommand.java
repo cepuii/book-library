@@ -21,7 +21,9 @@ public class LoginCommand implements ActionCommand {
         String password = request.getParameter(PARAM_NAME_PASSWORD);
 
         String page;
-        if (userService.isExist(email, password)) {
+        long userId = userService.getUserByEmailAndPassword(email, password);
+        if (userId!=-1) {
+            request.getSession().setAttribute("userId", userId);
             request.getSession().setAttribute("user", email);
             page = ConfigurationManager.getProperty("path.page.main");
         } else {

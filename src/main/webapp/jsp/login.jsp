@@ -1,23 +1,16 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--
-  Created by IntelliJ IDEA.
-  User: cepuii
-  Date: 12/8/2022
-  Time: 9:26 PM
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
+<%@ include file="/jsp/frgments/pageSettings.jspf" %>
+<%@ include file="/jsp/frgments/taglibs.jspf" %>
+
+<!doctype html>
 <html lang="en">
 <head>
-    <title>Login</title>
+    <jsp:include page="/jsp/frgments/headTag.jspf"/>
 </head>
 <body>
-<div class="container">
-    <h5>Добро пожаловать в библиотеку</h5>
+<div class="container p-5 my-5 border">
+    <h5>Welcome to the library</h5>
     <hr>
-    <form name="LoginForm" method="post" action="${pageContext.request.contextPath}/controller">
-        <input type="hidden" name="command" value="login">
+    <form name="LoginForm" method="post">
         <label>
             Login:
             <input type="text" name="email" value=""/>
@@ -28,11 +21,20 @@
             <input type="password" name="password" value=""/>
         </label>
         <br/>
+
+
         ${errorLoginPassMessage}
+
+
         ${wrongAction}
         ${nullPage}
         <br/>
-        <input type="submit" value="Log in"/>
+        <input type="submit"
+               formaction="${pageContext.request.contextPath}/controller?command=login"
+               value="Login"/>
+        <input type="submit"
+               formaction="${pageContext.request.contextPath}/controller?command=sign_up"
+               value="Sign up"/>
         <%--            <input type="submit" value="Continue without authorisation" >--%>
     </form>
 </div>

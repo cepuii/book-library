@@ -8,6 +8,7 @@ public enum CommandEnum {
     REMOVE_BOOK_FROM_ORDER(new RemoveBookFromOrder()),
 
     LOGIN(new LoginCommand()),
+    SIGN_UP(new SignUpCommand()),
 
     LOGOUT(new LogoutCommand());
 

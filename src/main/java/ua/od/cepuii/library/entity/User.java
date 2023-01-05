@@ -31,7 +31,10 @@ public class User extends AbstractEntity implements Serializable {
                 boolean enabled, Role role) {
         this(0, email, password, dateTime, enabled, role);
     }
-
+    
+    public User(String email, String password, Role role){
+        this(0,email, password, LocalDateTime.now(), true, role);
+    }
     public User() {
 
     }

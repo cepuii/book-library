@@ -10,7 +10,7 @@ public class Demo {
     public static void main(String[] args) throws SQLException {
         UserService service = new UserService();
 
-        System.out.println(service.isExist("ivan@email", "qwerty"));
+        System.out.println(service.getUserByEmailAndPassword("ivan@email", "qwerty"));
 
     }
 
