@@ -30,6 +30,10 @@ public class Controller extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.info("do post");
         String s = processRequest(req, resp);
+        if (s.endsWith("forward=true")) {
+            req.getRequestDispatcher(s).forward(req, resp);
+            return;
+        }
         resp.sendRedirect(req.getContextPath() + s);
     }
 

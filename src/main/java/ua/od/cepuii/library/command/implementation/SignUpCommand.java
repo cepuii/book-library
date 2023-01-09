@@ -26,6 +26,7 @@ public class SignUpCommand implements ActionCommand {
       session.setAttribute("user", email);
       path = ConfigurationManager.getProperty("path.page.main");
     } else {
+
       request.setAttribute("errorLoginPassMessage", MessageManager.getProperty("message.signuperror"));
       path = ConfigurationManager.getProperty("path.page.signup");
     }

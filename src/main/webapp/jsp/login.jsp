@@ -22,12 +22,10 @@
         </label>
         <br/>
 
+        ${requestScope.errorLoginPassMessage}
+        ${requestScope.wrongAction}
+        ${requestScope.nullPage}
 
-        ${errorLoginPassMessage}
-
-
-        ${wrongAction}
-        ${nullPage}
         <br/>
         <input type="submit"
                formaction="${pageContext.request.contextPath}/controller?command=login"
