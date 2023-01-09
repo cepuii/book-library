@@ -1,20 +1,28 @@
 package ua.od.cepuii.library.repository.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
+import ua.od.cepuii.library.dto.BookFilterParam;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
+import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.AuthorRepository;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
 import ua.od.cepuii.library.repository.executor.DbExecutorImpl;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public class JdbcBookRepository implements BookRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(JdbcBookRepository.class);
 
     private final DbExecutor<Book> dbExecutor;
     private final ConnectionPool connectionPool;
@@ -29,10 +37,18 @@ public class JdbcBookRepository implements BookRepository {
             "book.date_publication b_date, book.total b_total " +
             "FROM book JOIN book_author ba ON book.id = ba.book_id " +
             "JOIN author a ON a.id = ba.author_id " +
-            "JOIN publication_type pt ON pt.id = book.publication_id ";
+            "JOIN publication_type pt ON pt.id = book.publication_id";
     private static final String SELECT_BY_ID = SELECT_ALL + "WHERE book.id=?;";
     private static final String SELECT_BY_TITLE = SELECT_ALL + " WHERE book.title LIKE ? ;";
     private static final String SELECT_ALL_BY_AUTHOR = SELECT_ALL + "WHERE a.name LIKE ? ;";
+    private static final String SELECT_ALL_WITH_LIMIT = "";
+    private static final String ORDER_BY = " ORDER BY ?";
+    private static final String ORDER_BY_DESC = " ORDER BY ? DESC";
+    private static final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
+    private static final String COUNT_SELECT_ALL_FILTER = "SELECT count(*) FROM book " +
+            "JOIN book_author ba on book.id = ba.book_id " +
+            "JOIN author a on a.id = ba.author_id " +
+            "WHERE title LIKE ? AND a.name LIKE ? ";
 
     public JdbcBookRepository(DbExecutor<Book> dbExecutor, ConnectionPool connectionPool) {
         this.dbExecutor = dbExecutor;
@@ -83,13 +99,12 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Collection<Book> getAll() throws SQLException {
+    public Collection<Book> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
+        String query = SELECT_ALL + (descending ? ORDER_BY_DESC : ORDER_BY) + LIMIT_OFFSET;
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, SELECT_ALL, RepositoryUtil::fillBooks);
+            return dbExecutor.executeSelectAll(connection, query, orderBy, limit, offset, RepositoryUtil::fillBooks);
         }
     }
-
-
 
 
     @Override
@@ -112,6 +127,33 @@ public class JdbcBookRepository implements BookRepository {
     public Collection<Book> getByAuthor(String author) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeSelectAllByParam(connection, SELECT_ALL_BY_AUTHOR, prepareForLike(author), RepositoryUtil::fillBooks);
+        }
+    }
+
+    @Override
+    public Collection<Book> getAllWithLimit(int limit, int offset) throws SQLException {
+        try (Connection connection = connectionPool.getConnection()) {
+            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL_WITH_LIMIT, limit, offset, RepositoryUtil::fillBooks);
+        }
+    }
+
+    @Override
+    public int getCount(BookFilterParam filterParam) {
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(COUNT_SELECT_ALL_FILTER)) {
+            String titleForSearch = prepareForLike(validateForLike(filterParam.getTitle()));
+            String authorForSearch = prepareForLike(validateForLike(filterParam.getAuthor()));
+            statement.setString(1, titleForSearch);
+            statement.setString(2, authorForSearch);
+            log.debug(statement.toString());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RepositoryException("failed to get number of records", e);
         }
     }
 }

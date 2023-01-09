@@ -9,6 +9,12 @@
         </File>
     </Appenders>
     <Loggers>
+        <Logger name="com.zaxxer.hikari.HikariConfig" level="ALL">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.postgresql.ds.PGSimpleDataSource" level="ALL">
+            <AppenderRef ref="Console"/>
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="FileLog"/>

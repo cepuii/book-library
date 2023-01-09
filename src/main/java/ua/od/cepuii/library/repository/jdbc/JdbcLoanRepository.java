@@ -55,9 +55,9 @@ public class JdbcLoanRepository implements LoanRepository {
     }
 
     @Override
-    public Collection<Loan> getAll() throws SQLException {
+    public Collection<Loan> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, SELECT_ALL, RepositoryUtil::fillLoans);
+            return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillLoans);
         }
     }
 }

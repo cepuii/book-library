@@ -22,8 +22,9 @@ public interface DbExecutor<T extends AbstractEntity> {
 
     boolean executeDelete(Connection connection, String sql, long id) throws SQLException;
 
-    Collection<T> executeSelectAll(Connection connection, String sql, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
+    Collection<T> executeSelectAll(Connection connection, String sql, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 
     Collection<T> executeSelectAllByParam(Connection connection, String sql, String param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 
+    Collection<T> executeSelectAllWithLimit(Connection connection, String sql, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 }

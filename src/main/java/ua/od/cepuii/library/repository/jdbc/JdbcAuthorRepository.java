@@ -82,9 +82,9 @@ public class JdbcAuthorRepository implements AuthorRepository {
     }
 
     @Override
-    public Collection<Author> getAll() throws SQLException {
+    public Collection<Author> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, SELECT_ALL, RepositoryUtil::fillAuthors);
+            return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillAuthors);
         }
     }
 }

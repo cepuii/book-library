@@ -23,6 +23,7 @@ public class Controller extends HttpServlet {
         log.info("do get");
         String s = processRequest(req, resp);
         req.getRequestDispatcher(s).forward(req, resp);
+
     }
 
     @Override
@@ -32,13 +33,13 @@ public class Controller extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + s);
     }
 
-    private String processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private String processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ActionFactory client = new ActionFactory();
         ActionCommand command = client.defineCommand(request);
-        log.info(String.format("make command: %s", command.getClass().getSimpleName()));
+        log.info("make command: {}", command.getClass().getSimpleName());
         String page = command.execute(request, response);
         if (page != null) {
-            log.info(String.format("go to page: %s", page));
+            log.info("go to page: {}", page);
 //            RequestDispatcher dispatcher = request.getRequestDispatcher(page);
 //            dispatcher.forward(request, response);
         } else {

@@ -2,6 +2,8 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.od.cepuii.library.dto.BookFilterParam;
+import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.RepositoryFactory;
@@ -30,7 +32,7 @@ public class BookService {
 
     public Collection<Book> findBy(String fieldName, String value) throws SQLException {
         Collection<Book> books;
-        log.info("get by %s with param: %s", fieldName, value);
+        log.info(String.format("get by %s with param: %s", fieldName, value));
         if (fieldName.equals("title")) {
             books = bookRepository.getByTitle(value);
         } else {
@@ -40,7 +42,19 @@ public class BookService {
         return books;
     }
 
-    public Collection<Book> getAll(int currentPage) throws SQLException {
-        return bookRepository.getAll();
+    public int getPageSettings(Page page, BookFilterParam filterParam) {
+        int recordsCount = bookRepository.getCount(filterParam);
+        log.info("get records amount: {}", recordsCount);
+        return recordsCount / page.getNoOfRecords();
+    }
+
+    public Collection<Book> getAll(String orderBy, boolean descending, Page currentPage) throws SQLException {
+        if (orderBy == null) {
+            orderBy = "b_title";
+        }
+        int limit = currentPage.getNoOfRecords();
+        int offset = currentPage.getCurrentPage() * (currentPage.getCurrentPage());
+        log.info(String.format("getAll books: order %s, descending %b, limit %d , offset %d", orderBy, descending, limit, offset));
+        return bookRepository.getAll(orderBy, descending, limit, offset);
     }
 }

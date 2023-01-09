@@ -16,5 +16,5 @@ public interface AbstractEntityRepository<T extends AbstractEntity> {
 
     boolean delete(long id) throws SQLException;
 
-    Collection<T> getAll() throws SQLException;
+    Collection<T> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException;
 }

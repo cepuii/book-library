@@ -68,6 +68,17 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
+    public Collection<T> executeSelectAllWithLimit(Connection connection, String sql, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, limit);
+            preparedStatement.setInt(2, offset);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                return rsHandler.apply(rs);
+            }
+        }
+    }
+
+    @Override
     public boolean executeUpdate(Connection connection, String sql, List<Object> params) throws SQLException {
         Savepoint savepoint = connection.setSavepoint("UpdateSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -97,10 +108,14 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAll(Connection connection, String sql, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet rs = preparedStatement.executeQuery()) {
-            return rsHandler.apply(rs);
+    public Collection<T> executeSelectAll(Connection connection, String sql, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, orderBy);
+            preparedStatement.setInt(2, limit);
+            preparedStatement.setInt(3, offset);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                return rsHandler.apply(rs);
+            }
         }
     }
 }
