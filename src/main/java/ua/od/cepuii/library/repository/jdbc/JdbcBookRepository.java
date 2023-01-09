@@ -145,7 +145,7 @@ public class JdbcBookRepository implements BookRepository {
             String authorForSearch = prepareForLike(validateForLike(filterParam.getAuthor()));
             statement.setString(1, titleForSearch);
             statement.setString(2, authorForSearch);
-            log.debug(statement.toString());
+            log.info(statement.toString());
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);

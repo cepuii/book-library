@@ -73,19 +73,35 @@
             </c:forEach>
             </tbody>
         </table>
+        <%--        TODO first prev next last  --%>
         <ul class="pagination justify-content-center" style="margin:20px 0">
-            <li class="page-item"><a class="page-link"
-                                     href="controller?command=empty_command&currentPage=${requestScope.currentPage-1}"><fmt:message
-                    key="main.prev"/></a></li>
-            <li class="page-item"><a class="page-link"
-                                     href="controller?command=empty_command&currentPage=${requestScope.currentPage+1}"><fmt:message
-                    key="main.next"/></a></li>
+
+            <c:if test="${sessionScope.page.currentPage ne 1}">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/controller?command=empty_command&currentPage=${sessionScope.page.currentPage-1}">
+                        <fmt:message key="main.prev"/></a>
+                </li>
+            </c:if>
+            <c:forEach begin="1" end="${sessionScope.page.pageAmount}" varStatus="loop">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/controller?command=empty_command&currentPage=${loop.index}">
+                            ${loop.index}</a>
+                </li>
+            </c:forEach>
+            <c:if test="${sessionScope.page.currentPage ne sessionScope.page.pageAmount}">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/controller?command=empty_command&currentPage=${sessionScope.page.currentPage+1}">
+                        <fmt:message key="main.next"/></a>
+                </li>
+            </c:if>
         </ul>
     </div>
 
 
-    <a href="
-            ${pageContext.request.contextPath}/controller?command=logout">Logout</a>
+    <a href="${pageContext.request.contextPath}/controller?command=logout">Logout</a>
 </div>
 </body>
 </html>

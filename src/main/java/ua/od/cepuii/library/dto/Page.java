@@ -1,9 +1,24 @@
 package ua.od.cepuii.library.dto;
 
-public class Page {
+import java.io.Serializable;
+
+public class Page implements Serializable {
 
     private int currentPage;
     private int noOfRecords;
+    private int pageAmount;
+
+    public Page() {
+    }
+
+    @Override
+    public String toString() {
+        return "Page{" +
+                "currentPage=" + currentPage +
+                ", noOfRecords=" + noOfRecords +
+                ", pageAmount=" + pageAmount +
+                '}';
+    }
 
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
@@ -17,7 +32,6 @@ public class Page {
         this.pageAmount = pageAmount;
     }
 
-    private int pageAmount;
 
     public Page(Builder b) {
         this.currentPage = b.currentPage;

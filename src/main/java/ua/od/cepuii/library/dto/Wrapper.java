@@ -5,26 +5,18 @@ import ua.od.cepuii.library.util.ValidationUtil;
 
 public class Wrapper {
 
-    public static Page getCurrentPage(HttpServletRequest request) {
-        String currentPageString = request.getParameter("currentPage");
-        String noOfRecordsString = request.getParameter("noOfRecords");
-        String lastPage = request.getParameter("lastPage");
-        int currentPage = 0;
-        int noOfRecords = 0;
-        int pageAmount = 0;
-        if (ValidationUtil.isInteger(currentPageString)) {
-            currentPage = Integer.parseInt(currentPageString);
+    public static Page getPageFromSession(HttpServletRequest request) {
+        Page page = (Page) request.getSession().getAttribute("page");
+        if (page == null) {
+            page = new Page.Builder()
+                    .currentPage(0)
+                    .noOfRecords(0)
+                    .build();
         }
-        if (ValidationUtil.isInteger(noOfRecordsString)) {
-            noOfRecords = Integer.parseInt(noOfRecordsString);
+        String currentPage = request.getParameter("currentPage");
+        if (ValidationUtil.isInteger(currentPage)) {
+            page.setCurrentPage(Integer.parseInt(currentPage));
         }
-        if (ValidationUtil.isInteger(lastPage)) {
-            pageAmount = Integer.parseInt(lastPage);
-        }
-        return new Page.Builder()
-                .currentPage(currentPage)
-                .noOfRecords(noOfRecords)
-                .pageAmount(pageAmount)
-                .build();
+        return page;
     }
 }

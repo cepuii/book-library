@@ -43,9 +43,10 @@ public class BookService {
     }
 
     public int getPageSettings(Page page, BookFilterParam filterParam) {
-        int recordsCount = bookRepository.getCount(filterParam);
-        log.info("get records amount: {}", recordsCount);
-        return recordsCount / page.getNoOfRecords();
+        int recordsAmount = bookRepository.getCount(filterParam);
+        int pageAmount = (int) Math.ceil((recordsAmount * 1.0) / page.getNoOfRecords());
+        log.info("get records amount: {}", pageAmount);
+        return pageAmount;
     }
 
     public Collection<Book> getAll(String orderBy, boolean descending, Page currentPage) throws SQLException {
