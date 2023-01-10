@@ -49,13 +49,12 @@ public class BookService {
         return pageAmount;
     }
 
-    public Collection<Book> getAll(String orderBy, boolean descending, Page currentPage) throws SQLException {
-        if (orderBy == null) {
-            orderBy = "b_title";
-        }
+    public Collection<Book> getAll(Page currentPage, BookFilterParam filterParam) throws SQLException {
+        String orderBy = filterParam.getOrderBy() + (filterParam.isDescending() ? " DESC" : "");
         int limit = currentPage.getNoOfRecords();
-        int offset = currentPage.getCurrentPage() * (currentPage.getCurrentPage());
-        log.info(String.format("getAll books: order %s, descending %b, limit %d , offset %d", orderBy, descending, limit, offset));
-        return bookRepository.getAll(orderBy, descending, limit, offset);
+        int offset = currentPage.getNoOfRecords() * (currentPage.getCurrentPage() - 1);
+        log.info(String.format("getAll books:filter %s ; %s order %s, descending %b, limit %d , offset %d",
+                filterParam.getTitle(), filterParam.getAuthor(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset));
+        return bookRepository.getAllWithFilter(orderBy, filterParam.isDescending(), limit, offset, filterParam);
     }
 }

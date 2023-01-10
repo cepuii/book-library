@@ -1,5 +1,7 @@
 package ua.od.cepuii.library.repository.executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.entity.AbstractEntity;
 
 import java.sql.*;
@@ -10,12 +12,15 @@ import java.util.function.Function;
 
 public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
 
+    private static final Logger log = LoggerFactory.getLogger(DbExecutorImpl.class);
+
     @Override
     public long executeInsert(Connection connection, String sql, List<Object> params) throws SQLException {
         Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(params, preparedStatement);
             preparedStatement.executeUpdate();
+            log.info(preparedStatement.toString());
             try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
                 rs.next();
                 long id = rs.getLong("id");
@@ -35,6 +40,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
             setParams(params, preparedStatement);
             preparedStatement.execute();
             connection.commit();
+            log.info(preparedStatement.toString());
         } catch (SQLException e) {
             connection.rollback(savepoint);
             throw e;
@@ -51,6 +57,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     public Optional<T> executeSelect(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
+            log.info(preparedStatement.toString());
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
             }
@@ -61,6 +68,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     public Collection<T> executeSelectAllByParam(Connection connection, String sql, String param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, param);
+            log.info(preparedStatement.toString());
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
             }
@@ -68,10 +76,13 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllWithLimit(Connection connection, String sql, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> executeSelectAllWithLimit(Connection connection, String sql, String titleFilter, String authorFilter, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, limit);
-            preparedStatement.setInt(2, offset);
+            preparedStatement.setString(1, titleFilter);
+            preparedStatement.setString(2, authorFilter);
+            preparedStatement.setInt(3, limit);
+            preparedStatement.setInt(4, offset);
+            log.info(preparedStatement.toString());
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
             }
@@ -85,6 +96,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
             setParams(params, preparedStatement);
             boolean result = preparedStatement.executeUpdate() != 0;
             connection.commit();
+            log.info(preparedStatement.toString());
             return result;
         } catch (SQLException e) {
             connection.rollback(savepoint);

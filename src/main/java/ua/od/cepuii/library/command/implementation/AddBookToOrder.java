@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
+import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,12 @@ public class AddBookToOrder implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
+        String days = request.getParameter("days");
+        if (!ValidationUtil.isInteger(days)) {
+            log.error("wrong duration");
+            request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
+            return ConfigurationManager.getProperty("path.page.main") + ConfigurationManager.getProperty("path.page.forward");
+        }
         String loanItems1 = "loanItems";
         if (session.getAttribute(loanItems1) == null) {
             session.setAttribute(loanItems1, new HashSet<>());

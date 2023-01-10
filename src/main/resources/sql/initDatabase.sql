@@ -18,11 +18,12 @@ CREATE TABLE publication_type
 
 CREATE TABLE book
 (
-    id               BIGINT DEFAULT nextval('global_seq') PRIMARY KEY,
-    title            VARCHAR NOT NULL,
-    publication_id   INTEGER NOT NULL,
-    date_publication INTEGER NOT NULL,
-    total            INTEGER NOT NULL,
+    id               BIGINT  DEFAULT nextval('global_seq') PRIMARY KEY,
+    title            VARCHAR           NOT NULL,
+    publication_id   INTEGER           NOT NULL,
+    date_publication INTEGER           NOT NULL,
+    total            INTEGER           NOT NULL,
+    noOfBorrow       INTEGER DEFAULT 0 NOT NULL,
 
     FOREIGN KEY (publication_id) REFERENCES publication_type (id) ON DELETE CASCADE
 );

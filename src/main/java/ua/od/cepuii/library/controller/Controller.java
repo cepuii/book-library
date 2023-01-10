@@ -31,6 +31,7 @@ public class Controller extends HttpServlet {
         log.info("do post");
         String s = processRequest(req, resp);
         if (s.endsWith("forward=true")) {
+            log.info("post forward");
             req.getRequestDispatcher(s).forward(req, resp);
             return;
         }

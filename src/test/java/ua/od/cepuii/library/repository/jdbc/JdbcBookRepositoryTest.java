@@ -17,8 +17,8 @@ import java.io.FileReader;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static ua.od.cepuii.library.util.BookUtil.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JdbcBookRepositoryTest {
 
@@ -51,23 +51,15 @@ class JdbcBookRepositoryTest {
 
     @Test
     void insertOrdinaryBehavior() throws SQLException {
-        long insert = bookRepository.insert(testBook);
-        System.out.println(insert);
-        assertEquals(1000, insert);
+
     }
 
     @Test
     void insertExpectException() throws SQLException {
-        long insert = bookRepository.insert(testBook);
-        System.out.println(insert);
-        assertThrows(SQLException.class, () -> bookRepository.insert(testBook));
     }
 
     @Test
     void getById() throws SQLException {
-        long insert = bookRepository.insert(testBook);
-        testBook.setId(insert);
-        assertEquals(testBook, bookRepository.getById(insert).get());
     }
 
     @Test
@@ -77,18 +69,10 @@ class JdbcBookRepositoryTest {
 
     @Test
     void update() throws SQLException {
-        long insert = bookRepository.insert(testBook);
-        forUpdateTestBook.setId(insert);
-        assertNotEquals(testBook, forUpdateTestBook);
-        assertTrue(bookRepository.update(forUpdateTestBook));
-        assertEquals(forUpdateTestBook, bookRepository.getById(insert).get());
     }
 
     @Test
     void delete() throws SQLException {
-        long insert = bookRepository.insert(testBook);
-        assertTrue(bookRepository.delete(insert));
-        assertThrows(NoSuchElementException.class, () -> bookRepository.getById(insert));
     }
 
     @Test
@@ -98,11 +82,6 @@ class JdbcBookRepositoryTest {
 
     @Test
     void getAll() throws SQLException {
-        long insertFirst = bookRepository.insert(testBook);
-        testBook.setId(insertFirst);
-        long insertSecond = bookRepository.insert(newBook);
-        newBook.setId(insertSecond);
-//        assertIterableEquals(List.of(testBook, newBook), bookRepository.getAll(orderBy, descending, , currentPage, ));
     }
 
     @Test

@@ -3,8 +3,8 @@ package ua.od.cepuii.library.entity;
 import ua.od.cepuii.library.entity.enums.PublicationType;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public class Book extends AbstractEntity implements Serializable {
 
@@ -12,23 +12,25 @@ public class Book extends AbstractEntity implements Serializable {
     private String title;
     private PublicationType publicationType;
     private int datePublication;
-    private Set<Author> authorSet;
-    private int total;
+    private List<Author> authorSet;
 
     public Book() {
     }
 
-    public Book(long id, String title, PublicationType publicationType, int datePublication, Set<Author> authorSet, int total) {
+    public Book(long id, String title, PublicationType publicationType, int datePublication, List<Author> authorSet) {
         super(id);
         this.title = title;
         this.publicationType = publicationType;
         this.datePublication = datePublication;
         this.authorSet = authorSet;
-        this.total = total;
     }
 
-    public Book(String title, PublicationType publicationType, int datePublication, Set<Author> authorSet, int total) {
-        this(0, title, publicationType, datePublication, authorSet, total);
+    public Book(String title, PublicationType publicationType, int datePublication, List<Author> authorSet) {
+        this(0, title, publicationType, datePublication, authorSet);
+    }
+
+    public Book(Builder builder) {
+        this(builder.id, builder.title, builder.type, builder.datePublication, builder.authorSet);
     }
 
     public String getTitle() {
@@ -55,21 +57,15 @@ public class Book extends AbstractEntity implements Serializable {
         this.datePublication = datePublication;
     }
 
-    public Set<Author> getAuthorSet() {
+    public List<Author> getAuthorSet() {
         return authorSet;
     }
 
-    public void setAuthorSet(Set<Author> authorSet) {
+    public void setAuthorSet(List<Author> authorSet) {
         this.authorSet = authorSet;
     }
 
-    public int getTotal() {
-        return total;
-    }
 
-    public void setTotal(int total) {
-        this.total = total;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -80,7 +76,6 @@ public class Book extends AbstractEntity implements Serializable {
         Book book = (Book) o;
 
         if (datePublication != book.datePublication) return false;
-        if (total != book.total) return false;
         if (!Objects.equals(title, book.title)) return false;
         if (publicationType != book.publicationType) return false;
         return Objects.equals(authorSet, book.authorSet);
@@ -93,7 +88,6 @@ public class Book extends AbstractEntity implements Serializable {
         result = 31 * result + (publicationType != null ? publicationType.hashCode() : 0);
         result = 31 * result + datePublication;
         result = 31 * result + (authorSet != null ? authorSet.hashCode() : 0);
-        result = 31 * result + total;
         return result;
     }
 
@@ -104,7 +98,43 @@ public class Book extends AbstractEntity implements Serializable {
                 ", publication='" + publicationType + '\'' +
                 ", date_publication=" + datePublication +
                 ", authorSet=" + authorSet +
-                ", noTotal=" + total +
                 '}';
+    }
+
+    public static class Builder {
+        private long id;
+        private String title;
+        private PublicationType type;
+        private int datePublication;
+        private List<Author> authorSet;
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder setType(PublicationType type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder setDatePublication(int datePublication) {
+            this.datePublication = datePublication;
+            return this;
+        }
+
+        public Builder setAuthorSet(List<Author> authorSet) {
+            this.authorSet = authorSet;
+            return this;
+        }
+
+        public Book build() {
+            return new Book(this);
+        }
     }
 }

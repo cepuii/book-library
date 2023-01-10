@@ -33,19 +33,26 @@ public class JdbcBookRepository implements BookRepository {
     private static final String INSERT_BOOK_AUTHORS = "INSERT INTO book_author (book_id, author_id) VALUES (?,?);";
     private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?;";
     private static final String UPDATE = "UPDATE book SET title=?, publication_id=?, date_publication=?, total=? WHERE id=?";
-    private static final String SELECT_ALL = "SELECT book.id b_id, book.title b_title,a.id a_id,a.name a_name, pt.type pt_name, " +
-            "book.date_publication b_date, book.total b_total " +
-            "FROM book JOIN book_author ba ON book.id = ba.book_id " +
-            "JOIN author a ON a.id = ba.author_id " +
-            "JOIN publication_type pt ON pt.id = book.publication_id";
+    private static final String SELECT_ALL = "SELECT * " +
+            "FROM (SELECT book.id                     b_id, " +
+            "             book.title                  b_title, " +
+            "             pt.type                     pt_name, " +
+            "             book.date_publication       b_date, " +
+            "             string_agg(a.name, ', ') as authors " +
+            "      FROM book " +
+            "               JOIN book_author ba ON book.id = ba.book_id " +
+            "               JOIN author a ON a.id = ba.author_id " +
+            "               JOIN publication_type pt ON pt.id = book.publication_id " +
+            "      WHERE book.title LIKE ? " +
+            "      GROUP BY book.id, book.title, pt.type " +
+            "      ORDER BY ";
+    private static final String SELECT_ALL_PART2 = ") as bbap " +
+            "WHERE authors LIKE ? " +
+            "LIMIT ? OFFSET ?;";
     private static final String SELECT_BY_ID = SELECT_ALL + "WHERE book.id=?;";
     private static final String SELECT_BY_TITLE = SELECT_ALL + " WHERE book.title LIKE ? ;";
     private static final String SELECT_ALL_BY_AUTHOR = SELECT_ALL + "WHERE a.name LIKE ? ;";
-    private static final String SELECT_ALL_WITH_LIMIT = "";
-    private static final String ORDER_BY = " ORDER BY ?";
-    private static final String ORDER_BY_DESC = " ORDER BY ? DESC";
-    private static final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
-    private static final String COUNT_SELECT_ALL_FILTER = "SELECT count(*) FROM book " +
+    private static final String COUNT_SELECT_ALL_FILTER = "SELECT count(DISTINCT title) FROM book " +
             "JOIN book_author ba on book.id = ba.book_id " +
             "JOIN author a on a.id = ba.author_id " +
             "WHERE title LIKE ? AND a.name LIKE ? ";
@@ -62,7 +69,7 @@ public class JdbcBookRepository implements BookRepository {
             connection.setSavepoint();
             try {
                 long bookId = dbExecutor.executeInsert(connection, INSERT_BOOK, List.of(book.getTitle(),
-                        book.getPublicationType().ordinal(), book.getDatePublication(), book.getTotal()));
+                        book.getPublicationType().ordinal(), book.getDatePublication()));
                 for (Author author : book.getAuthorSet()) {
                     long authorId = authorRepository.insert(author);
                     dbExecutor.executeInsertWithoutGeneratedKey(connection, INSERT_BOOK_AUTHORS, List.of(bookId, authorId));
@@ -87,7 +94,7 @@ public class JdbcBookRepository implements BookRepository {
     public boolean update(Book book) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeUpdate(connection, UPDATE, List.of(book.getTitle(),
-                    book.getPublicationType().ordinal(), book.getDatePublication(), book.getTotal(), book.getId()));
+                    book.getPublicationType().ordinal(), book.getDatePublication(), book.getId()));
         }
     }
 
@@ -100,7 +107,7 @@ public class JdbcBookRepository implements BookRepository {
 
     @Override
     public Collection<Book> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
-        String query = SELECT_ALL + (descending ? ORDER_BY_DESC : ORDER_BY) + LIMIT_OFFSET;
+        String query = SELECT_ALL;
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeSelectAll(connection, query, orderBy, limit, offset, RepositoryUtil::fillBooks);
         }
@@ -131,9 +138,11 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Collection<Book> getAllWithLimit(int limit, int offset) throws SQLException {
+    public Collection<Book> getAllWithFilter(String orderBy, boolean descending, int limit, int offset, BookFilterParam filterParam) throws SQLException {
+        String titleFilter = prepareForLike(validateForLike(filterParam.getTitle()));
+        String authorFilter = prepareForLike(validateForLike(filterParam.getAuthor()));
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL_WITH_LIMIT, limit, offset, RepositoryUtil::fillBooks);
+            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, titleFilter, authorFilter, orderBy, limit, offset, RepositoryUtil::fillBooks);
         }
     }
 

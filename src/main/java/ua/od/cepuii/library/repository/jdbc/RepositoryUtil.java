@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RepositoryUtil {
 
@@ -22,27 +23,29 @@ public class RepositoryUtil {
 
 
     public static Collection<Book> fillBooks(ResultSet resultSet) {
-        Map<Long, Book> bookMap = new HashMap<>();
+        Collection<Book> books = new ArrayList<>();
         while (true) {
             try {
                 if (!resultSet.next()) break;
                 long id = resultSet.getLong("b_id");
-                if (!bookMap.containsKey(id)) {
-                    Book book = new Book(id,
-                            resultSet.getString("b_title"),
-                            PublicationType.valueOf(resultSet.getString("pt_name")),
-                            resultSet.getInt("b_date"),
-                            new HashSet<>(List.of(fillAuthor(resultSet).get())),
-                            resultSet.getInt("b_total"));
-                    bookMap.put(id, book);
-                } else {
-                    bookMap.get(id).getAuthorSet().add(fillAuthor(resultSet).get());
-                }
+                Book book = new Book.Builder()
+                        .setId(id)
+                        .setTitle(resultSet.getString("b_title"))
+                        .setType(PublicationType.valueOf(resultSet.getString("pt_name")))
+                        .setDatePublication(resultSet.getInt("b_date"))
+                        .setAuthorSet(fillAuthorsFromString(resultSet.getString("authors")))
+                        .build();
+
+                books.add(book);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        return bookMap.values();
+        return books;
+    }
+
+    private static List<Author> fillAuthorsFromString(String authors) {
+        return Arrays.stream(authors.split(", ")).map(Author::new).collect(Collectors.toList());
     }
 
     public static Collection<Author> fillAuthors(ResultSet resultSet) {

@@ -12,7 +12,7 @@ public interface BookRepository extends AbstractEntityRepository<Book> {
 
     Collection<Book> getByAuthor(String author) throws SQLException;
 
-    Collection<Book> getAllWithLimit(int limit, int offset) throws SQLException;
+    Collection<Book> getAllWithFilter(String orderBy, boolean descending, int limit, int offset, BookFilterParam filterParam) throws SQLException;
 
     int getCount(BookFilterParam filterParam);
 }

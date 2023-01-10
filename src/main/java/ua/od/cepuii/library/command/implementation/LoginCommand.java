@@ -35,7 +35,7 @@ public class LoginCommand implements ActionCommand {
             log.info("error incorrect login");
             request.setAttribute("errorLoginPassMessage",
                     MessageManager.getProperty("message.loginerror"));
-            page = ConfigurationManager.getProperty("path.page.loginGet");
+            page = ConfigurationManager.getProperty("path.page.login") + ConfigurationManager.getProperty("path.page.forward");
         }
         return page;
     }
