@@ -9,8 +9,6 @@
     <short-name>ctg</short-name>
     <uri>customtag</uri>
 
-    <!-- Invoke 'Generate' action to add tags or functions -->
-
     <tag>
         <name>isContain</name>
         <tag-class>ua.od.cepuii.library.tld.IsContainCustomTag</tag-class>

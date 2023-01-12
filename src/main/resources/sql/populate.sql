@@ -1,5 +1,5 @@
-INSERT INTO users (email, password)
-VALUES ('ivan@email', 'qwerty');
+INSERT INTO users (email, password, role_id)
+VALUES ('ivan@email', 'qwerty', 1);
 
 INSERT INTO author
 VALUES (DEFAULT, 'blinov'),

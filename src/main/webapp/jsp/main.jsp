@@ -7,8 +7,6 @@
 --%>
 <%@ include file="/jsp/frgments/pageSettings.jspf" %>
 <%@ include file="/jsp/frgments/taglibs.jspf" %>
-<fmt:setBundle basename="text"/>
-<fmt:setLocale value="${sessionScope.lang}" scope="session"/>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
@@ -24,14 +22,14 @@
 
 
     <div class="container">
-
         Books catalog
-        <c:if test="${empty sessionScope.books}">
+        <c:if test="${empty requestScope.data}">
             <jsp:include page="/controller?command=empty_command&currentPage=1"/>
         </c:if>
         <div>
             <%--            https://getbootstrap.su/docs/5.0/forms/layout/--%>
-            <form action="controller?command=empty_command">
+            <form action="${pageContext.request.contextPath}/controller">
+                <input type="hidden" name="command" value="empty_command">
                 <input type="hidden" name="modified" value="true">
                 <label>
                     <fmt:message key="books.filter.title"/>
@@ -44,28 +42,33 @@
                 </label>
                 <%--                </div>--%>
                 <%--                <div class="col"><fmt:message key="books.sort.name"/>--%>
-                <select name="orderBy">
-                    <option value="b_title" ${sessionScope.filter.orderBy eq 'b_title' ? 'selected':''}><fmt:message
-                            key="books.sort.title"/></option>
-                    <option value="pt_name" ${sessionScope.filter.orderBy eq 'pt_name' ? 'selected':''}><fmt:message
-                            key="books.sort.type"/></option>
-                    <option value="b_date" ${sessionScope.filter.orderBy eq 'b_date' ? 'selected':''}><fmt:message
-                            key="books.sort.date"/></option>
-                    <option value="authors" ${sessionScope.filter.orderBy eq 'authors' ? 'selected':''}><fmt:message
-                            key="books.sort.author"/></option>
-                </select>
-                <select name="descending">
-                    <option value="false" ${sessionScope.filter.descending eq "false" ? "selected" : ""}>
-                        <fmt:message
-                                key="books.sort.asc"/></option>
-                    <option value="true" ${sessionScope.filter.descending eq "true" ? "selected" : ""}><fmt:message
-                            key="books.sort.desc"/></option>
-                </select>
+                <label>
+                    <select name="orderBy">
+                        <option value="b_title" ${sessionScope.filter.orderBy eq 'b_title' ? 'selected':''}><fmt:message
+                                key="books.sort.title"/></option>
+                        <option value="pt_name" ${sessionScope.filter.orderBy eq 'pt_name' ? 'selected':''}><fmt:message
+                                key="books.sort.type"/></option>
+                        <option value="b_date" ${sessionScope.filter.orderBy eq 'b_date' ? 'selected':''}><fmt:message
+                                key="books.sort.date"/></option>
+                        <option value="authors" ${sessionScope.filter.orderBy eq 'authors' ? 'selected':''}><fmt:message
+                                key="books.sort.author"/></option>
+                    </select>
+                </label>
+                <label>
+                    <select name="descending">
+                        <option value="false" ${sessionScope.filter.descending eq "false" ? "selected" : ""}>
+                            <fmt:message
+                                    key="books.sort.asc"/></option>
+                        <option value="true" ${sessionScope.filter.descending eq "true" ? "selected" : ""}><fmt:message
+                                key="books.sort.desc"/></option>
+                    </select>
+                </label>
                 <button type="submit"><fmt:message key="books.filter.button"/></button>
             </form>
         </div>
         <div class="justify-content-end">
-            <form action="controller?command=empty_command">
+            <form action="${pageContext.request.contextPath}/controller">
+                <input type="hidden" name="command" value="empty_command">
                 <input type="hidden" name="modified" value="true">
                 <input type="hidden" name="cleanFilter" value="true">
                 <button type="submit"><fmt:message key="books.filter.cansel"/></button>
@@ -85,52 +88,62 @@
             </thead>
             <tbody>
             <%--        <jsp:useBean id="book" class="ua.od.cepuii.library.entity.Book"/>--%>
-            <c:forEach var="book" items="${sessionScope.books}">
+            <c:forEach var="book" items="${requestScope.books}">
                 <tr>
                     <td>${book.title}</td>
                     <td>${book.publicationType}</td>
                     <td>${book.datePublication}</td>
                     <td>${book.authorSet}</td>
                     <td>
-                        <c:set var="testContain" scope="page">
-                            <ctg:isContain bookId="${book.id}"/>
-                        </c:set>
                         <c:choose>
-                            <c:when test="${testContain}">
-                                <form name="RemoveBookFromOrder" method="post"
-                                      action="${pageContext.request.contextPath}/controller">
-                                    <input type="hidden" name="command"
-                                           value="remove_book_from_order">
-                                    <input type="hidden" name="bookId" value="${book.id}">
-                                    <button class="btn-sm" type="submit">
-                                        <small>
-                                            <fmt:message key="books.order.remove"/>
-                                        </small>
-                                    </button>
-                                </form>
+                            <c:when test="${sessionScope.userRole eq 'READER'}">
+                                <c:set var="testContain" scope="page">
+                                    <ctg:isContain bookId="${book.id}"/>
+                                </c:set>
+                                <c:choose>
+                                    <c:when test="${testContain}">
+                                        <form name="RemoveBookFromOrder" method="post"
+                                              action="${pageContext.request.contextPath}/controller">
+                                            <input type="hidden" name="command"
+                                                   value="remove_book_from_order">
+                                            <input type="hidden" name="bookId" value="${book.id}">
+                                            <button class="btn-sm" type="submit">
+                                                <small>
+                                                    <fmt:message key="books.order.inOrder"/>
+                                                </small>
+                                            </button>
+                                        </form>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <form name="AddBookToOrder" method="post"
+                                              action="${pageContext.request.contextPath}/controller">
+                                            <input type="hidden" name="command" value="add_book_to_order">
+                                            <input type="hidden" name="bookId" value="${book.id}">
+                                            <input type="hidden" name="book" value="${book}">
+                                            <div class="input-group-sm">
+                                                <label>
+                                                    <select class="form-select-sm" name="days">
+                                                        <option selected><fmt:message
+                                                                key="books.order.choose"/></option>
+                                                        <option value="1"><fmt:message
+                                                                key="books.order.oneDay"/></option>
+                                                        <option value="7"><fmt:message
+                                                                key="books.order.oneWeek"/></option>
+                                                        <option value="30"><fmt:message
+                                                                key="books.order.oneMonth"/></option>
+                                                    </select>
+                                                </label>
+                                                <button class="btn-sm" type="submit">
+                                                    <small>
+                                                        <fmt:message key="books.order.button"/>
+                                                    </small>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </c:otherwise>
+                                </c:choose>
+
                             </c:when>
-                            <c:otherwise>
-                                <form name="AddBookToOrder" method="post"
-                                      action="${pageContext.request.contextPath}/controller">
-                                    <input type="hidden" name="command" value="add_book_to_order">
-                                    <input type="hidden" name="bookId" value="${book.id}">
-                                    <input type="hidden" name="book" value="${book}">
-                                    <div class="input-group-sm">
-                                        <select class="form-select-sm" name="days">
-                                            <option selected><small><fmt:message key="books.order.choose"/></small>
-                                            </option>
-                                            <option value="1"><fmt:message key="books.order.oneDay"/></option>
-                                            <option value="7"><fmt:message key="books.order.oneWeek"/></option>
-                                            <option value="30"><fmt:message key="books.order.oneMonth"/></option>
-                                        </select>
-                                        <button class="btn-sm" type="submit">
-                                            <small>
-                                                <fmt:message key="books.order.button"/>
-                                            </small>
-                                        </button>
-                                    </div>
-                                </form>
-                            </c:otherwise>
                         </c:choose>
                     </td>
                 </tr>
@@ -184,16 +197,16 @@
         </div>
     </div>
     ${requestScope.wrongDuration}
-    <c:if test="${not empty requestScope.wrongDuration}">
-        <div class="alert alert-danger d-flex align-items-center" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-                <use xlink:href="#exclamation-triangle-fill"/>
-            </svg>
-            <div>
-                    ${requestScope.wrongDuration}
-            </div>
-        </div>
-    </c:if>
+    <%--    <c:if test="${not empty requestScope.wrongDuration}">--%>
+    <%--        <div class="alert alert-danger d-flex align-items-center" role="alert">--%>
+    <%--            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">--%>
+    <%--                <use xlink:href="#exclamation-triangle-fill"/>--%>
+    <%--            </svg>--%>
+    <%--            <div>--%>
+    <%--                    ${requestScope.wrongDuration}--%>
+    <%--            </div>--%>
+    <%--        </div>--%>
+    <%--    </c:if>--%>
 
     <a href="${pageContext.request.contextPath}/controller?command=logout">Logout</a>
 </div>

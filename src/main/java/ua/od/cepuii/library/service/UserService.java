@@ -1,11 +1,12 @@
 package ua.od.cepuii.library.service;
 
-import java.sql.SQLException;
-import java.util.Optional;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.entity.enums.Role;
 import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
+
+import java.sql.SQLException;
+import java.util.Optional;
 
 public class UserService {
   
@@ -21,12 +22,12 @@ public class UserService {
     return insert;
   }
   
-  public long getUserByEmailAndPassword(String email, String password) {
-    Optional<User> byEmail = userRepository.getByEmail(email);
-    if (byEmail.isPresent() && byEmail.get().getPassword().equals(password)) {
-      return byEmail.get().getId();
-    }
-    return -1;
+  public User getUserByEmailAndPassword(String email, String password) {
+      Optional<User> byEmail = userRepository.getByEmail(email);
+      if (byEmail.isPresent() && byEmail.get().getPassword().equals(password)) {
+          return byEmail.get();
+      }
+      return null;
   }
   
   public boolean delete(long id) {

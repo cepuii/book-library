@@ -17,11 +17,12 @@ public class JdbcUserRepository implements UserRepository {
     private final DbExecutor<User> dbExecutor;
     private final ConnectionPool connectionPool;
     private static final String INSERT_USER = "INSERT INTO users (email, password, role_id) VALUES (?,?,?)";
-    private static final String SELECT_BY_ID = "SELECT id, email, password, registered, blocked, role_id FROM users WHERE id=?";
     private static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, blocked = ?, role_id = ?";
     private static final String DELETE_BY_ID = "DELETE FROM users WHERE id=?";
-    private static final String SELECT_ALL = "SELECT id, email, password, registered, blocked, role_id FROM users";
-    private static final String SELECT_BY_EMAIL = "SELECT id, email, password, registered, blocked, role_id FROM users WHERE email = ?";
+    private static final String SELECT_ALL = "SELECT users.id users_id, email, password, registered, blocked, ur.role role " +
+            "FROM users JOIN user_role ur on ur.id = users.role_id";
+    private static final String SELECT_BY_ID = SELECT_ALL + " WHERE id=?";
+    private static final String SELECT_BY_EMAIL = SELECT_ALL + " WHERE email = ?";
 
 
     public JdbcUserRepository(DbExecutor<User> dbExecutor, ConnectionPool connectionPool) {
@@ -54,7 +55,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public boolean delete(long id) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeDelete(connection, DELETE_BY_ID, id);
+            return dbExecutor.executeById(connection, DELETE_BY_ID, id);
         }
     }
 

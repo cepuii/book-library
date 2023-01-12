@@ -26,7 +26,6 @@ public class JdbcBookRepository implements BookRepository {
 
     private final DbExecutor<Book> dbExecutor;
     private final ConnectionPool connectionPool;
-
     private final AuthorRepository authorRepository;
     private static final String INSERT_BOOK = "INSERT INTO book (title, publication_id, date_publication, total)   " +
             "VALUES (?,?,?,?);";
@@ -34,18 +33,18 @@ public class JdbcBookRepository implements BookRepository {
     private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?;";
     private static final String UPDATE = "UPDATE book SET title=?, publication_id=?, date_publication=?, total=? WHERE id=?";
     private static final String SELECT_ALL = "SELECT * " +
-            "FROM (SELECT book.id                     b_id, " +
-            "             book.title                  b_title, " +
-            "             pt.type                     pt_name, " +
-            "             book.date_publication       b_date, " +
-            "             string_agg(a.name, ', ') as authors " +
-            "      FROM book " +
-            "               JOIN book_author ba ON book.id = ba.book_id " +
-            "               JOIN author a ON a.id = ba.author_id " +
-            "               JOIN publication_type pt ON pt.id = book.publication_id " +
-            "      WHERE book.title LIKE ? " +
-            "      GROUP BY book.id, book.title, pt.type " +
-            "      ORDER BY ";
+            "FROM (SELECT book.id b_id, " +
+            "book.title b_title, " +
+            "pt.type pt_name, " +
+            "book.date_publication b_date, " +
+            "string_agg(a.name, ', ') as authors " +
+            "FROM book " +
+            "JOIN book_author ba ON book.id = ba.book_id " +
+            "JOIN author a ON a.id = ba.author_id " +
+            "JOIN publication_type pt ON pt.id = book.publication_id " +
+            "WHERE (book.total - book.no_of_borrow) > 0 AND book.title LIKE ? " +
+            "GROUP BY book.id, book.title, pt.type " +
+            "ORDER BY ";
     private static final String SELECT_ALL_PART2 = ") as bbap " +
             "WHERE authors LIKE ? " +
             "LIMIT ? OFFSET ?;";
@@ -55,7 +54,7 @@ public class JdbcBookRepository implements BookRepository {
     private static final String COUNT_SELECT_ALL_FILTER = "SELECT count(DISTINCT title) FROM book " +
             "JOIN book_author ba on book.id = ba.book_id " +
             "JOIN author a on a.id = ba.author_id " +
-            "WHERE title LIKE ? AND a.name LIKE ? ";
+            "WHERE (book.total - book.no_of_borrow) > 0 AND title LIKE ? AND a.name LIKE ? ";
 
     public JdbcBookRepository(DbExecutor<Book> dbExecutor, ConnectionPool connectionPool) {
         this.dbExecutor = dbExecutor;
@@ -101,15 +100,14 @@ public class JdbcBookRepository implements BookRepository {
     @Override
     public boolean delete(long id) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeDelete(connection, DELETE_BOOK, id);
+            return dbExecutor.executeById(connection, DELETE_BOOK, id);
         }
     }
 
     @Override
     public Collection<Book> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
-        String query = SELECT_ALL;
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, query, orderBy, limit, offset, RepositoryUtil::fillBooks);
+            return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillBooks);
         }
     }
 
@@ -154,7 +152,6 @@ public class JdbcBookRepository implements BookRepository {
             String authorForSearch = prepareForLike(validateForLike(filterParam.getAuthor()));
             statement.setString(1, titleForSearch);
             statement.setString(2, authorForSearch);
-            log.info(statement.toString());
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);

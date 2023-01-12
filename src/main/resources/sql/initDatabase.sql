@@ -23,7 +23,7 @@ CREATE TABLE book
     publication_id   INTEGER           NOT NULL,
     date_publication INTEGER           NOT NULL,
     total            INTEGER           NOT NULL,
-    noOfBorrow       INTEGER DEFAULT 0 NOT NULL,
+    no_of_borrow     INTEGER DEFAULT 0 NOT NULL,
 
     FOREIGN KEY (publication_id) REFERENCES publication_type (id) ON DELETE CASCADE
 );

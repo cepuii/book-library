@@ -77,7 +77,7 @@ public class JdbcAuthorRepository implements AuthorRepository {
     @Override
     public boolean delete(long id) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeDelete(connection, DELETE_AUTHOR, id);
+            return dbExecutor.executeById(connection, DELETE_AUTHOR, id);
         }
     }
 

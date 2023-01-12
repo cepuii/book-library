@@ -1,19 +1,24 @@
 package ua.od.cepuii.library.dto;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ua.od.cepuii.library.entity.Loan;
+import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.util.ValidationUtil;
 
-public class Wrapper {
+public class RequestParser {
+    private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
 
-    private Wrapper() {
+    private RequestParser() {
     }
 
     public static Page getPageFromSession(HttpServletRequest request) {
         Page page = (Page) request.getSession().getAttribute("page");
         if (page == null) {
-            page = new Page.Builder()
-                    .currentPage(0)
-                    .noOfRecords(0)
+            page = Page.builder()
+                    .currentPage(1)
+                    .noOfRecords(5)
                     .build();
         }
         String currentPage = request.getParameter("currentPage");
@@ -48,5 +53,20 @@ public class Wrapper {
             bookFilterParam.setDescending(Boolean.parseBoolean(descending));
         }
         return bookFilterParam;
+    }
+
+    public static Loan getLoan(HttpServletRequest request) {
+        Loan loan = Loan.builder()
+                .userId((long) request.getSession().getAttribute("userId"))
+                .bookId(Long.parseLong(request.getParameter("bookId")))
+                .duration(Integer.parseInt(request.getParameter("days")))
+                .status(getStatus(request))
+                .build();
+        log.info("loan parse: {}", loan);
+        return loan;
+    }
+
+    private static LoanStatus getStatus(HttpServletRequest request) {
+        return request.getParameter("status") == null ? LoanStatus.RAW : LoanStatus.valueOf(request.getParameter("status"));
     }
 }

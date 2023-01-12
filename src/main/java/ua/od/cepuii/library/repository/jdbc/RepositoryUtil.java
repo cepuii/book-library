@@ -1,5 +1,7 @@
 package ua.od.cepuii.library.repository.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.entity.Loan;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class RepositoryUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(RepositoryUtil.class);
     private RepositoryUtil() {
     }
 
@@ -80,12 +83,12 @@ public class RepositoryUtil {
 
     private static Optional<User> getUser(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId(resultSet.getLong("id"));
+        user.setId(resultSet.getLong("users_id"));
         user.setEmail(resultSet.getString("email"));
         user.setPassword(resultSet.getString("password"));
         user.setDateTime(resultSet.getTimestamp("registered").toLocalDateTime());
         user.setEnabled(resultSet.getBoolean("blocked"));
-        user.setRole(Role.values()[resultSet.getInt("role_id")]);
+        user.setRole(Role.valueOf(resultSet.getString("role")));
         return Optional.of(user);
     }
 
@@ -112,10 +115,16 @@ public class RepositoryUtil {
     }
 
     private static Optional<Loan> getLoan(ResultSet resultSet) throws SQLException {
-        return Optional.of(new Loan(resultSet.getLong("id"), resultSet.getLong("user_id"),
-                resultSet.getLong("book_id"), toLocalDate(resultSet.getTimestamp("start_time")),
-                resultSet.getInt("duration"), LoanStatus.values()[resultSet.getInt("status_id")],
-                resultSet.getInt("fine")));
+        Loan loan = Loan.builder()
+                .bookId(resultSet.getInt("l_bookId"))
+                .userId(resultSet.getInt("l_userId"))
+                .startDate(toLocalDate(resultSet.getTimestamp("l_start_time")))
+                .duration(resultSet.getInt("l_duration"))
+                .bookInfo(resultSet.getString("b_title") + " ," + resultSet.getInt("b_date"))
+                .status(LoanStatus.valueOf(resultSet.getString("l_status")))
+                .build();
+        loan.setId(resultSet.getInt("l_id"));
+        return Optional.of(loan);
     }
 
     private static LocalDate toLocalDate(Timestamp startTime) {

@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.dto.BookFilterParam;
 import ua.od.cepuii.library.dto.Page;
-import ua.od.cepuii.library.dto.Wrapper;
+import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.BookService;
@@ -22,26 +22,27 @@ public class GetAllBooks implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        Page currentPage = Wrapper.getPageFromSession(request);
+        Page currentPage = RequestParser.getPageFromSession(request);
         if (request.getParameter("modified") != null) {
             currentPage.setPageAmount(0);
         }
-        BookFilterParam filterParam = Wrapper.getBookFilter(request);
+        BookFilterParam filterParam = RequestParser.getBookFilter(request);
         if (currentPage.getPageAmount() == 0) {
-            int pageAmount = bookService.getPageSettings(currentPage, filterParam);
+            int pageAmount = bookService.getPageAmount(currentPage, filterParam);
             currentPage.setPageAmount(pageAmount);
         }
         try {
             Collection<Book> books = bookService.getAll(currentPage, filterParam);
-            request.getSession().setAttribute("books", books);
+            request.setAttribute("books", books);
+            request.setAttribute("data", "receive");
             request.getSession().setAttribute("filter", filterParam);
             request.getSession().setAttribute("page", currentPage);
             log.info("page attributes {}", currentPage);
             log.info("filter attributes {}", filterParam);
             return ConfigurationManager.getProperty("path.page.main");
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            log.error(e.getMessage());
+            return ConfigurationManager.getProperty("path.page.error");
         }
     }
 }

@@ -20,7 +20,7 @@ public interface DbExecutor<T extends AbstractEntity> {
 
     boolean executeUpdate(Connection connection, String sql, List<Object> params) throws SQLException;
 
-    boolean executeDelete(Connection connection, String sql, long id) throws SQLException;
+    boolean executeById(Connection connection, String sql, long id) throws SQLException;
 
     Collection<T> executeSelectAll(Connection connection, String sql, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 

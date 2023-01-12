@@ -42,10 +42,11 @@ public class BookService {
         return books;
     }
 
-    public int getPageSettings(Page page, BookFilterParam filterParam) {
+    public int getPageAmount(Page page, BookFilterParam filterParam) {
         int recordsAmount = bookRepository.getCount(filterParam);
-        int pageAmount = (int) Math.ceil((recordsAmount * 1.0) / page.getNoOfRecords());
-        log.info("get records amount: {}", pageAmount);
+        log.info("get records amount: {}", recordsAmount);
+        int pageAmount = (recordsAmount % page.getNoOfRecords()) == 0 ? (recordsAmount / page.getNoOfRecords()) : (1 + (recordsAmount / page.getNoOfRecords()));
+        log.info("get page amount: {}", pageAmount);
         return pageAmount;
     }
 

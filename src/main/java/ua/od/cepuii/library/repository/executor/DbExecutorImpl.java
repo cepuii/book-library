@@ -16,20 +16,17 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
 
     @Override
     public long executeInsert(Connection connection, String sql, List<Object> params) throws SQLException {
-        Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(params, preparedStatement);
             preparedStatement.executeUpdate();
             log.info(preparedStatement.toString());
             try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
                 rs.next();
-                long id = rs.getLong("id");
-                connection.commit();
-                return id;
+                return rs.getLong("id");
             }
         } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
+            log.error(e.getMessage());
+            throw new SQLException(e);
         }
     }
 
@@ -106,7 +103,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
 
 
     @Override
-    public boolean executeDelete(Connection connection, String sql, long id) throws SQLException {
+    public boolean executeById(Connection connection, String sql, long id) throws SQLException {
         Savepoint savepoint = connection.setSavepoint("DeleteSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
@@ -115,16 +112,18 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
             return result;
         } catch (SQLException e) {
             connection.rollback(savepoint);
-            throw e;
+            log.info(e.getMessage());
+            throw new SQLException(e);
         }
     }
 
     @Override
     public Collection<T> executeSelectAll(Connection connection, String sql, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, orderBy);
+            preparedStatement.setInt(1, Integer.parseInt(orderBy));
             preparedStatement.setInt(2, limit);
             preparedStatement.setInt(3, offset);
+            log.info(preparedStatement.toString());
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
             }
