@@ -29,7 +29,7 @@ public class AddBookToOrder implements ActionCommand {
         if (!ValidationUtil.isInteger(days)) {
             log.error("wrong duration");
             request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
-            return ConfigurationManager.getProperty("path.page.main") + ConfigurationManager.getProperty("path.page.forward");
+            return ConfigurationManager.getProperty("path.page.main.forward");
         }
         String loanItems1 = "loanItems";
         if (session.getAttribute(loanItems1) == null) {

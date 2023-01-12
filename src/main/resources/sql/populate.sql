@@ -83,3 +83,6 @@ FROM ins
 UNION ALL
 SELECT id
 FROM val;
+
+INSERT INTO users (email, password, role_id)
+VALUES ('admin@admin', 'qwerty', 3);

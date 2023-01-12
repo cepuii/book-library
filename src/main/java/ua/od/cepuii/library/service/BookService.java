@@ -26,7 +26,6 @@ public class BookService {
     }
 
     public boolean delete(long id) throws SQLException {
-
         return bookRepository.delete(id);
     }
 

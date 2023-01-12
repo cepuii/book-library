@@ -20,13 +20,14 @@
 
     <jsp:include page="/jsp/frgments/bodyHeader.jsp"/>
 
-
     <div class="container">
         Books catalog
         <c:if test="${empty requestScope.data}">
-            <jsp:include page="/controller?command=empty_command&currentPage=1"/>
+            <jsp:include page="/controller?command=empty_command&currentPage=1&modifaed=true"/>
         </c:if>
+
         <div>
+            <%--sorting and filtering--%>
             <%--            https://getbootstrap.su/docs/5.0/forms/layout/--%>
             <form action="${pageContext.request.contextPath}/controller">
                 <input type="hidden" name="command" value="empty_command">
@@ -66,6 +67,8 @@
                 <button type="submit"><fmt:message key="books.filter.button"/></button>
             </form>
         </div>
+
+        <%--        cancel button--%>
         <div class="justify-content-end">
             <form action="${pageContext.request.contextPath}/controller">
                 <input type="hidden" name="command" value="empty_command">
@@ -75,6 +78,8 @@
             </form>
         </div>
         <hr/>
+
+        <%--        books catalog--%>
         <table class="table table-dark table-striped">
             <caption><fmt:message key="books.caption"/></caption>
             <thead>
@@ -87,7 +92,8 @@
             </tr>
             </thead>
             <tbody>
-            <%--        <jsp:useBean id="book" class="ua.od.cepuii.library.entity.Book"/>--%>
+
+            <%--            start loop by books--%>
             <c:forEach var="book" items="${requestScope.books}">
                 <tr>
                     <td>${book.title}</td>
@@ -96,6 +102,7 @@
                     <td>${book.authorSet}</td>
                     <td>
                         <c:choose>
+                            <%--buttons for READER--%>
                             <c:when test="${sessionScope.userRole eq 'READER'}">
                                 <c:set var="testContain" scope="page">
                                     <ctg:isContain bookId="${book.id}"/>
@@ -142,7 +149,31 @@
                                         </form>
                                     </c:otherwise>
                                 </c:choose>
-
+                            </c:when>
+                            <%--buttons for ADMIN--%>
+                            <c:when test="${sessionScope.userRole eq 'ADMIN'}">
+                                <form name="RemoveBook" method="post"
+                                      action="${pageContext.request.contextPath}/controller">
+                                    <input type="hidden" name="command"
+                                           value="remove_book">
+                                    <input type="hidden" name="bookId" value="${book.id}">
+                                    <button class="btn-sm" type="submit">
+                                        <small>
+                                            <fmt:message key="books.catalog.remove"/>
+                                        </small>
+                                    </button>
+                                </form>
+                                <form name="EditBook" method="post"
+                                      action="${pageContext.request.contextPath}/controller">
+                                    <input type="hidden" name="command"
+                                           value="editBook">
+                                    <input type="hidden" name="book" value="${book}">
+                                    <button class="btn-sm" type="submit">
+                                        <small>
+                                            <fmt:message key="books.catalog.edit"/>
+                                        </small>
+                                    </button>
+                                </form>
                             </c:when>
                         </c:choose>
                     </td>
@@ -150,7 +181,8 @@
             </c:forEach>
             </tbody>
         </table>
-        <%--        TODO first prev next last  --%>
+
+    <%--        TODO first prev next last  --%>
         <ul class="pagination justify-content-center" style="margin:20px 0">
 
             <c:if test="${sessionScope.page.currentPage ne 1}">
@@ -176,6 +208,7 @@
             </c:if>
         </ul>
     </div>
+
     <%--TODO modal <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#exampleModal"> --%>
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -196,17 +229,18 @@
             </div>
         </div>
     </div>
-    ${requestScope.wrongDuration}
-    <%--    <c:if test="${not empty requestScope.wrongDuration}">--%>
-    <%--        <div class="alert alert-danger d-flex align-items-center" role="alert">--%>
-    <%--            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">--%>
-    <%--                <use xlink:href="#exclamation-triangle-fill"/>--%>
-    <%--            </svg>--%>
-    <%--            <div>--%>
-    <%--                    ${requestScope.wrongDuration}--%>
-    <%--            </div>--%>
-    <%--        </div>--%>
-    <%--    </c:if>--%>
+
+    <%--       show exception if wrong action on page--%>
+    <c:if test="${not empty requestScope.wrongDuration || not empty requestScope.wrongAction}">
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+            </svg>
+            <div>
+                    ${requestScope.wrongDuration}
+                    ${requestScope.wrongAction}
+            </div>
+        </div>
+    </c:if>
 
     <a href="${pageContext.request.contextPath}/controller?command=logout">Logout</a>
 </div>
