@@ -13,6 +13,7 @@ public enum CommandEnum {
     LOGIN(new LoginCommand()),
     SIGN_UP(new SignUpCommand()),
     SHOW_ORDERS(new OrdersShow()),
+    SHOW_USERS(new ShowUsers()),
     LOGOUT(new LogoutCommand());
 
     private final ActionCommand command;

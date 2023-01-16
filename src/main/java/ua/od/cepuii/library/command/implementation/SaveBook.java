@@ -20,7 +20,7 @@ public class SaveBook implements ActionCommand {
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         try {
             Book book = RequestParser.getBook(request);
-            boolean update = bookService.update(book);
+            boolean update = bookService.createOrUpdate(book);
             if (update) {
                 return ConfigurationManager.getProperty("path.page.main") + ConfigurationManager.getProperty("path.success");
             }

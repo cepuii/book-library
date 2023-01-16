@@ -89,10 +89,11 @@ public class RepositoryUtil {
 
     public static Collection<User> fillUsers(ResultSet resultSet) {
         try {
-            Collection<User> users = new HashSet<>();
+            Collection<User> users = new ArrayList<>();
             while (resultSet.next()) {
                 users.add(getUser(resultSet).orElseThrow());
             }
+            log.info("populate users: {}", users.size());
             return users;
         } catch (SQLException e) {
             throw new RepositoryException("Can`t populate users from resultSet", e);
@@ -136,5 +137,14 @@ public class RepositoryUtil {
             throw new RepositoryException("Can`t populate loans collection", e);
         }
         return loans;
+    }
+
+
+    public static String prepareForLike(String title) {
+        return "%" + validateForLike(title) + "%";
+    }
+
+    public static String validateForLike(String title) {
+        return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
     }
 }

@@ -21,8 +21,10 @@ public class EditBook implements ActionCommand {
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         try {
             long bookId = RequestParser.getLong(request, "bookId");
-            BookTO bookTO = bookService.getById(bookId);
-            request.setAttribute("book", bookTO);
+            if (bookId != 0) {
+                BookTO bookTO = bookService.getById(bookId);
+                request.setAttribute("book", bookTO);
+            }
             return ConfigurationManager.getProperty("path.page.edit.book");
         } catch (SQLException | RequestParserException e) {
             log.error(e.getMessage());

@@ -2,6 +2,7 @@ package ua.od.cepuii.library.dto;
 
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.entity.Loan;
+import ua.od.cepuii.library.entity.User;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -46,5 +47,20 @@ public class Mapper {
                 .total(book.getTotal())
                 .fine(book.getFine())
                 .build();
+    }
+
+    public static UserTO getUserTO(User user) {
+        return UserTO.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .registered(user.getDateTime().toString())
+                .enabled(user.isEnabled())
+                .role(user.getRole())
+                .fine(user.getFine())
+                .build();
+    }
+
+    public static Collection<UserTO> mapToUserTO(Collection<User> users) {
+        return users.stream().map(Mapper::getUserTO).collect(Collectors.toList());
     }
 }

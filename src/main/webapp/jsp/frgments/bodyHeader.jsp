@@ -12,7 +12,8 @@
                class="nav-link px-2 link-secondary">Home</a></li>
         <li><a href="${pageContext.request.contextPath}/controller?command=show_orders" class="nav-link px-2 link-dark"><fmt:message
                 key="orders.title"/> </a></li>
-        <li><a href="#" class="nav-link px-2 link-dark">FAQs</a></li>
+        <li><a href="${pageContext.request.contextPath}/controller?command=show_users&modifaed=true"
+               class="nav-link px-2 link-dark"><fmt:message key="users.href"/> </a></li>
     </ul>
     <div class="col-md-3 text-end">
         <c:choose>

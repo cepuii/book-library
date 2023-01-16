@@ -1,5 +1,6 @@
 package ua.od.cepuii.library.repository;
 
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.entity.AbstractEntity;
 
 import java.sql.SQLException;
@@ -16,5 +17,5 @@ public interface AbstractEntityRepository<T extends AbstractEntity> {
 
     boolean delete(long id) throws SQLException;
 
-    Collection<T> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException;
+    Collection<T> getAll(FilterAndSortParams params, String orderBy, int limit, int offset);
 }

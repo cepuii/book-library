@@ -75,10 +75,10 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllWithLimit(Connection connection, String sql, String titleFilter, String authorFilter, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> executeSelectAllWithLimit(Connection connection, String sql, String firstParam, String secondParam, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, titleFilter);
-            preparedStatement.setString(2, authorFilter);
+            preparedStatement.setString(1, firstParam);
+            preparedStatement.setString(2, secondParam);
             preparedStatement.setInt(3, limit);
             preparedStatement.setInt(4, offset);
             log.info(preparedStatement.toString());

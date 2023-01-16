@@ -8,33 +8,30 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.entity.Book;
+import ua.od.cepuii.library.dto.UserTO;
 import ua.od.cepuii.library.resource.ConfigurationManager;
-import ua.od.cepuii.library.service.BookService;
+import ua.od.cepuii.library.service.UserService;
 
-import java.sql.SQLException;
 import java.util.Collection;
 
-public class GetAllBooks implements ActionCommand {
-    private static final Logger log = LoggerFactory.getLogger(GetAllBooks.class);
+public class ShowUsers implements ActionCommand {
+    private static final Logger log = LoggerFactory.getLogger(ShowUsers.class);
 
-    private final BookService bookService = new BookService();
+    private final UserService userService = new UserService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-
-        FilterAndSortParams filterParam = RequestParser.getFilterParams(request, "titleSearch", "authorSearch");
-        Page currentPage = RequestParser.getPageFromSession(request, bookService, filterParam);
+        FilterAndSortParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
+        Page currentPage = RequestParser.getPageFromSession(request, userService, filterParam);
         try {
-            Collection<Book> books = bookService.getAll(currentPage, filterParam);
-            request.setAttribute("books", books);
-            request.setAttribute("data", "receive");
+            Collection<UserTO> users = userService.getAll(currentPage, filterParam);
+            request.setAttribute("users", users);
             request.getSession().setAttribute("filter", filterParam);
             request.getSession().setAttribute("page", currentPage);
             log.info("page attributes {}", currentPage);
             log.info("filter attributes {}", filterParam);
-            return ConfigurationManager.getProperty("path.page.main");
-        } catch (SQLException e) {
+            return ConfigurationManager.getProperty("path.page.users");
+        } catch (Exception e) {
             log.error(e.getMessage());
             return ConfigurationManager.getProperty("path.page.error");
         }

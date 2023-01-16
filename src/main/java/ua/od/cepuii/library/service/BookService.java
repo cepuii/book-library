@@ -2,8 +2,8 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.od.cepuii.library.dto.BookFilterParam;
 import ua.od.cepuii.library.dto.BookTO;
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.dto.Mapper;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.entity.Author;
@@ -11,13 +11,14 @@ import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.RepositoryFactory;
 import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
+import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class BookService {
+public class BookService implements Service {
     private static final Logger log = LoggerFactory.getLogger(BookService.class);
     RepositoryFactory repositoryFactory = new JdbcRepositoryFactory();
     BookRepository bookRepository = repositoryFactory.getBookRepository();
@@ -26,7 +27,12 @@ public class BookService {
         return bookRepository.insert(book);
     }
 
-    public boolean update(Book book) throws SQLException {
+    public boolean createOrUpdate(Book book) throws SQLException {
+        if (ValidationUtil.isNew(book)) {
+            long insert = bookRepository.insert(book);
+            log.info("book create and save, bookId: {}", insert);
+            return true;
+        }
         return bookRepository.update(book);
     }
 
@@ -55,7 +61,8 @@ public class BookService {
         return bookRepository.addAuthor(bookId, author);
     }
 
-    public int getPageAmount(Page page, BookFilterParam filterParam) {
+    @Override
+    public int getPageAmount(Page page, FilterAndSortParams filterParam) {
         int recordsAmount = bookRepository.getCount(filterParam);
         log.info("get records amount: {}", recordsAmount);
         int pageAmount = (recordsAmount % page.getNoOfRecords()) == 0 ? (recordsAmount / page.getNoOfRecords()) : (1 + (recordsAmount / page.getNoOfRecords()));
@@ -63,12 +70,12 @@ public class BookService {
         return pageAmount;
     }
 
-    public Collection<Book> getAll(Page currentPage, BookFilterParam filterParam) throws SQLException {
-        String orderBy = filterParam.getOrderBy() + (filterParam.isDescending() ? " DESC" : "");
+    public Collection<Book> getAll(Page currentPage, FilterAndSortParams filterParam) throws SQLException {
+        String orderBy = (filterParam.getOrderBy().isBlank() ? "b_title" : filterParam.getOrderBy()) + (filterParam.isDescending() ? " DESC" : "");
         int limit = currentPage.getNoOfRecords();
         int offset = currentPage.getNoOfRecords() * (currentPage.getCurrentPage() - 1);
         log.info(String.format("getAll books:filter %s ; %s order %s, descending %b, limit %d , offset %d",
-                filterParam.getTitle(), filterParam.getAuthor(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset));
-        return bookRepository.getAllWithFilter(orderBy, filterParam.isDescending(), limit, offset, filterParam);
+                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset));
+        return bookRepository.getAll(filterParam, orderBy, limit, offset);
     }
 }

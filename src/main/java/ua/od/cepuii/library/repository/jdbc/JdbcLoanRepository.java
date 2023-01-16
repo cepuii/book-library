@@ -3,6 +3,7 @@ package ua.od.cepuii.library.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.repository.LoanRepository;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
@@ -11,6 +12,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,9 +82,12 @@ public class JdbcLoanRepository implements LoanRepository {
     }
 
     @Override
-    public Collection<Loan> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
+    public Collection<Loan> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillLoans);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            return Collections.emptyList();
         }
     }
 

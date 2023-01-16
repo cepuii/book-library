@@ -1,26 +1,41 @@
 package ua.od.cepuii.library.repository.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcUserRepository implements UserRepository {
+import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.prepareForLike;
+import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.validateForLike;
 
+public class JdbcUserRepository implements UserRepository {
+    private static final Logger log = LoggerFactory.getLogger(JdbcUserRepository.class);
     private final DbExecutor<User> dbExecutor;
     private final ConnectionPool connectionPool;
     private static final String INSERT_USER = "INSERT INTO users (email, password, role_id) VALUES (?,?,?)";
     private static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, blocked = ?, role_id = ?";
     private static final String DELETE_BY_ID = "DELETE FROM users WHERE id=?";
     private static final String SELECT_ALL = "SELECT users.id users_id, email, password, registered, blocked, ur.role role " +
-            "FROM users JOIN user_role ur on ur.id = users.role_id";
+            "FROM users JOIN user_role ur on ur.id = users.role_id " +
+            "WHERE email LIKE ? AND role LIKE ? " +
+            "ORDER BY ";
+    private static final String LIMIT_OFFSET = " LIMIT ? OFFSET ?";
+    private static final String GET_COUNT = "SELECT count(*) " +
+            "FROM users JOIN user_role ur on ur.id = users.role_id " +
+            "WHERE users.email LIKE ? AND role LIKE ? ";
     private static final String SELECT_BY_ID = SELECT_ALL + " WHERE id=?";
     private static final String SELECT_BY_EMAIL = SELECT_ALL + " WHERE email = ?";
 
@@ -60,9 +75,14 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public Collection<User> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
+    public Collection<User> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillUsers);
+            String firstParam = prepareForLike(validateForLike(params.getFirstParam()));
+            String secondParam = prepareForLike(validateForLike(params.getSecondParam()));
+            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL + orderBy + LIMIT_OFFSET, firstParam, secondParam, limit, offset, RepositoryUtil::fillUsers);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            return Collections.emptyList();
         }
     }
 
@@ -73,5 +93,24 @@ public class JdbcUserRepository implements UserRepository {
         } catch (SQLException e) {
             throw new RepositoryException("Can`t find user with this email: " + email, e);
         }
+    }
+
+    @Override
+    public int getCount(FilterAndSortParams filterParam) {
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(GET_COUNT)) {
+            String userForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
+            String userRoleForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
+            statement.setString(1, userForSearch);
+            statement.setString(2, userRoleForSearch);
+            log.info(statement.toString());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return 0;
     }
 }

@@ -3,7 +3,7 @@ package ua.od.cepuii.library.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
-import ua.od.cepuii.library.dto.BookFilterParam;
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.exception.RepositoryException;
@@ -18,8 +18,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.*;
 
 public class JdbcBookRepository implements BookRepository {
 
@@ -71,7 +74,7 @@ public class JdbcBookRepository implements BookRepository {
     @Override
     public Optional<Book> getById(long id) throws SQLException {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelect(connection, SELECT_BY_ID, id, resultSet -> RepositoryUtil.fillBooks(resultSet).stream().findFirst());
+            return dbExecutor.executeSelect(connection, SELECT_BY_ID, id, resultSet -> fillBooks(resultSet).stream().findFirst());
         }
 
     }
@@ -102,9 +105,8 @@ public class JdbcBookRepository implements BookRepository {
 
     private void updateAuthors(Collection<Author> authors, Connection connection, long bookId) throws SQLException {
         for (Author author : authors) {
-            long authorId = 0;
             if (ValidationUtil.isNew(author)) {
-                authorId = authorRepository.insert(author);
+                long authorId = authorRepository.insert(author);
                 dbExecutor.executeInsertWithoutGeneratedKey(connection, INSERT_BOOK_AUTHORS, List.of(bookId, authorId));
             } else {
                 authorRepository.update(author);
@@ -120,9 +122,14 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Collection<Book> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
+    public Collection<Book> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
+        String titleFilter = prepareForLike(validateForLike(params.getFirstParam()));
+        String authorFilter = prepareForLike(validateForLike(params.getSecondParam()));
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillBooks);
+            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, titleFilter, authorFilter, limit, offset, RepositoryUtil::fillBooks);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            return Collections.emptyList();
         }
     }
 
@@ -134,13 +141,6 @@ public class JdbcBookRepository implements BookRepository {
         }
     }
 
-    private String prepareForLike(String title) {
-        return "%" + validateForLike(title) + "%";
-    }
-
-    private String validateForLike(String title) {
-        return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
-    }
 
     @Override
     public Collection<Book> getByAuthor(String author) throws SQLException {
@@ -150,19 +150,11 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Collection<Book> getAllWithFilter(String orderBy, boolean descending, int limit, int offset, BookFilterParam filterParam) throws SQLException {
-        String titleFilter = prepareForLike(validateForLike(filterParam.getTitle()));
-        String authorFilter = prepareForLike(validateForLike(filterParam.getAuthor()));
-        try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, titleFilter, authorFilter, orderBy, limit, offset, RepositoryUtil::fillBooks);
-        }
-    }
-
-    @Override
-    public int getCount(BookFilterParam filterParam) {
-        try (Connection connection = connectionPool.getConnection(); PreparedStatement statement = connection.prepareStatement(COUNT_SELECT_ALL_FILTER)) {
-            String titleForSearch = prepareForLike(validateForLike(filterParam.getTitle()));
-            String authorForSearch = prepareForLike(validateForLike(filterParam.getAuthor()));
+    public int getCount(FilterAndSortParams filterParam) {
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(COUNT_SELECT_ALL_FILTER)) {
+            String titleForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
+            String authorForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
             statement.setString(1, titleForSearch);
             statement.setString(2, authorForSearch);
             ResultSet resultSet = statement.executeQuery();

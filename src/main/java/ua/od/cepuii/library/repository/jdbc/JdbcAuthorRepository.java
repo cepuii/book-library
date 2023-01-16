@@ -3,6 +3,7 @@ package ua.od.cepuii.library.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.AuthorRepository;
@@ -87,7 +88,7 @@ public class JdbcAuthorRepository implements AuthorRepository {
     }
 
     @Override
-    public Collection<Author> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
+    public Collection<Author> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
         throw new UnsupportedOperationException("this operation unsupported");
     }
 }

@@ -10,6 +10,7 @@ import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.entity.enums.PublicationType;
 import ua.od.cepuii.library.exception.RequestParserException;
 import ua.od.cepuii.library.resource.MessageManager;
+import ua.od.cepuii.library.service.Service;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.Collection;
@@ -20,6 +21,15 @@ public class RequestParser {
     private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
 
     private RequestParser() {
+    }
+
+    public static Page getPageFromSession(HttpServletRequest request, Service service, FilterAndSortParams filterParam) {
+        Page page = getPageFromSession(request);
+//        if (request.getParameter("modified") != null) {
+        int pageAmount = service.getPageAmount(page, filterParam);
+        page.setPageAmount(pageAmount);
+//        }
+        return page;
     }
 
     public static Page getPageFromSession(HttpServletRequest request) {
@@ -37,31 +47,31 @@ public class RequestParser {
         return page;
     }
 
-    public static BookFilterParam getBookFilter(HttpServletRequest request) {
-        BookFilterParam bookFilterParam = (BookFilterParam) request.getSession().getAttribute("filter");
-        String titleSearch = request.getParameter("titleSearch");
-        String authorSearch = request.getParameter("authorSearch");
+    public static FilterAndSortParams getFilterParams(HttpServletRequest request, String firstParam, String secondParam) {
+        FilterAndSortParams filter = (FilterAndSortParams) request.getSession().getAttribute("filter");
+        String firstValue = request.getParameter(firstParam);
+        String secondValue = request.getParameter(secondParam);
         String orderBy = request.getParameter("orderBy");
         String descending = request.getParameter("descending");
         if (request.getParameter("cleanFilter") != null) {
-            return BookFilterParam.cleanFilter();
+            return FilterAndSortParams.cleanFilter();
         }
-        if (bookFilterParam == null) {
-            bookFilterParam = new BookFilterParam(titleSearch, authorSearch, orderBy, Boolean.parseBoolean(descending));
+        if (filter == null) {
+            filter = new FilterAndSortParams(firstParam, firstValue, secondParam, secondValue, orderBy, Boolean.parseBoolean(descending));
         }
-        if (titleSearch != null) {
-            bookFilterParam.setTitle(titleSearch);
+        if (firstValue != null) {
+            filter.setFirstParam(firstValue);
         }
-        if (authorSearch != null) {
-            bookFilterParam.setAuthor(authorSearch);
+        if (secondValue != null) {
+            filter.setSecondParam(secondValue);
         }
         if (orderBy != null) {
-            bookFilterParam.setOrderBy(orderBy);
+            filter.setOrderBy(orderBy);
         }
         if (descending != null) {
-            bookFilterParam.setDescending(Boolean.parseBoolean(descending));
+            filter.setDescending(Boolean.parseBoolean(descending));
         }
-        return bookFilterParam;
+        return filter;
     }
 
     public static Loan getLoan(HttpServletRequest request) {
@@ -81,10 +91,10 @@ public class RequestParser {
 
     public static Book getBook(HttpServletRequest request) throws RequestParserException {
         return Book.builder()
-                .id(Long.parseLong(request.getParameter("id")))
+                .id(getLong(request, "bookId"))
                 .title(request.getParameter("title"))
                 .publicationType(PublicationType.valueOf(request.getParameter("publicationType")))
-                .datePublication(Integer.parseInt(request.getParameter("datePublication")))
+                .datePublication(getInt(request, "datePublication"))
                 .total(getInt(request, "total"))
                 .fine(getInt(request, "fine"))
                 .authors(getAuthors(request))
