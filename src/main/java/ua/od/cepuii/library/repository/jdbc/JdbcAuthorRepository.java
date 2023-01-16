@@ -1,5 +1,7 @@
 package ua.od.cepuii.library.repository.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.exception.RepositoryException;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class JdbcAuthorRepository implements AuthorRepository {
+    private static final Logger log = LoggerFactory.getLogger(JdbcAuthorRepository.class);
     private final DbExecutor<Author> dbExecutor;
     private final ConnectionPool connectionPool;
 
@@ -38,6 +41,7 @@ public class JdbcAuthorRepository implements AuthorRepository {
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_AUTHOR_IF_NOT_EXIST)) {
                 preparedStatement.setString(1, author.getName());
                 preparedStatement.setString(2, author.getName());
+                log.info(preparedStatement.toString());
                 ResultSet resultSet = preparedStatement.executeQuery();
                 resultSet.next();
                 id = resultSet.getLong("id");
@@ -45,6 +49,7 @@ public class JdbcAuthorRepository implements AuthorRepository {
 
             } catch (SQLException e) {
                 connection.rollback(savepoint);
+                log.error(e.getMessage());
             }
         }
         return id;
@@ -83,8 +88,6 @@ public class JdbcAuthorRepository implements AuthorRepository {
 
     @Override
     public Collection<Author> getAll(String orderBy, boolean descending, int limit, int offset) throws SQLException {
-        try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAll(connection, SELECT_ALL, orderBy, limit, offset, RepositoryUtil::fillAuthors);
-        }
+        throw new UnsupportedOperationException("this operation unsupported");
     }
 }

@@ -1,5 +1,6 @@
 package ua.od.cepuii.library.command.implementation;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -29,6 +30,18 @@ public class LoginCommand implements ActionCommand {
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("user", user.getEmail());
             request.getSession().setAttribute("userRole", user.getRole().toString());
+            Cookie cookie = new Cookie("userId", String.valueOf(user.getId()));
+            cookie.setMaxAge(60 * 60 * 24);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+            cookie = new Cookie("user", user.getEmail());
+            cookie.setMaxAge(60 * 60 * 24);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+            cookie = new Cookie("userRole", user.getRole().name());
+            cookie.setMaxAge(60 * 60 * 24);
+            cookie.setPath("/");
+            response.addCookie(cookie);
             log.info("user login: {}", user);
             page = ConfigurationManager.getProperty("path.page.main");
         } else {

@@ -17,7 +17,7 @@ public class AuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         if (req.getSession().getAttribute("user") == null) {
-//            checkUserInCookie(req);
+            checkUserInCookie(req);
         }
         chain.doFilter(request, response);
     }
@@ -27,7 +27,11 @@ public class AuthFilter implements Filter {
         if (cookies != null) {
             for (Cookie ck : cookies) {
                 if ("user".equals(ck.getName())) {
-                    req.setAttribute("userId", ck.getValue());
+                    req.getSession().setAttribute("user", ck.getValue());
+                } else if ("userId".equals(ck.getName())) {
+                    req.getSession().setAttribute("userId", ck.getValue());
+                } else if ("userRole".equals(ck.getName())) {
+                    req.getSession().setAttribute("userRole", ck.getValue());
                 }
             }
         }

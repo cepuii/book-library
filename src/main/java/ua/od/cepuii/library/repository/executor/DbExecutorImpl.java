@@ -26,21 +26,23 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
             }
         } catch (SQLException e) {
             log.error(e.getMessage());
-            throw new SQLException(e);
+            return -1;
         }
     }
 
     @Override
-    public void executeInsertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
+    public boolean executeInsertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
         Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
             preparedStatement.execute();
             connection.commit();
             log.info(preparedStatement.toString());
+            return true;
         } catch (SQLException e) {
             connection.rollback(savepoint);
-            throw e;
+            log.error(e.getMessage());
+            return false;
         }
     }
 
@@ -97,7 +99,8 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
             return result;
         } catch (SQLException e) {
             connection.rollback(savepoint);
-            throw e;
+            log.error(e.getMessage());
+            return false;
         }
     }
 
@@ -107,13 +110,14 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
         Savepoint savepoint = connection.setSavepoint("DeleteSavePoint");
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
+            log.info(preparedStatement.toString());
             boolean result = preparedStatement.executeUpdate() != 0;
             connection.commit();
             return result;
         } catch (SQLException e) {
             connection.rollback(savepoint);
-            log.info(e.getMessage());
-            throw new SQLException(e);
+            log.error(e.getMessage());
+            return false;
         }
     }
 

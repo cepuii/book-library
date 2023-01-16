@@ -1,5 +1,6 @@
 package ua.od.cepuii.library.dto;
 
+import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.entity.Loan;
 
 import java.time.LocalDate;
@@ -35,4 +36,15 @@ public class Mapper {
         return new Date((startDate.getYear() - 1900), startDate.getMonthValue() - 1, startDate.getDayOfMonth());
     }
 
+    public static BookTO getBookTO(Book book) {
+        return BookTO.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .publicationType(book.getPublicationType())
+                .datePublication(book.getDatePublication())
+                .authors(book.getAuthors())
+                .total(book.getTotal())
+                .fine(book.getFine())
+                .build();
+    }
 }

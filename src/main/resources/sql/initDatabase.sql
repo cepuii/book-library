@@ -19,11 +19,12 @@ CREATE TABLE publication_type
 CREATE TABLE book
 (
     id               BIGINT  DEFAULT nextval('global_seq') PRIMARY KEY,
-    title            VARCHAR           NOT NULL,
-    publication_id   INTEGER           NOT NULL,
-    date_publication INTEGER           NOT NULL,
-    total            INTEGER           NOT NULL,
-    no_of_borrow     INTEGER DEFAULT 0 NOT NULL,
+    title            VARCHAR             NOT NULL,
+    publication_id   INTEGER             NOT NULL,
+    date_publication INTEGER             NOT NULL,
+    fine             INTEGER DEFAULT 100 NOT NULL,
+    total            INTEGER             NOT NULL,
+    no_of_borrow     INTEGER DEFAULT 0   NOT NULL,
 
     FOREIGN KEY (publication_id) REFERENCES publication_type (id) ON DELETE CASCADE
 );
@@ -80,7 +81,6 @@ CREATE TABLE loan
     start_time DATE    DEFAULT now() NOT NULL,
     duration   INTEGER DEFAULT ('0') NOT NULL,
     status_id  INTEGER               NOT NULL,
-    fine       INTEGER DEFAULT 0     NOT NULL,
 
     CONSTRAINT unique_indexs_user_book_id UNIQUE (user_id, book_id),
     FOREIGN KEY (user_id) REFERENCES users (id),

@@ -16,11 +16,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RepositoryUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RepositoryUtil.class);
+
     private RepositoryUtil() {
     }
 
@@ -31,37 +31,31 @@ public class RepositoryUtil {
             try {
                 if (!resultSet.next()) break;
                 long id = resultSet.getLong("b_id");
-                Book book = new Book.Builder()
-                        .setId(id)
-                        .setTitle(resultSet.getString("b_title"))
-                        .setType(PublicationType.valueOf(resultSet.getString("pt_name")))
-                        .setDatePublication(resultSet.getInt("b_date"))
-                        .setAuthorSet(fillAuthorsFromString(resultSet.getString("authors")))
+                Book book = Book.builder()
+                        .id(id)
+                        .title(resultSet.getString("b_title"))
+                        .publicationType(PublicationType.valueOf(resultSet.getString("pt_name")))
+                        .datePublication(resultSet.getInt("b_date"))
+                        .total(resultSet.getInt("b_total"))
+                        .authors(fillAuthors(resultSet))
                         .build();
-
                 books.add(book);
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
+        log.info("fill books, size {}", books.size());
         return books;
     }
 
-    private static List<Author> fillAuthorsFromString(String authors) {
-        return Arrays.stream(authors.split(", ")).map(Author::new).collect(Collectors.toList());
-    }
-
-    public static Collection<Author> fillAuthors(ResultSet resultSet) {
-        try {
-            Collection<Author> authors = new HashSet<>();
-            while (resultSet.next()) {
-                Author author = new Author(resultSet.getInt("id"), resultSet.getString("name"));
-                authors.add(author);
-            }
-            return authors;
-        } catch (SQLException e) {
-            throw new RepositoryException("Can`t populate authors from result set", e);
+    public static Collection<Author> fillAuthors(ResultSet resultSet) throws SQLException {
+        String[] authorsIds = resultSet.getString("authors_id").split(", ");
+        String[] authors = resultSet.getString("authors").split(", ");
+        Collection<Author> authorSet = new TreeSet<>(Comparator.comparing(Author::getName));
+        for (int i = 0; i < authorsIds.length; i++) {
+            authorSet.add(new Author(Long.parseLong(authorsIds[i]), authors[i]));
         }
+        return authorSet;
     }
 
     public static Optional<Author> fillAuthor(ResultSet resultSet) {

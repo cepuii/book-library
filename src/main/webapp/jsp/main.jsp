@@ -95,11 +95,17 @@
 
             <%--            start loop by books--%>
             <c:forEach var="book" items="${requestScope.books}">
+                <c:set var="authorsString" scope="request">
+                    <ctg:getAuthors authorSet="${book.authors}"/>
+                </c:set>
+                <c:set var="authorsStringId" scope="request">
+                    <ctg:getAuthors authorSet="${book.authors}"/>
+                </c:set>
                 <tr>
                     <td>${book.title}</td>
-                    <td>${book.publicationType}</td>
+                    <td>${book.publicationType.name}</td>
                     <td>${book.datePublication}</td>
-                    <td>${book.authorSet}</td>
+                    <td>${authorsString}</td>
                     <td>
                         <c:choose>
                             <%--buttons for READER--%>
@@ -157,21 +163,18 @@
                                     <input type="hidden" name="command"
                                            value="remove_book">
                                     <input type="hidden" name="bookId" value="${book.id}">
-                                    <button class="btn-sm" type="submit">
+                                    <button class="btn btn-outline-primary" type="submit">
                                         <small>
                                             <fmt:message key="books.catalog.remove"/>
                                         </small>
                                     </button>
                                 </form>
-                                <form name="EditBook" method="post"
+                                <form name="EditBook" method="get"
                                       action="${pageContext.request.contextPath}/controller">
-                                    <input type="hidden" name="command"
-                                           value="editBook">
-                                    <input type="hidden" name="book" value="${book}">
-                                    <button class="btn-sm" type="submit">
-                                        <small>
-                                            <fmt:message key="books.catalog.edit"/>
-                                        </small>
+                                    <input type="hidden" name="bookId" value="${book.id}">
+                                    <input type="hidden" name="command" value="edit_book">
+                                    <button type="submit" class="btn btn-primary">
+                                        <fmt:message key="books.catalog.edit"/>
                                     </button>
                                 </form>
                             </c:when>
@@ -182,7 +185,7 @@
             </tbody>
         </table>
 
-    <%--        TODO first prev next last  --%>
+        <%--        TODO first prev next last  --%>
         <ul class="pagination justify-content-center" style="margin:20px 0">
 
             <c:if test="${sessionScope.page.currentPage ne 1}">
@@ -215,29 +218,36 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel"><fmt:message key="books.order.caption"/></h5>
+                    <h5 class="modal-title" id="exampleModalLabel"><fmt:message key="books.catalog.edit"/></h5>
                     <fmt:message key="close" var="close"/>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${close}"></button>
                 </div>
                 <div class="modal-body">
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                    <button type="button" class="btn btn-primary">Сохранить изменения</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><fmt:message
+                            key="close"/></button>
                 </div>
             </div>
         </div>
     </div>
 
     <%--       show exception if wrong action on page--%>
-    <c:if test="${not empty requestScope.wrongDuration || not empty requestScope.wrongAction}">
+    <c:if test="${not empty requestScope.wrongAction}">
         <div class="alert alert-danger d-flex align-items-center" role="alert">
             <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
             </svg>
             <div>
-                    ${requestScope.wrongDuration}
                     ${requestScope.wrongAction}
+            </div>
+        </div>
+    </c:if>
+    <c:if test="${not empty param.success}">
+        <div class="alert alert-success d-flex align-items-center" role="alertdialog">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+            </svg>
+            <div>
+                    ${param.success}
             </div>
         </div>
     </c:if>

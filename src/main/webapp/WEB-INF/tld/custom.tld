@@ -20,5 +20,27 @@
             <type>java.lang.Long</type>
         </attribute>
     </tag>
+    <tag>
+        <name>getAuthors</name>
+        <tag-class>ua.od.cepuii.library.tld.GetAuthorsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>authorSet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
+        <name>getAuthorsId</name>
+        <tag-class>ua.od.cepuii.library.tld.GetAuthorsIdTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>authorSet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
 
 </taglib>
