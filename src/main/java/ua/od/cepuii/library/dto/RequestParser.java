@@ -79,15 +79,24 @@ public class RequestParser {
         return request.getParameter("status") == null ? LoanStatus.RAW : LoanStatus.valueOf(request.getParameter("status"));
     }
 
-    public static Book getBook(HttpServletRequest request) {
+    public static Book getBook(HttpServletRequest request) throws RequestParserException {
         return Book.builder()
                 .id(Long.parseLong(request.getParameter("id")))
                 .title(request.getParameter("title"))
                 .publicationType(PublicationType.valueOf(request.getParameter("publicationType")))
                 .datePublication(Integer.parseInt(request.getParameter("datePublication")))
-                .total(Integer.parseInt(request.getParameter("total")))
+                .total(getInt(request, "total"))
+                .fine(getInt(request, "fine"))
                 .authors(getAuthors(request))
                 .build();
+    }
+
+    private static int getInt(HttpServletRequest request, String paramName) throws RequestParserException {
+        String stringParam = request.getParameter(paramName);
+        if (ValidationUtil.isInteger(stringParam)) {
+            return Integer.parseInt(stringParam);
+        }
+        throw new RequestParserException(MessageManager.getProperty("message.wrongParam") + ": " + stringParam);
     }
 
     private static Collection<Author> getAuthors(HttpServletRequest request) {
@@ -100,7 +109,7 @@ public class RequestParser {
         return authors;
     }
 
-    public static long getLong(HttpServletRequest request, String paramName) {
+    public static long getLong(HttpServletRequest request, String paramName) throws RequestParserException {
         String stringParam = request.getParameter(paramName);
         if (ValidationUtil.isInteger(stringParam)) {
             return Long.parseLong(stringParam);

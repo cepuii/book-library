@@ -19,14 +19,14 @@ public class AddAuthor implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long bookId = RequestParser.getLong(request, "bookId");
-        Author author = RequestParser.getNewAuthor(request);
         try {
+            long bookId = RequestParser.getLong(request, "bookId");
+            Author author = RequestParser.getNewAuthor(request);
             bookService.addAuthor(bookId, author);
+            return ConfigurationManager.getProperty("path.controller.edit_book") + bookId;
         } catch (SQLException | RequestParserException e) {
             log.error(e.getMessage());
             return ConfigurationManager.getProperty("path.page.main");
         }
-        return ConfigurationManager.getProperty("path.controller.edit_book") + bookId;
     }
 }

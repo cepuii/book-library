@@ -19,14 +19,14 @@ public class EditBook implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long bookId = RequestParser.getLong(request, "bookId");
         try {
+            long bookId = RequestParser.getLong(request, "bookId");
             BookTO bookTO = bookService.getById(bookId);
             request.setAttribute("book", bookTO);
+            return ConfigurationManager.getProperty("path.page.edit.book");
         } catch (SQLException | RequestParserException e) {
             log.error(e.getMessage());
             return ConfigurationManager.getProperty("path.page.main");
         }
-        return ConfigurationManager.getProperty("path.page.edit.book");
     }
 }

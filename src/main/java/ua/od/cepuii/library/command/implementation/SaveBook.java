@@ -18,8 +18,8 @@ public class SaveBook implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        Book book = RequestParser.getBook(request);
         try {
+            Book book = RequestParser.getBook(request);
             boolean update = bookService.update(book);
             if (update) {
                 return ConfigurationManager.getProperty("path.page.main") + ConfigurationManager.getProperty("path.success");

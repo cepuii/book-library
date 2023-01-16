@@ -51,6 +51,13 @@
                            value="${book.total}">
                 </label>
             </div>
+            <div class="mb-3">
+                <label for="fine" class="form-label">
+                    <fmt:message key="books.fine"/>
+                    <input type="number" class="form-control" id="fine" name="fine"
+                           value="${book.fine}">
+                </label>
+            </div>
             <div class="mb-xxl-0">
                 <div class="container">
                     <label class="form-label"><fmt:message key="books.authors"/>
