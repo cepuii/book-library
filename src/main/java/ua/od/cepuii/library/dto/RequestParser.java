@@ -6,8 +6,10 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.entity.Loan;
+import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.entity.enums.PublicationType;
+import ua.od.cepuii.library.entity.enums.Role;
 import ua.od.cepuii.library.exception.RequestParserException;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.Service;
@@ -134,5 +136,25 @@ public class RequestParser {
     public static Author getAuthorFromString(String authorString) {
         String[] split = authorString.replace(',', '=').replaceAll("['}]", "").split("=");
         return new Author(Long.parseLong(split[1].strip()), split[3].strip());
+    }
+
+    public static boolean getBoolean(HttpServletRequest request, String boolParam) {
+        return Boolean.parseBoolean(request.getParameter(boolParam));
+    }
+
+    public static User getUser(HttpServletRequest request) {
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        String roleString = request.getParameter("role");
+        Role role = Role.READER;
+        if (roleString != null) {
+            role = Role.valueOf(roleString);
+        }
+        log.info("user: {}, {}", email, role.toString());
+        return User.builder()
+                .email(email)
+                .password(password)
+                .role(role)
+                .build();
     }
 }

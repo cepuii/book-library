@@ -35,14 +35,14 @@ public class JdbcAuthorRepository implements AuthorRepository {
     }
 
     @Override
-    public long insert(Author author) throws SQLException {
+    public long insert(Author author) {
         long id = 0;
         try (Connection connection = connectionPool.getConnection()) {
             Savepoint savepoint = connection.setSavepoint();
             try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_AUTHOR_IF_NOT_EXIST)) {
                 preparedStatement.setString(1, author.getName());
                 preparedStatement.setString(2, author.getName());
-                log.info(preparedStatement.toString());
+                log.info("{}", preparedStatement);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 resultSet.next();
                 id = resultSet.getLong("id");
@@ -52,6 +52,8 @@ public class JdbcAuthorRepository implements AuthorRepository {
                 connection.rollback(savepoint);
                 log.error(e.getMessage());
             }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         return id;
     }
@@ -74,9 +76,12 @@ public class JdbcAuthorRepository implements AuthorRepository {
 
 
     @Override
-    public boolean update(Author author) throws SQLException {
+    public boolean update(Author author) {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeUpdate(connection, UPDATE_AUTHOR, List.of(author.getName(), author.getId()));
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            return false;
         }
     }
 

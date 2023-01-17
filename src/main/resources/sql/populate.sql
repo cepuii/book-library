@@ -2,8 +2,8 @@ INSERT INTO users (email, password, role_id)
 VALUES ('ivan@email', 'qwerty', 1);
 
 INSERT INTO author
-VALUES (DEFAULT, 'blinov'),
-       (DEFAULT, 'romanchik');
+VALUES (DEFAULT, 'Blinov'),
+       (DEFAULT, 'Romanchik');
 
 INSERT INTO book (title, publication_id, date_publication, total)
 VALUES ('java from epam', 2, '2021', 10),
@@ -85,4 +85,5 @@ SELECT id
 FROM val;
 
 INSERT INTO users (email, password, role_id)
-VALUES ('admin@admin', 'qwerty', 3);
+VALUES ('admin@admin', 'qwerty', 3),
+       ('librarian@email.com', 'qwerty', 2);

@@ -23,11 +23,11 @@ public class BookService implements Service {
     RepositoryFactory repositoryFactory = new JdbcRepositoryFactory();
     BookRepository bookRepository = repositoryFactory.getBookRepository();
 
-    public long create(Book book) throws SQLException {
+    public long create(Book book) {
         return bookRepository.insert(book);
     }
 
-    public boolean createOrUpdate(Book book) throws SQLException {
+    public boolean createOrUpdate(Book book) {
         if (ValidationUtil.isNew(book)) {
             long insert = bookRepository.insert(book);
             log.info("book create and save, bookId: {}", insert);
@@ -47,7 +47,7 @@ public class BookService implements Service {
 
     public Collection<Book> findBy(String fieldName, String value) throws SQLException {
         Collection<Book> books;
-        log.info(String.format("get by %s with param: %s", fieldName, value));
+        log.info("get by {} with param: {}", fieldName, value);
         if (fieldName.equals("title")) {
             books = bookRepository.getByTitle(value);
         } else {
@@ -70,12 +70,12 @@ public class BookService implements Service {
         return pageAmount;
     }
 
-    public Collection<Book> getAll(Page currentPage, FilterAndSortParams filterParam) throws SQLException {
+    public Collection<Book> getAll(Page currentPage, FilterAndSortParams filterParam) {
         String orderBy = (filterParam.getOrderBy().isBlank() ? "b_title" : filterParam.getOrderBy()) + (filterParam.isDescending() ? " DESC" : "");
         int limit = currentPage.getNoOfRecords();
         int offset = currentPage.getNoOfRecords() * (currentPage.getCurrentPage() - 1);
-        log.info(String.format("getAll books:filter %s ; %s order %s, descending %b, limit %d , offset %d",
-                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset));
+        log.info("getAll books:filter {} ; {} order {}, descending {}, limit {} , offset {}",
+                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset);
         return bookRepository.getAll(filterParam, orderBy, limit, offset);
     }
 }

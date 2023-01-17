@@ -32,12 +32,14 @@
                         <div class="col">
                             <label>
                                 <fmt:message key="users.filter.role"/>
-                                <input type="text" name="userRoleSearch" value="${sessionScope.filter.secondParam}">
                                 <select name="userRoleSearch">
-                                    <option value="READER" ${sessionScope.filter.orderBy eq 'READER' ? 'selected':''}>
+                                    <option value="" ${sessionScope.filter.secondParam eq '' ? 'selected':''}>
+                                        <fmt:message
+                                                key="users.filter.role.choose"/></option>
+                                    <option value="READER" ${sessionScope.filter.secondParam eq 'READER' ? 'selected':''}>
                                         <fmt:message
                                                 key="users.filter.role.reader"/></option>
-                                    <option value="LIBRARIAN" ${sessionScope.filter.orderBy eq 'LIBRARIAN' ? 'selected':''}>
+                                    <option value="LIBRARIAN" ${sessionScope.filter.secondParam eq 'LIBRARIAN' ? 'selected':''}>
                                         <fmt:message
                                                 key="users.filter.role.librarian"/></option>
                                     <option value="ADMIN" ${sessionScope.filter.secondParam eq 'ADMIN' ? 'selected':''}>
@@ -96,9 +98,10 @@
             <c:if test="${sessionScope.userRole eq 'ADMIN'}">
                 <div class="col">
                     <form action="${pageContext.request.contextPath}/controller">
-                        <input type="hidden" name="command" value="edit_book">
+                        <input type="hidden" name="command" value="add_librarian">
                         <input type="hidden" name="bookId" value="0">
-                        <button type="submit" class="btn btn-primary"><fmt:message key="books.edit.add.book"/></button>
+                        <button type="submit" class="btn btn-primary"><fmt:message
+                                key="books.edit.add.librarian"/></button>
                     </form>
                 </div>
             </c:if>
@@ -114,7 +117,7 @@
                 <th><fmt:message key="users.registered"/></th>
                 <th><fmt:message key="users.role"/></th>
                 <th><fmt:message key="users.fine"/></th>
-                <th><fmt:message key="users.enabled"/></th>
+                <th><fmt:message key="users.blocked"/></th>
             </tr>
             </thead>
             <tbody>
@@ -126,7 +129,39 @@
                     <td>${user.registered}</td>
                     <td>${user.role}</td>
                     <td>${user.fine}</td>
-                    <td>${user.enabled}</td>
+                    <td>
+                        <div class="row">
+                            <div class="col-4">
+                                    ${user.blocked}
+                            </div>
+                            <div class="col-6">
+                                <form name="BlockUser" method="post"
+                                      action="${pageContext.request.contextPath}/controller">
+                                    <input type="hidden" name="command"
+                                           value="block_user">
+                                    <input type="hidden" name="userId" value="${user.id}">
+                                    <c:choose>
+                                        <c:when test="${user.blocked}">
+                                            <input type="hidden" name="isBlocked" value="false">
+                                            <c:set var="blockAction">
+                                                <fmt:message key="users.enable"/>
+                                            </c:set>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <input type="hidden" name="isBlocked" value="true">
+                                            <c:set var="blockAction">
+                                                <fmt:message key="users.block"/>
+                                            </c:set>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    <button class="btn btn-outline-primary" type="submit">
+                                            ${blockAction}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </td>
                         <%--                    <td>--%>
                         <%--                        <c:choose>--%>
                         <%--                            &lt;%&ndash;buttons for READER&ndash;%&gt;--%>
@@ -244,9 +279,18 @@
             </c:if>
         </ul>
     </div>
-
-
 </div>
 </div>
+<hr/>
+<c:if test="${not empty param.success}">
+    <div class="alert alert-success d-flex align-items-center" role="alertdialog">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+        </svg>
+        <div>
+                ${param.success}
+        </div>
+    </div>
+</c:if>
+
 </body>
 </html>

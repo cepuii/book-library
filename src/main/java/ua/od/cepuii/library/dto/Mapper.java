@@ -5,8 +5,10 @@ import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.entity.User;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class Mapper {
@@ -49,12 +51,13 @@ public class Mapper {
                 .build();
     }
 
+    //TODO add locale from session
     public static UserTO getUserTO(User user) {
         return UserTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .registered(user.getDateTime().toString())
-                .enabled(user.isEnabled())
+                .registered(user.getDateTime().format(DateTimeFormatter.ofPattern("d MMM uuuu h:m", Locale.ENGLISH)))
+                .blocked(user.isBlocked())
                 .role(user.getRole())
                 .fine(user.getFine())
                 .build();

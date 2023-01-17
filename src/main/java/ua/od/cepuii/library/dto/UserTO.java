@@ -18,7 +18,7 @@ public class UserTO implements Serializable {
     private long id;
     private String email;
     private String registered;
-    private boolean enabled;
+    private boolean blocked;
     private int fine;
     private Role role;
 

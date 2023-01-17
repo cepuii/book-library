@@ -51,7 +51,7 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public long insert(Book book) throws SQLException {
+    public long insert(Book book) {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
@@ -62,9 +62,11 @@ public class JdbcBookRepository implements BookRepository {
             } catch (SQLException e) {
                 connection.rollback();
                 log.error(e.getMessage());
-                return -1;
             }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
+        return -1;
     }
 
     private static List<Object> getBookFields(Book book) {
@@ -84,7 +86,7 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public boolean update(Book book) throws SQLException {
+    public boolean update(Book book) {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
@@ -97,10 +99,11 @@ public class JdbcBookRepository implements BookRepository {
             } catch (SQLException e) {
                 connection.rollback();
                 log.error(e.getMessage());
-                return false;
             }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
-
+        return false;
     }
 
     private void updateAuthors(Collection<Author> authors, Connection connection, long bookId) throws SQLException {

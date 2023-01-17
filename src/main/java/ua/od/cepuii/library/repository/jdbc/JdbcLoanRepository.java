@@ -43,21 +43,23 @@ public class JdbcLoanRepository implements LoanRepository {
     }
 
     @Override
-    public long insert(Loan loan) throws SQLException {
+    public long insert(Loan loan) {
         try (Connection connection = connectionPool.getConnection()) {
             Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
-            long loanId = 0;
             try {
-                loanId = dbExecutor.executeInsert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(),
+                long loanId = dbExecutor.executeInsert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(),
                         loan.getDuration(), loan.getStatus().ordinal()));
                 dbExecutor.executeById(connection, INCREASE_BOOK_BORROW, loan.getBookId());
                 connection.commit();
-            } catch (Exception e) {
+                return loanId;
+            } catch (SQLException e) {
                 log.error(e.getMessage());
                 connection.rollback(savepoint);
             }
-            return loanId;
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
+        return -1;
     }
 
     @Override
@@ -68,9 +70,12 @@ public class JdbcLoanRepository implements LoanRepository {
     }
 
     @Override
-    public boolean update(Loan loan) throws SQLException {
+    public boolean update(Loan loan) {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeUpdate(connection, UPDATE, List.of(loan.getDuration(), loan.getStatus().ordinal()));
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+            return false;
         }
     }
 

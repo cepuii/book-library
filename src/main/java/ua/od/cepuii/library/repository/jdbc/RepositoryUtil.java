@@ -81,7 +81,7 @@ public class RepositoryUtil {
         user.setEmail(resultSet.getString("email"));
         user.setPassword(resultSet.getString("password"));
         user.setDateTime(resultSet.getTimestamp("registered").toLocalDateTime());
-        user.setEnabled(resultSet.getBoolean("blocked"));
+        user.setBlocked(resultSet.getBoolean("blocked"));
         user.setRole(Role.valueOf(resultSet.getString("role")));
         return Optional.of(user);
     }

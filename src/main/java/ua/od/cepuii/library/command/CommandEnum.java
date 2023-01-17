@@ -9,11 +9,14 @@ public enum CommandEnum {
     REMOVE_BOOK(new RemoveBook()),
     EDIT_BOOK(new EditBook()),
     SAVE_BOOK(new SaveBook()),
+    SAVE_USER(new SaveUser()),
     ADD_AUTHOR(new AddAuthor()),
+    ADD_LIBRARIAN(new AddLibrarian()),
     LOGIN(new LoginCommand()),
     SIGN_UP(new SignUpCommand()),
     SHOW_ORDERS(new OrdersShow()),
     SHOW_USERS(new ShowUsers()),
+    BLOCK_USER(new BlockUser()),
     LOGOUT(new LogoutCommand());
 
     private final ActionCommand command;

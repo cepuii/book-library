@@ -9,11 +9,11 @@ import java.util.Optional;
 //Layer supertype https://martinfowler.com/eaaCatalog/layerSupertype.html
 public interface AbstractEntityRepository<T extends AbstractEntity> {
 
-    long insert(T entity) throws SQLException;
+    long insert(T entity);
 
     Optional<T> getById(long id) throws SQLException;
 
-    boolean update(T entity) throws SQLException;
+    boolean update(T entity);
 
     boolean delete(long id) throws SQLException;
 
