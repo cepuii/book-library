@@ -153,13 +153,10 @@ public class JdbcUserRepository implements UserRepository {
     public boolean updateBlocked(long id, boolean isBlocked) {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
-            try (PreparedStatement statement = connection.prepareStatement(UPDATE_USER_BLOCK)) {
-                statement.setBoolean(1, isBlocked);
-                statement.setLong(2, id);
-                log.info(statement.toString());
-                int i = statement.executeUpdate();
+            try {
+                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER_BLOCK, List.of(isBlocked, id));
                 connection.commit();
-                return i == 1;
+                return update;
 
             } catch (SQLException e) {
                 connection.rollback();

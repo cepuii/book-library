@@ -14,9 +14,10 @@ public enum CommandEnum {
     ADD_LIBRARIAN(new AddLibrarian()),
     LOGIN(new LoginCommand()),
     SIGN_UP(new SignUpCommand()),
-    SHOW_ORDERS(new OrdersShow()),
+    SHOW_ORDERS(new ShowOrders()),
     SHOW_USERS(new ShowUsers()),
     BLOCK_USER(new BlockUser()),
+    SET_ORDER_STATUS(new SetOrderStatus()),
     LOGOUT(new LogoutCommand());
 
     private final ActionCommand command;

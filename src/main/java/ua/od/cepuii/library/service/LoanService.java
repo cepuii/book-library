@@ -2,10 +2,12 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.dto.LoanTO;
 import ua.od.cepuii.library.dto.Mapper;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.entity.Loan;
+import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.repository.LoanRepository;
 import ua.od.cepuii.library.repository.RepositoryFactory;
 import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
@@ -18,7 +20,7 @@ public class LoanService {
     RepositoryFactory repositoryFactory = new JdbcRepositoryFactory();
     private final LoanRepository loanRepository = repositoryFactory.getLoanRepository();
 
-    public long create(Loan loan) throws SQLException {
+    public long create(Loan loan) {
         return loanRepository.insert(loan);
     }
 
@@ -35,15 +37,21 @@ public class LoanService {
         return null;
     }
 
-    public Collection<Loan> getAll(int currentPage) {
-        return null;
+    public Collection<LoanTO> getAll(FilterAndSortParams filter, Page currentPage) {
+        //TODO create page parameter
+        return Mapper.mapToLoanTO(loanRepository.getAll(filter, filter.getOrderBy(), 10, 0));
     }
 
-    public Collection<LoanTO> getAllByUserId(long userId, Page currentPage) throws SQLException {
+    public Collection<LoanTO> getAllByUserId(long userId, Page currentPage) {
+        //TODO create page parameter
         return Mapper.mapToLoanTO(loanRepository.getAllByUserId(userId, 10, 0));
     }
 
     public Collection<Loan> getByReader(long userId) {
         return null;
+    }
+
+    public boolean setOrderStatus(long loanId, LoanStatus loanStatus) {
+        return loanRepository.updateStatus(loanId, loanStatus);
     }
 }

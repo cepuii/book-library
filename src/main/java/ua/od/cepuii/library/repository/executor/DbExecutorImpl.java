@@ -100,9 +100,9 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAll(Connection connection, String sql, String orderBy, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> executeSelectAllById(Connection connection, String sql, long id, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, Integer.parseInt(orderBy));
+            preparedStatement.setLong(1, id);
             preparedStatement.setInt(2, limit);
             preparedStatement.setInt(3, offset);
             log.info("{}", preparedStatement);

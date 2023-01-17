@@ -23,6 +23,6 @@ public class RemoveBookFromOrder implements ActionCommand {
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return ConfigurationManager.getProperty("path.page.orders");
+        return ConfigurationManager.getProperty("path.controller.orders");
     }
 }

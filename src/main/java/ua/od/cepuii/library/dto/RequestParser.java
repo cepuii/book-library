@@ -126,7 +126,7 @@ public class RequestParser {
         if (ValidationUtil.isInteger(stringParam)) {
             return Long.parseLong(stringParam);
         }
-        throw new RequestParserException(MessageManager.getProperty("message.wrongParam") + ": " + stringParam);
+        return Long.parseLong(String.valueOf(request.getSession().getAttribute(paramName)));
     }
 
     public static Author getNewAuthor(HttpServletRequest request) {
@@ -145,16 +145,28 @@ public class RequestParser {
     public static User getUser(HttpServletRequest request) {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String roleString = request.getParameter("role");
-        Role role = Role.READER;
-        if (roleString != null) {
-            role = Role.valueOf(roleString);
-        }
-        log.info("user: {}, {}", email, role.toString());
+        Role role = getRole(request);
+        log.info("user: {}, {}", email, role);
         return User.builder()
                 .email(email)
                 .password(password)
                 .role(role)
                 .build();
+    }
+
+    public static Role getRole(HttpServletRequest request) {
+        String roleRequest = request.getParameter("role");
+        String roleSession = (String) request.getSession().getAttribute("userRole");
+        if (roleRequest != null) {
+            return Role.valueOf(roleRequest);
+        } else if (roleSession != null) {
+            return Role.valueOf(roleSession);
+        }
+        return Role.READER;
+    }
+
+    public static LoanStatus getLoanStatus(HttpServletRequest request) {
+        String status = request.getParameter("loanStatus");
+        return LoanStatus.valueOf(status);
     }
 }

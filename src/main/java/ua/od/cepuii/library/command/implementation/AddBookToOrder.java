@@ -13,7 +13,6 @@ import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.LoanService;
 import ua.od.cepuii.library.util.ValidationUtil;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,8 +48,6 @@ public class AddBookToOrder implements ActionCommand {
             }
         } catch (NullPointerException e) {
             log.error(MessageManager.getProperty("message.somethingwrong"));
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
         }
         return ConfigurationManager.getProperty("path.page.main");
     }

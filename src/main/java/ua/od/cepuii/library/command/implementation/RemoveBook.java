@@ -31,6 +31,6 @@ public class RemoveBook implements ActionCommand {
                 return ConfigurationManager.getProperty("path.page.main.forward");
             }
         }
-        return ConfigurationManager.getProperty("path.page.mainCatalog");
+        return ConfigurationManager.getProperty("path.page.main_catalog");
     }
 }

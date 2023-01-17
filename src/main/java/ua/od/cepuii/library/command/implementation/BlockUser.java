@@ -21,6 +21,6 @@ public class BlockUser implements ActionCommand {
         boolean isBlocked = RequestParser.getBoolean(request, "isBlocked");
         boolean blockUnblock = userService.blockUnblock(userId, isBlocked);
         log.info("user {} blockUnblock isComplete {}", userId, blockUnblock);
-        return ConfigurationManager.getProperty("path.controller.show_users");
+        return ConfigurationManager.getProperty("path.controller.users");
     }
 }

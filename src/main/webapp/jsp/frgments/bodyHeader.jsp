@@ -10,10 +10,15 @@
     <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <li><a href="${pageContext.request.contextPath}/index.jsp"
                class="nav-link px-2 link-secondary">Home</a></li>
-        <li><a href="${pageContext.request.contextPath}/controller?command=show_orders" class="nav-link px-2 link-dark"><fmt:message
-                key="orders.title"/> </a></li>
-        <li><a href="${pageContext.request.contextPath}/controller?command=show_users&modifaed=true"
-               class="nav-link px-2 link-dark"><fmt:message key="users.href"/> </a></li>
+        <c:if test="${sessionScope.userRole eq 'READER' || sessionScope.userRole eq 'LIBRARIAN'}">
+            <li><a href="${pageContext.request.contextPath}/controller?command=show_orders"
+                   class="nav-link px-2 link-dark"><fmt:message
+                    key="orders.title"/> </a></li>
+        </c:if>
+        <c:if test="${sessionScope.userRole eq 'ADMIN'}">
+            <li><a href="${pageContext.request.contextPath}/controller?command=show_users&modifaed=true"
+                   class="nav-link px-2 link-dark"><fmt:message key="users.href"/> </a></li>
+        </c:if>
     </ul>
     <div class="col-md-3 text-end">
         <c:choose>

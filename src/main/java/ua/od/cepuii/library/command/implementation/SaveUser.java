@@ -27,6 +27,6 @@ public class SaveUser implements ActionCommand {
             return ConfigurationManager.getProperty("path.page.add.librarian");
 
         }
-        return ConfigurationManager.getProperty("path.controller.show_users") + "&" + ConfigurationManager.getProperty("path.success");
+        return ConfigurationManager.getProperty("path.controller.users") + "&" + ConfigurationManager.getProperty("path.success");
     }
 }
