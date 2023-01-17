@@ -3,6 +3,7 @@ package ua.od.cepuii.library.filter;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +22,10 @@ public class LocaleFilter implements Filter {
         if (lang != null) {
             req.getSession().setAttribute("lang", lang);
             log.info("set locale to session: {}", lang);
-
+            HttpServletResponse resp = (HttpServletResponse) response;
+            resp.sendRedirect(req.getHeader("REFERER".toLowerCase()));
+        } else {
+            chain.doFilter(request, response);
         }
-        chain.doFilter(request, response);
     }
 }
