@@ -11,9 +11,9 @@ import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 
-public class LoginCommand implements ActionCommand {
+public class Login implements ActionCommand {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginCommand.class);
+    private static final Logger log = LoggerFactory.getLogger(Login.class);
 
     UserService userService = new UserService();
 

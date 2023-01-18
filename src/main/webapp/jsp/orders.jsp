@@ -1,16 +1,16 @@
-<%@ include file="/jsp/frgments/pageSettings.jspf" %>
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jspf"/>
     <title><fmt:message key="orders.title"/></title>
 </head>
 <body>
 
 <div class="container">
-    <jsp:include page="/jsp/frgments/bodyHeader.jsp"/>
+    <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
     <div class="container">
         <table class="table table-dark table-striped">
             <caption><fmt:message key="orders.title"/></caption>
@@ -81,15 +81,7 @@
     </div>
 </div>
 
-<c:if test="${not empty param.success}">
-    <div class="alert alert-success d-flex align-items-center" role="alertdialog">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-        </svg>
-        <div>
-                ${param.success}
-        </div>
-    </div>
-</c:if>
+<jsp:include page="/jsp/fragments/showResult.jsp"/>
 
 </body>
 </html>

@@ -59,7 +59,7 @@ public class RequestParser {
             return FilterAndSortParams.cleanFilter();
         }
         if (filter == null) {
-            filter = new FilterAndSortParams(firstParam, firstValue, secondParam, secondValue, orderBy, Boolean.parseBoolean(descending));
+            filter = new FilterAndSortParams(firstValue, secondValue, orderBy, Boolean.parseBoolean(descending));
         }
         if (firstValue != null) {
             filter.setFirstParam(firstValue);

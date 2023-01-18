@@ -5,25 +5,27 @@
   Time: 9:35 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ include file="/jsp/frgments/pageSettings.jspf" %>
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jspf"/>
     <title><fmt:message key="main.title"/></title>
 </head>
 <body>
 
 <div class="container">
 
-    <jsp:include page="/jsp/frgments/bodyHeader.jsp"/>
+    <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
+    <c:set var="actionCommand" value="show_books"/>
+
 
     <div class="container">
         Books catalog
         <c:if test="${empty requestScope.data}">
-            <jsp:include page="/controller?command=empty_command&currentPage=1&modifaed=true"/>
+            <jsp:include page="/controller?command=show_books&currentPage=1&modifaed=true"/>
         </c:if>
 
         <%--sorting and filtering--%>
@@ -32,7 +34,7 @@
             <div class="col-8">
                 <form action="${pageContext.request.contextPath}/controller">
                     <div class="row">
-                        <input type="hidden" name="command" value="empty_command">
+                        <input type="hidden" name="command" value="${actionCommand}">
                         <input type="hidden" name="modified" value="true">
                         <div class="col">
                             <label>
@@ -89,7 +91,7 @@
             <%--        cancel button--%>
             <div class="col">
                 <form action="${pageContext.request.contextPath}/controller">
-                    <input type="hidden" name="command" value="empty_command">
+                    <input type="hidden" name="command" value="${actionCommand}">
                     <input type="hidden" name="modified" value="true">
                     <input type="hidden" name="cleanFilter" value="true">
                     <button type="submit" class="btn btn-outline-primary"><fmt:message
@@ -226,74 +228,33 @@
             </tbody>
         </table>
 
-        <%--        TODO first prev next last  --%>
         <ul class="pagination justify-content-center" style="margin:20px 0">
 
             <c:if test="${sessionScope.page.currentPage ne 1}">
                 <li class="page-item">
                     <a class="page-link"
-                       href="${pageContext.request.contextPath}/controller?command=empty_command&currentPage=${sessionScope.page.currentPage-1}">
+                       href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${sessionScope.page.currentPage-1}">
                         <fmt:message key="main.prev"/></a>
                 </li>
             </c:if>
             <c:forEach begin="1" end="${sessionScope.page.pageAmount}" varStatus="loop">
                 <li class="page-item">
                     <a class="page-link"
-                       href="${pageContext.request.contextPath}/controller?command=empty_command&currentPage=${loop.index}">
+                       href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${loop.index}">
                             ${loop.index}</a>
                 </li>
             </c:forEach>
             <c:if test="${sessionScope.page.currentPage ne sessionScope.page.pageAmount}">
                 <li class="page-item">
                     <a class="page-link"
-                       href="${pageContext.request.contextPath}/controller?command=empty_command&currentPage=${sessionScope.page.currentPage+1}">
+                       href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${sessionScope.page.currentPage+1}">
                         <fmt:message key="main.next"/></a>
                 </li>
             </c:if>
         </ul>
     </div>
-
-    <%--TODO modal <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#exampleModal"> --%>
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel"><fmt:message key="books.catalog.edit"/></h5>
-                    <fmt:message key="close" var="close"/>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${close}"></button>
-                </div>
-                <div class="modal-body">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><fmt:message
-                            key="close"/></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <%--       show exception if wrong action on page--%>
-    <c:if test="${not empty requestScope.wrongAction}">
-        <div class="alert alert-danger d-flex align-items-center" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-            </svg>
-            <div>
-                    ${requestScope.wrongAction}
-            </div>
-        </div>
-    </c:if>
-    <c:if test="${not empty param.success}">
-        <div class="alert alert-success d-flex align-items-center" role="alertdialog">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-            </svg>
-            <div>
-                    ${param.success}
-            </div>
-        </div>
-    </c:if>
-
-    <a href="${pageContext.request.contextPath}/controller?command=logout">Logout</a>
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
 </div>
+
 </body>
 </html>

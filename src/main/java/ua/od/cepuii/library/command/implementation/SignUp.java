@@ -3,6 +3,8 @@ package ua.od.cepuii.library.command.implementation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
@@ -11,8 +13,9 @@ import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.ValidationUtil;
 
-public class SignUpCommand implements ActionCommand {
+public class SignUp implements ActionCommand {
 
+    private static final Logger log = LoggerFactory.getLogger(SignUp.class);
     private final UserService userService = new UserService();
 
     @Override

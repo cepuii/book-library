@@ -1,10 +1,10 @@
-<%@ include file="/jsp/frgments/pageSettings.jspf" %>
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jspf"/>
     <title><fmt:message key="books.catalog.edit"/></title>
 </head>
 <body>
@@ -15,7 +15,7 @@
 <c:set var="placeholderAuthors" scope="request"><fmt:message key="books.edit.placeholder.authors"/></c:set>
 <div class="container">
 
-    <jsp:include page="/jsp/frgments/bodyHeader.jsp"/>
+    <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
 
     <div class="justify-content-center ">
         <form method="post">

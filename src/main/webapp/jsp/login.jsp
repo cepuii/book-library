@@ -1,10 +1,10 @@
-<%@ include file="/jsp/frgments/pageSettings.jspf" %>
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 
 <!doctype html>
 <html lang="en">
 <head>
-    <jsp:include page="/jsp/frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jspf"/>
 </head>
 <body>
 <div class="container p-5 my-5 border">

@@ -1,18 +1,19 @@
-<%@ include file="/jsp/frgments/pageSettings.jspf" %>
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jspf"/>
     <title><fmt:message key="users.href"/></title>
 </head>
 <body>
 
 <div class="container">
 
-    <jsp:include page="/jsp/frgments/bodyHeader.jsp"/>
+    <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
 
+    <c:set var="actionCommand" value="show_users"/>
 
     <div class="container">
 
@@ -21,7 +22,7 @@
             <div class="col-8">
                 <form action="${pageContext.request.contextPath}/controller">
                     <div class="row">
-                        <input type="hidden" name="command" value="show_users">
+                        <input type="hidden" name="command" value="${actionCommand}">
                         <input type="hidden" name="modified" value="true">
                         <div class="col">
                             <label>
@@ -88,7 +89,7 @@
             <%--        cancel button--%>
             <div class="col">
                 <form action="${pageContext.request.contextPath}/controller">
-                    <input type="hidden" name="command" value="show_users">
+                    <input type="hidden" name="command" value="${actionCommand}">
                     <input type="hidden" name="modified" value="true">
                     <input type="hidden" name="cleanFilter" value="true">
                     <button type="submit" class="btn btn-outline-primary"><fmt:message
@@ -254,43 +255,35 @@
         </table>
 
         <%--        TODO first prev next last  --%>
+
         <ul class="pagination justify-content-center" style="margin:20px 0">
 
             <c:if test="${sessionScope.page.currentPage ne 1}">
                 <li class="page-item">
                     <a class="page-link"
-                       href="${pageContext.request.contextPath}/controller?command=show_users&currentPage=${sessionScope.page.currentPage-1}">
+                       href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${sessionScope.page.currentPage-1}">
                         <fmt:message key="main.prev"/></a>
                 </li>
             </c:if>
             <c:forEach begin="1" end="${sessionScope.page.pageAmount}" varStatus="loop">
                 <li class="page-item">
                     <a class="page-link"
-                       href="${pageContext.request.contextPath}/controller?command=show_users&currentPage=${loop.index}">
+                       href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${loop.index}">
                             ${loop.index}</a>
                 </li>
             </c:forEach>
             <c:if test="${sessionScope.page.currentPage ne sessionScope.page.pageAmount}">
                 <li class="page-item">
                     <a class="page-link"
-                       href="${pageContext.request.contextPath}/controller?command=show_users&currentPage=${sessionScope.page.currentPage+1}">
+                       href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${sessionScope.page.currentPage+1}">
                         <fmt:message key="main.next"/></a>
                 </li>
             </c:if>
         </ul>
     </div>
-</div>
-</div>
-<hr/>
-<c:if test="${not empty param.success}">
-    <div class="alert alert-success d-flex align-items-center" role="alertdialog">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-        </svg>
-        <div>
-                ${param.success}
-        </div>
-    </div>
-</c:if>
+    <hr/>
+
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
 
 </body>
 </html>

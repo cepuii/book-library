@@ -14,6 +14,6 @@
 </head>
 <body>
 <%--<jsp:forward page="jsp/main.jsp"></jsp:forward>--%>
-<a href="${pageContext.request.contextPath}/controller?command=empty_command">go to</a>
+<a href="${pageContext.request.contextPath}/controller?command=show_books">go to</a>
 </body>
 </html>

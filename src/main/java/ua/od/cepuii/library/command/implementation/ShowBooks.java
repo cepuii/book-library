@@ -14,8 +14,8 @@ import ua.od.cepuii.library.service.BookService;
 
 import java.util.Collection;
 
-public class GetAllBooks implements ActionCommand {
-    private static final Logger log = LoggerFactory.getLogger(GetAllBooks.class);
+public class ShowBooks implements ActionCommand {
+    private static final Logger log = LoggerFactory.getLogger(ShowBooks.class);
 
     private final BookService bookService = new BookService();
 

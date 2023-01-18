@@ -1,17 +1,17 @@
-<%@ include file="/jsp/frgments/pageSettings.jspf" %>
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/frgments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jspf"/>
     <title><fmt:message key="books.edit.add.librarian"/></title>
 </head>
 <body>
 
 <div class="container">
 
-    <jsp:include page="/jsp/frgments/bodyHeader.jsp"/>
+    <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
 
     <div class="container">
         <form class="row g-3" method="post" action="${pageContext.request.contextPath}/controller">
@@ -65,14 +65,6 @@
         </form>
     </div>
 </div>
-<c:if test="${not empty requestScope.wrongAction}">
-    <div class="alert alert-danger d-flex align-items-center" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
-        </svg>
-        <div>
-                ${requestScope.wrongAction}
-        </div>
-    </div>
-</c:if>
+<jsp:include page="/jsp/fragments/showResult.jsp"/>
 </body>
 </html>

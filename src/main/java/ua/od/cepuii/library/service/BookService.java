@@ -74,7 +74,7 @@ public class BookService implements Service {
         String orderBy = (filterParam.getOrderBy().isBlank() ? "b_title" : filterParam.getOrderBy()) + (filterParam.isDescending() ? " DESC" : "");
         int limit = currentPage.getNoOfRecords();
         int offset = currentPage.getNoOfRecords() * (currentPage.getCurrentPage() - 1);
-        log.info("getAll books:filter {} ; {} order {}, descending {}, limit {} , offset {}",
+        log.info("getAll books:filter {}; {}; order {}, descending {}, limit {}, offset {}",
                 filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset);
         return bookRepository.getAll(filterParam, orderBy, limit, offset);
     }

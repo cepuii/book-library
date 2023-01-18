@@ -125,9 +125,9 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Collection<Book> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
-        String titleFilter = prepareForLike(validateForLike(params.getFirstParam()));
-        String authorFilter = prepareForLike(validateForLike(params.getSecondParam()));
+    public Collection<Book> getAll(FilterAndSortParams filterParam, String orderBy, int limit, int offset) {
+        String titleFilter = prepareForLike(validateForLike(filterParam.getFirstParam()));
+        String authorFilter = prepareForLike(validateForLike(filterParam.getSecondParam()));
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, titleFilter, authorFilter, limit, offset, RepositoryUtil::fillBooks);
         } catch (SQLException e) {

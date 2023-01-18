@@ -1,4 +1,4 @@
-<%@ include file="/jsp/frgments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/taglibs.jspf" %>
 <fmt:setBundle basename="text"/>
 <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
                 <span class="navbar-brand">
@@ -23,7 +23,14 @@
     <div class="col-md-3 text-end">
         <c:choose>
             <c:when test="${not empty sessionScope.user}">
-                ${sessionScope.user} hello!
+                <div class="row justify-content-end">
+                    <div class="col-6">
+                            ${sessionScope.user} hello!
+                    </div>
+                    <div class="col-2">
+                        <a href="${pageContext.request.contextPath}/controller?command=logout">Logout</a>
+                    </div>
+                </div>
             </c:when>
             <c:otherwise>
                 <form>
@@ -39,7 +46,7 @@
             </c:otherwise>
         </c:choose>
     </div>
-    <div class="col-mb-3 text-end">
+    <div class="col-mb-8 text-end">
         <form onchange="submit();">
             <label>
                 <select name="language">
