@@ -1,6 +1,6 @@
 <%@ include file="/jsp/fragments/taglibs.jspf" %>
 <fmt:setBundle basename="text"/>
-<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between mt-1 border-bottom">
                 <span class="navbar-brand">
                 <img src="${pageContext.request.contextPath}/image/logo.png" alt="" width="90"
                      height="51" class="d-inline-block align-text-top">
@@ -20,15 +20,20 @@
                    class="nav-link px-2 link-dark"><fmt:message key="users.href"/> </a></li>
         </c:if>
     </ul>
-    <div class="col-md-3 text-end">
+    <%--    <div class="col-md-3 text-end">--%>
+    <div class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <c:choose>
             <c:when test="${not empty sessionScope.user}">
                 <div class="row justify-content-end">
-                    <div class="col-6">
+                    <div class="col px-2">
                             ${sessionScope.user} hello!
                     </div>
-                    <div class="col-2">
-                        <a href="${pageContext.request.contextPath}/controller?command=logout">Logout</a>
+                    <div class="col-2 px-2">
+                        <form method="post" action="${pageContext.request.contextPath}/controller">
+                            <input type="hidden" name="command" value="logout">
+                            <button type="submit" class="btn btn-outline-primary"><fmt:message
+                                    key="header.logout"/></button>
+                        </form>
                     </div>
                 </div>
             </c:when>

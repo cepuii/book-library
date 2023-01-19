@@ -43,7 +43,7 @@ public class RequestParser {
                     .build();
         }
         String currentPage = request.getParameter("currentPage");
-        if (ValidationUtil.isInteger(currentPage)) {
+        if (ValidationUtil.isDigit(currentPage)) {
             page.setCurrentPage(Integer.parseInt(currentPage));
         }
         return page;
@@ -105,7 +105,7 @@ public class RequestParser {
 
     private static int getInt(HttpServletRequest request, String paramName) throws RequestParserException {
         String stringParam = request.getParameter(paramName);
-        if (ValidationUtil.isInteger(stringParam)) {
+        if (ValidationUtil.isDigit(stringParam)) {
             return Integer.parseInt(stringParam);
         }
         throw new RequestParserException(MessageManager.getProperty("message.wrongParam") + ": " + stringParam);
@@ -123,7 +123,7 @@ public class RequestParser {
 
     public static long getLong(HttpServletRequest request, String paramName) throws RequestParserException {
         String stringParam = request.getParameter(paramName);
-        if (ValidationUtil.isInteger(stringParam)) {
+        if (ValidationUtil.isDigit(stringParam)) {
             return Long.parseLong(stringParam);
         }
         return Long.parseLong(String.valueOf(request.getSession().getAttribute(paramName)));
@@ -169,4 +169,12 @@ public class RequestParser {
         String status = request.getParameter("loanStatus");
         return LoanStatus.valueOf(status);
     }
+
+
+    public static void setUserInfo(HttpServletRequest request, User user) {
+        request.getSession().setAttribute("userId", user.getId());
+        request.getSession().setAttribute("user", user.getEmail());
+        request.getSession().setAttribute("userRole", user.getRole().toString());
+    }
+
 }

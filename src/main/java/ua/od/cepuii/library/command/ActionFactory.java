@@ -15,7 +15,7 @@ public class ActionFactory {
                 CommandEnum commandEnum = CommandEnum.valueOf(commandString.toUpperCase());
                 current = commandEnum.getCommand();
             } catch (IllegalArgumentException e) {
-                request.setAttribute("wrongAction", commandString + MessageManager.getProperty("message.wrongaction"));
+                request.setAttribute("wrongAction", commandString + MessageManager.getProperty("message.wrongAction"));
             }
         }
         return current;

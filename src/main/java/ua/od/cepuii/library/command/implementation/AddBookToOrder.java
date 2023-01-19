@@ -25,7 +25,7 @@ public class AddBookToOrder implements ActionCommand {
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession();
         String days = request.getParameter("days");
-        if (!ValidationUtil.isInteger(days)) {
+        if (!ValidationUtil.isDigit(days)) {
             log.error("wrong duration");
             request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
             return ConfigurationManager.getProperty("path.page.main.forward");
@@ -47,7 +47,7 @@ public class AddBookToOrder implements ActionCommand {
                 session.setAttribute(loanItems1, loanItems);
             }
         } catch (NullPointerException e) {
-            log.error(MessageManager.getProperty("message.somethingwrong"));
+            log.error(MessageManager.getProperty("message.somethingWrong"));
         }
         return ConfigurationManager.getProperty("path.page.main");
     }

@@ -43,13 +43,17 @@ public class UserService implements Service {
         return (recordsAmount % page.getNoOfRecords()) == 0 ? (recordsAmount / page.getNoOfRecords()) : (1 + (recordsAmount / page.getNoOfRecords()));
     }
 
-    public Collection<UserTO> getAll(Page currentPage, FilterAndSortParams filterParam) {
-        String orderBy = (filterParam.getOrderBy().isBlank() ? "email" : filterParam.getOrderBy()) + (filterParam.isDescending() ? " DESC" : "");
-        int limit = currentPage.getNoOfRecords();
-        int offset = currentPage.getNoOfRecords() * (currentPage.getCurrentPage() - 1);
-        log.info(String.format("getAll books:filter %s ; %s order %s, descending %b, limit %d , offset %d",
-                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset));
-        Collection<User> users = userRepository.getAll(filterParam, orderBy, limit, offset);
+    public Collection<UserTO> getAll(Page page, FilterAndSortParams params) {
+        String orderBy = (params.getOrderBy().isBlank() ? "email" : params.getOrderBy()) + (params.isDescending() ? " DESC" : "");
+        int limit = page.getNoOfRecords();
+        int offset = page.getNoOfRecords() * (page.getCurrentPage() - 1);
+        log.info("getAll books: {}; {} order {}, descending {}, limit {} , offset {}",
+                params.getFirstParam(), params.getSecondParam(), params.getOrderBy(), params.isDescending(), limit, offset);
+        Collection<User> users = userRepository.getAll(params, orderBy, limit, offset);
         return Mapper.mapToUserTO(users);
+    }
+
+    public boolean isExistEmail(String email) {
+        return userRepository.getByEmail(email).isPresent();
     }
 }

@@ -4,18 +4,28 @@ import ua.od.cepuii.library.entity.AbstractEntity;
 import ua.od.cepuii.library.entity.User;
 
 public class ValidationUtil {
+    private static final String EMAIL_REGEX = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$";
+    private static final String PASSWORD_REGEX = "^(?=.*[a-zA-Z])(?=.*[0-9]).{4,20}$";
+    private static final String DIGITAL_REGEX = "[0-9]+";
 
+    private ValidationUtil() {
 
-    public static boolean isInteger(String currentPageString) {
-        return currentPageString != null && currentPageString.matches("[0-9]+");
+    }
+
+    private static boolean validateString(String string, String regex) {
+        return string != null && string.matches(regex);
+    }
+
+    public static boolean isDigit(String digitString) {
+        return validateString(digitString, DIGITAL_REGEX);
     }
 
     public static boolean validateEmail(String email) {
-        return true;
+        return validateString(email, EMAIL_REGEX);
     }
 
     public static boolean validatePass(String password) {
-        return true;
+        return validateString(password, PASSWORD_REGEX);
     }
 
     public static boolean isNew(AbstractEntity entity) {
@@ -23,6 +33,6 @@ public class ValidationUtil {
     }
 
     public static boolean validateUser(User user) {
-        return true;
+        return validateEmail(user.getEmail()) && validatePass(user.getPassword());
     }
 }

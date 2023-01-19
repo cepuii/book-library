@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterAndSortParams;
 import ua.od.cepuii.library.entity.User;
-import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
 
@@ -126,8 +125,9 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeSelectAllByParam(connection, SELECT_BY_EMAIL, email, RepositoryUtil::fillUsers).stream().findAny();
         } catch (SQLException e) {
-            throw new RepositoryException("Can`t find user with this email: " + email, e);
+            log.error(e.getMessage());
         }
+        return Optional.empty();
     }
 
     @Override
@@ -138,7 +138,7 @@ public class JdbcUserRepository implements UserRepository {
             String userRoleForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
             statement.setString(1, userForSearch);
             statement.setString(2, userRoleForSearch);
-            log.info(statement.toString());
+            log.info("{}", statement);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);

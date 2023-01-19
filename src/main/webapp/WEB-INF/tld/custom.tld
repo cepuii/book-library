@@ -42,5 +42,8 @@
             <type>java.lang.String</type>
         </attribute>
     </tag>
-
+    <tag-file>
+        <name>showMessage</name>
+        <path>/WEB-INF/tags/showMessage.tag</path>
+    </tag-file>
 </taglib>

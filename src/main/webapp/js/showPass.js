@@ -1,5 +1,5 @@
 var input1 = document.getElementById("password");
-var input2 = document.getElementById("confirm-password");
+var input2 = document.getElementById("confirm_password");
 
 function show() {
     if (input1.getAttribute('type') === 'password') {

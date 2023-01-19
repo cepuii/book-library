@@ -19,7 +19,7 @@ public class RemoveBook implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         String bookIdString = request.getParameter("bookId");
-        if (ValidationUtil.isInteger(bookIdString)) {
+        if (ValidationUtil.isDigit(bookIdString)) {
             try {
                 bookService.delete(Long.parseLong(bookIdString));
                 log.info("delete book {}", bookIdString);

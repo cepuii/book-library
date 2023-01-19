@@ -11,6 +11,7 @@ import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
+import ua.od.cepuii.library.util.CookieUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 public class SignUp implements ActionCommand {
@@ -20,20 +21,41 @@ public class SignUp implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        String path;
         User user = RequestParser.getUser(request);
-
-        if (ValidationUtil.validateUser(user)) {
-            long userId = userService.create(user);
-            HttpSession session = request.getSession();
-            session.setAttribute("userId", userId);
-            session.setAttribute("user", user.getEmail());
-            path = ConfigurationManager.getProperty("path.page.main");
-        } else {
-            request.setAttribute("errorLoginPassMessage", MessageManager.getProperty("message.signuperror"));
-            path = ConfigurationManager.getProperty("path.page.signup");
+        boolean forwardBack = validateUser(request, user);
+        if (userService.isExistEmail(user.getEmail())) {
+            forwardBack = true;
+            log.error("email already exist: {}", user.getEmail());
+            request.getSession().setAttribute("emailExist", MessageManager.getProperty("message.signUp.email.exist"));
         }
+        if (forwardBack) {
+            request.getSession().setAttribute("userEmail", user.getEmail());
+            return ConfigurationManager.getProperty("path.page.signUp.forward");
+        }
+        long userId = userService.create(user);
+        user.setId(userId);
+        request.getSession().invalidate();
+        RequestParser.setUserInfo(request, user);
+        CookieUtil.setUserToCookie(response, user);
+        return ConfigurationManager.getProperty("path.page.main");
+    }
 
-        return path;
+    private static boolean validateUser(HttpServletRequest request, User user) {
+        boolean forwardBack = false;
+        HttpSession session = request.getSession();
+        if (!ValidationUtil.validatePass(user.getPassword())) {
+            forwardBack = true;
+            session.setAttribute("badPassword", MessageManager.getProperty("message.signUp.password"));
+        }
+        if (!ValidationUtil.validateEmail(user.getEmail())) {
+            forwardBack = true;
+            session.setAttribute("badEmail", MessageManager.getProperty("message.signUp.email"));
+        }
+        String confirmPassword = request.getParameter("confirm_password");
+        if (confirmPassword == null || !confirmPassword.equals(user.getPassword())) {
+            forwardBack = true;
+            session.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));
+        }
+        return forwardBack;
     }
 }

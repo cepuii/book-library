@@ -1,13 +1,13 @@
 INSERT INTO users (email, password, role_id)
-VALUES ('ivan@email', 'qwerty', 1);
+VALUES ('ivan@email.com', 'qwerty1', 1);
 
 INSERT INTO author
 VALUES (DEFAULT, 'Blinov'),
        (DEFAULT, 'Romanchik');
 
 INSERT INTO book (title, publication_id, date_publication, total)
-VALUES ('java from epam', 2, '2021', 10),
-       ('java methods v2', 1, '2015', 10);
+VALUES ('Java from epam', 2, '2021', 10),
+       ('Java methods v2', 1, '2015', 10);
 
 INSERT INTO book_author
 VALUES (1003, 1001),
@@ -39,13 +39,13 @@ FROM book
          JOIN publication_type pt ON pt.id = book.publication_id;
 
 INSERT INTO book (title, publication_id, date_publication, total)
-VALUES ('java from epam v3', 2, '2024', 10),
-       ('some book', 1, '1006', 10),
-       ('some book 2', 1, '1007', 10),
-       ('some book 3', 1, '1008', 10),
-       ('some book 4', 1, '1009', 10),
-       ('some book 5', 1, '1010', 10),
-       ('some book 6', 1, '1011', 10);
+VALUES ('Java from epam v3', 2, '2024', 10),
+       ('Some book', 1, '1006', 10),
+       ('Some book 2', 1, '1007', 10),
+       ('Some book 3', 1, '1008', 10),
+       ('Some book 4', 1, '1009', 10),
+       ('Some book 5', 1, '1010', 10),
+       ('Some book 6', 1, '1011', 10);
 
 INSERT INTO author
 VALUES (DEFAULT, 'surname0'),
@@ -85,5 +85,5 @@ SELECT id
 FROM val;
 
 INSERT INTO users (email, password, role_id)
-VALUES ('admin@admin', 'qwerty', 3),
-       ('librarian@email.com', 'qwerty', 2);
+VALUES ('admin@admin.com', 'qwerty1', 3),
+       ('librarian@email.com', 'qwerty1', 2);

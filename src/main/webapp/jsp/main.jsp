@@ -237,7 +237,9 @@
                         <fmt:message key="main.prev"/></a>
                 </li>
             </c:if>
-            <c:forEach begin="1" end="${sessionScope.page.pageAmount}" varStatus="loop">
+            <c:forEach begin="${sessionScope.page.currentPage > 2 ? sessionScope.page.currentPge - 1 : 1}"
+                       end="${sessionScope.page.pageAmount > 5 ? 5 : sessionScope.page.pageAmount}"
+                       varStatus="loop">
                 <li class="page-item">
                     <a class="page-link"
                        href="${pageContext.request.contextPath}/controller?command=${actionCommand}&currentPage=${loop.index}">
