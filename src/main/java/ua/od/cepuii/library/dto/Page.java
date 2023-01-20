@@ -17,4 +17,11 @@ public class Page implements Serializable {
     private int noOfRecords;
     private int pageAmount;
 
+    public int getOffset() {
+        return getNoOfRecords() * (getCurrentPage() - 1);
+    }
+
+    public int getLimit() {
+        return getNoOfRecords();
+    }
 }

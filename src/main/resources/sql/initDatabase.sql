@@ -82,7 +82,6 @@ CREATE TABLE loan
     duration   INTEGER DEFAULT ('0') NOT NULL,
     status_id  INTEGER               NOT NULL,
 
-    CONSTRAINT unique_indexs_user_book_id UNIQUE (user_id, book_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (book_id) REFERENCES book (id),
     FOREIGN KEY (status_id) REFERENCES loan_status (id)
@@ -103,4 +102,5 @@ VALUES (0, 'BOOK'),
 INSERT INTO loan_status
 VALUES (0, 'RAW'),
        (1, 'COMPLETE'),
-       (2, 'OUT_DATE');
+       (2, 'OUT_DATE'),
+       (3, 'RETURNED');

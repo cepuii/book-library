@@ -27,10 +27,8 @@ public class RequestParser {
 
     public static Page getPageFromSession(HttpServletRequest request, Service service, FilterAndSortParams filterParam) {
         Page page = getPageFromSession(request);
-//        if (request.getParameter("modified") != null) {
         int pageAmount = service.getPageAmount(page, filterParam);
         page.setPageAmount(pageAmount);
-//        }
         return page;
     }
 
@@ -78,17 +76,24 @@ public class RequestParser {
 
     public static Loan getLoan(HttpServletRequest request) {
         Loan loan = Loan.builder()
-                .userId((long) request.getSession().getAttribute("userId"))
-                .bookId(Long.parseLong(request.getParameter("bookId")))
-                .duration(Integer.parseInt(request.getParameter("days")))
+                .id(getLong(request, "loanId"))
+                .userId(getLong(request, "userId"))
+                .bookId(getLong(request, "bookId"))
                 .status(getStatus(request))
                 .build();
+        if (request.getParameter("days") != null) {
+            loan.setDuration(getInt(request, "days"));
+        }
         log.info("loan parse: {}", loan);
         return loan;
     }
 
     private static LoanStatus getStatus(HttpServletRequest request) {
-        return request.getParameter("status") == null ? LoanStatus.RAW : LoanStatus.valueOf(request.getParameter("status"));
+        String loanStatus = request.getParameter("loanStatus");
+        if (loanStatus == null) {
+            loanStatus = request.getParameter("status");
+        }
+        return loanStatus == null ? LoanStatus.RAW : LoanStatus.valueOf(loanStatus);
     }
 
     public static Book getBook(HttpServletRequest request) throws RequestParserException {
@@ -121,12 +126,16 @@ public class RequestParser {
         return authors;
     }
 
-    public static long getLong(HttpServletRequest request, String paramName) throws RequestParserException {
+    public static long getLong(HttpServletRequest request, String paramName) {
         String stringParam = request.getParameter(paramName);
         if (ValidationUtil.isDigit(stringParam)) {
             return Long.parseLong(stringParam);
         }
-        return Long.parseLong(String.valueOf(request.getSession().getAttribute(paramName)));
+        String value = String.valueOf(request.getSession().getAttribute(paramName));
+        if (ValidationUtil.isDigit(value)) {
+            return Long.parseLong(value);
+        }
+        return 0;
     }
 
     public static Author getNewAuthor(HttpServletRequest request) {
@@ -143,11 +152,13 @@ public class RequestParser {
     }
 
     public static User getUser(HttpServletRequest request) {
+        long userId = getLong(request, "userId");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         Role role = getRole(request);
         log.info("user: {}, {}", email, role);
         return User.builder()
+                .id(userId)
                 .email(email)
                 .password(password)
                 .role(role)
@@ -165,16 +176,14 @@ public class RequestParser {
         return Role.READER;
     }
 
-    public static LoanStatus getLoanStatus(HttpServletRequest request) {
-        String status = request.getParameter("loanStatus");
-        return LoanStatus.valueOf(status);
-    }
-
-
     public static void setUserInfo(HttpServletRequest request, User user) {
         request.getSession().setAttribute("userId", user.getId());
-        request.getSession().setAttribute("user", user.getEmail());
+        request.getSession().setAttribute("userEmail", user.getEmail());
         request.getSession().setAttribute("userRole", user.getRole().toString());
     }
 
+    public static void setFromSessionToRequest(HttpServletRequest request, String s) {
+        request.setAttribute(s, request.getSession().getAttribute(s));
+        request.getSession().removeAttribute(s);
+    }
 }

@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.implementation;
+package ua.od.cepuii.library.command.admin;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

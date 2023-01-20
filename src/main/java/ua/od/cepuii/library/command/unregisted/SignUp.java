@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.implementation;
+package ua.od.cepuii.library.command.unregisted;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ public class SignUp implements ActionCommand {
             request.getSession().setAttribute("userEmail", user.getEmail());
             return ConfigurationManager.getProperty("path.page.signUp.forward");
         }
-        long userId = userService.create(user);
+        long userId = userService.createOrUpdate(user);
         user.setId(userId);
         request.getSession().invalidate();
         RequestParser.setUserInfo(request, user);
@@ -51,7 +51,7 @@ public class SignUp implements ActionCommand {
             forwardBack = true;
             session.setAttribute("badEmail", MessageManager.getProperty("message.signUp.email"));
         }
-        String confirmPassword = request.getParameter("confirm_password");
+        String confirmPassword = request.getParameter("confirmPassword");
         if (confirmPassword == null || !confirmPassword.equals(user.getPassword())) {
             forwardBack = true;
             session.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));

@@ -7,7 +7,6 @@ import ua.od.cepuii.library.dto.LoanTO;
 import ua.od.cepuii.library.dto.Mapper;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.entity.Loan;
-import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.repository.LoanRepository;
 import ua.od.cepuii.library.repository.RepositoryFactory;
 import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
@@ -51,7 +50,17 @@ public class LoanService {
         return null;
     }
 
-    public boolean setOrderStatus(long loanId, LoanStatus loanStatus) {
-        return loanRepository.updateStatus(loanId, loanStatus);
+    public boolean setOrderStatus(Loan loan) {
+        return loanRepository.updateStatus(loan);
+    }
+
+    public Collection<Long> getBooksIdsByUserId(long userId) {
+        return loanRepository.getBooksIdsByUserId(userId);
+    }
+
+
+    public Collection<LoanTO> getLoanHistory(long userId, Page page) {
+        Collection<Loan> loanHistory = loanRepository.getLoanHistory(userId, page.getLimit(), page.getOffset());
+        return Mapper.mapToLoanTO(loanHistory);
     }
 }

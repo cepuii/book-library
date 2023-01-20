@@ -55,9 +55,9 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllByParam(Connection connection, String sql, String param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> executeSelectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, param);
+            preparedStatement.setObject(1, param);
             log.info("{}", preparedStatement);
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
@@ -102,6 +102,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     @Override
     public Collection<T> executeSelectAllById(Connection connection, String sql, long id, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            log.info("id {}, limit {}, offset {}", id, limit, offset);
             preparedStatement.setLong(1, id);
             preparedStatement.setInt(2, limit);
             preparedStatement.setInt(3, offset);

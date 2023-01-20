@@ -25,7 +25,8 @@ public class JdbcUserRepository implements UserRepository {
     private final DbExecutor<User> dbExecutor;
     private final ConnectionPool connectionPool;
     private static final String INSERT_USER = "INSERT INTO users (email, password, role_id) VALUES (?,?,?)";
-    private static final String UPDATE_USER = "UPDATE users SET email = ?, password = ?, blocked = ?, role_id = ?";
+    private static final String UPDATE_USER_EMAIL = "UPDATE users SET email = ? WHERE id=?";
+    private static final String UPDATE_USER_PASSWORD = "UPDATE users SET password = ? WHERE id=?";
     private static final String UPDATE_USER_BLOCK = "UPDATE users SET blocked=? WHERE id=?";
     private static final String DELETE_BY_ID = "DELETE FROM users WHERE id=?";
     private static final String SELECT_ALL = "SELECT users.id users_id, email, password, registered, blocked, ur.role role " +
@@ -37,7 +38,7 @@ public class JdbcUserRepository implements UserRepository {
     private static final String GET_COUNT = "SELECT count(*) " +
             "FROM users JOIN user_role ur on ur.id = users.role_id " +
             "WHERE users.email LIKE ? AND role LIKE ? ";
-    private static final String SELECT_BY_ID = SELECT_ALL + " WHERE id=?";
+    private static final String SELECT_BY_ID = SELECT_ALL + " WHERE users.id=?";
     private static final String SELECT_BY_EMAIL = SELECT_ALL + " WHERE email = ?";
 
 
@@ -65,10 +66,13 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> getById(long id) throws SQLException {
+    public Optional<User> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
             return dbExecutor.executeSelect(connection, SELECT_BY_ID, id, RepositoryUtil::fillUser);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
+        return Optional.empty();
     }
 
     @Override
@@ -76,8 +80,25 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER, List.of(entity.getEmail(), entity.getPassword(),
-                        entity.isBlocked(), entity.getRole().ordinal()));
+                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
+                connection.commit();
+                return update;
+            } catch (Exception e) {
+                connection.rollback();
+                log.error(e.getMessage());
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public boolean updatePassword(long userId, String password) {
+        try (Connection connection = connectionPool.getConnection()) {
+            connection.setSavepoint();
+            try {
+                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER_PASSWORD, List.of(password, userId));
                 connection.commit();
                 return update;
             } catch (Exception e) {

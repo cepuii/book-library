@@ -36,7 +36,7 @@ public class BookService implements Service {
         return bookRepository.update(book);
     }
 
-    public boolean delete(long id) throws SQLException {
+    public boolean delete(long id) {
         return bookRepository.delete(id);
     }
 
@@ -70,12 +70,10 @@ public class BookService implements Service {
         return pageAmount;
     }
 
-    public Collection<Book> getAll(Page currentPage, FilterAndSortParams filterParam) {
+    public Collection<Book> getAll(Page page, FilterAndSortParams filterParam) {
         String orderBy = (filterParam.getOrderBy().isBlank() ? "b_title" : filterParam.getOrderBy()) + (filterParam.isDescending() ? " DESC" : "");
-        int limit = currentPage.getNoOfRecords();
-        int offset = currentPage.getNoOfRecords() * (currentPage.getCurrentPage() - 1);
         log.info("getAll books:filter {}; {}; order {}, descending {}, limit {}, offset {}",
-                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), limit, offset);
-        return bookRepository.getAll(filterParam, orderBy, limit, offset);
+                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), page.getLimit(), page.getOffset());
+        return bookRepository.getAll(filterParam, orderBy, page.getLimit(), page.getOffset());
     }
 }

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface UserRepository extends AbstractEntityRepository<User> {
 
+    boolean updatePassword(long userId, String password);
+
     Optional<User> getByEmail(String email);
 
     int getCount(FilterAndSortParams filterParam);

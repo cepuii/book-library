@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.implementation;
+package ua.od.cepuii.library.command.unregisted;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,17 +15,15 @@ import ua.od.cepuii.library.util.CookieUtil;
 public class Login implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(Login.class);
-
-    UserService userService = new UserService();
-
+    private final UserService userService = new UserService();
     private static final String PARAM_NAME_EMAIL = "email";
     private static final String PARAM_NAME_PASSWORD = "password";
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+        String page;
         String email = request.getParameter(PARAM_NAME_EMAIL);
         String password = request.getParameter(PARAM_NAME_PASSWORD);
-        String page;
         User user = userService.getUserByEmailAndPassword(email, password);
         if (user != null) {
             request.getSession().removeAttribute("logout");
@@ -35,9 +33,10 @@ public class Login implements ActionCommand {
             page = ConfigurationManager.getProperty("path.page.main");
         } else {
             log.info("error incorrect login");
+            request.setAttribute("userEmail", email);
             request.setAttribute("errorLoginPassMessage",
                     MessageManager.getProperty("message.loginError"));
-            page = ConfigurationManager.getProperty("path.page.login") + ConfigurationManager.getProperty("path.page.forward");
+            page = ConfigurationManager.getProperty("path.page.login.forward");
         }
         return page;
     }

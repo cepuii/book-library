@@ -22,7 +22,7 @@ public interface DbExecutor<T extends AbstractEntity> {
 
     boolean executeById(Connection connection, String sql, long id) throws SQLException;
 
-    Collection<T> executeSelectAllByParam(Connection connection, String sql, String param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
+    Collection<T> executeSelectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 
     Collection<T> executeSelectAllWithLimit(Connection connection, String sql, String titleFilter, String authorFilter, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 

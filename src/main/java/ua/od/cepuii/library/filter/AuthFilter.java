@@ -16,7 +16,7 @@ public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        if (req.getSession().getAttribute("user") == null && req.getSession().getAttribute("logout") == null) {
+        if (req.getSession().getAttribute("userEmail") == null && req.getSession().getAttribute("logout") == null) {
             checkUserInCookie(req);
         }
         chain.doFilter(request, response);
@@ -26,8 +26,8 @@ public class AuthFilter implements Filter {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie ck : cookies) {
-                if ("user".equals(ck.getName()) && !ck.getValue().isEmpty()) {
-                    req.getSession().setAttribute("user", ck.getValue());
+                if ("userEmail".equals(ck.getName()) && !ck.getValue().isEmpty()) {
+                    req.getSession().setAttribute("userEmail", ck.getValue());
                 } else if ("userId".equals(ck.getName()) && !ck.getValue().isEmpty()) {
                     req.getSession().setAttribute("userId", ck.getValue());
                 } else if ("userRole".equals(ck.getName()) && !ck.getValue().isEmpty()) {

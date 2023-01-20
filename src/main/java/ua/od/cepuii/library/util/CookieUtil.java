@@ -14,7 +14,7 @@ public class CookieUtil {
         cookie.setMaxAge(60 * 60 * 24);
         cookie.setPath("/");
         response.addCookie(cookie);
-        cookie = new Cookie("user", user.getEmail());
+        cookie = new Cookie("userEmail", user.getEmail());
         cookie.setMaxAge(60 * 60 * 24);
         cookie.setPath("/");
         response.addCookie(cookie);

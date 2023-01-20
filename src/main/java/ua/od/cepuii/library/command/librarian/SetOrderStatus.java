@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.implementation;
+package ua.od.cepuii.library.command.librarian;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.entity.enums.LoanStatus;
+import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.LoanService;
 
@@ -17,10 +17,9 @@ public class SetOrderStatus implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long loanId = RequestParser.getLong(request, "loanId");
-        LoanStatus loanStatus = RequestParser.getLoanStatus(request);
-        boolean b = loanService.setOrderStatus(loanId, loanStatus);
-        log.info("set status: {} to loanId: {} in result: {} ", loanStatus, loanId, b);
+        Loan loan = RequestParser.getLoan(request);
+        boolean b = loanService.setOrderStatus(loan);
+        log.info("set status: {} in result: {} ", loan.getStatus(), b);
         if (b) {
             return ConfigurationManager.getProperty("path.controller.orders") + "&" + ConfigurationManager.getProperty("path.success");
         }

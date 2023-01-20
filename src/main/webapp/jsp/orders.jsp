@@ -65,8 +65,16 @@
                                 <input type="hidden" name="command"
                                        value="set_order_status">
                                 <input type="hidden" name="loanId" value="${loan.id}">
-                                <select name="loanStatus" id="inputAddress">
-                                    <option value="COMPLETE" selected><fmt:message key="complete"/></option>
+                                <input type="hidden" name="bookId" value="${loan.bookId}">
+                                <select name="loanStatus">
+                                    <c:choose>
+                                        <c:when test="${loan.status eq 'RAW'}">
+                                            <option value="COMPLETE" selected><fmt:message key="complete"/></option>
+                                        </c:when>
+                                        <c:when test="${loan.status eq 'COMPLETE'}">
+                                            <option value="RETURNED" selected><fmt:message key="return"/></option>
+                                        </c:when>
+                                    </c:choose>
                                 </select>
                                 <button class="btn-sm" type="submit">
                                     <fmt:message key="books.order.setStatus"/>

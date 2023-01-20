@@ -14,6 +14,7 @@ public class FilterAndSortParams implements Serializable {
     private String orderBy;
     private boolean descending;
 
+    private long userId;
 
     public FilterAndSortParams(String firstValue, String secondValue, String orderBy, boolean descending) {
         this.firstParam = firstValue == null ? "" : firstValue;
@@ -56,5 +57,13 @@ public class FilterAndSortParams implements Serializable {
 
     public void setSecondParam(String secondParam) {
         this.secondParam = secondParam == null ? "" : secondParam;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

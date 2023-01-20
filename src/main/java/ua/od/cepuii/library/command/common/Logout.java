@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.implementation;
+package ua.od.cepuii.library.command.common;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +12,7 @@ public class Logout implements ActionCommand {
         CookieUtil.cleanCookie(request);
         request.getSession().invalidate();
         request.getSession(true).setAttribute("logout", "true");
-        return ConfigurationManager.getProperty("path.page.signUp");
+        return ConfigurationManager.getProperty("path.page.login");
     }
 
 }

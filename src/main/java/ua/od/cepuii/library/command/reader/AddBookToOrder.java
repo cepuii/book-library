@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.implementation;
+package ua.od.cepuii.library.command.reader;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,17 +30,17 @@ public class AddBookToOrder implements ActionCommand {
             request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
             return ConfigurationManager.getProperty("path.page.main.forward");
         }
-        String loanItems1 = "loanItems";
-        if (session.getAttribute(loanItems1) == null) {
-            session.setAttribute(loanItems1, new HashSet<>());
-        }
         try {
-            @SuppressWarnings("unchecked")
-            Set<Long> loanItems = (HashSet<Long>) session.getAttribute(loanItems1);
             Loan loan = RequestParser.getLoan(request);
             long loanCreate = loanService.create(loan);
             if (loanCreate != 0) {
                 long bookId = Long.parseLong(request.getParameter("bookId"));
+                String loanItems1 = "loanItems";
+                if (session.getAttribute(loanItems1) == null) {
+                    session.setAttribute(loanItems1, new HashSet<>());
+                }
+                @SuppressWarnings("unchecked")
+                Set<Long> loanItems = (HashSet<Long>) session.getAttribute(loanItems1);
                 log.info("add bookId: {} to session", bookId);
                 loanItems.add(bookId);
                 log.info("loan create: {}", loanCreate);
@@ -49,6 +49,6 @@ public class AddBookToOrder implements ActionCommand {
         } catch (NullPointerException e) {
             log.error(MessageManager.getProperty("message.somethingWrong"));
         }
-        return ConfigurationManager.getProperty("path.page.main");
+        return ConfigurationManager.getProperty("path.controller.books");
     }
 }
