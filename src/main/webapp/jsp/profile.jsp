@@ -62,7 +62,6 @@
                 <br/>
                 <br/>
                 <button type="submit" class="btn btn-outline-primary"><fmt:message key="save"/></button>
-                <%--            TODO cansel button--%>
             </form>
             <form name="ChangePassword" action="${pageContext.request.contextPath}/jsp/changePassword.jsp"
                   method="post">
@@ -71,27 +70,29 @@
             <br>
             <hr/>
             <br>
-            <table class="table table-dark table-striped">
-                <caption><fmt:message key="orders.history"/></caption>
-                <thead>
-                <tr>
-                    <th><fmt:message key="loan.book"/></th>
-                    <th><fmt:message key="loan.status"/></th>
-                    <th><fmt:message key="loan.start"/></th>
-                    <th><fmt:message key="loan.end"/></th>
-                </tr>
-                </thead>
-                <tbody>
-                <c:forEach var="loan" items="${requestScope.loans}">
+            <c:if test="${sessionScope.userRole eq 'READER'}">
+                <table class="table table-dark table-striped">
+                    <caption><fmt:message key="orders.history"/></caption>
+                    <thead>
                     <tr>
-                        <td>${loan.bookInfo}</td>
-                        <td>${loan.status}</td>
-                        <td><fmt:formatDate type="date" dateStyle="long" value="${loan.startDate}"/></td>
-                        <td><fmt:formatDate type="date" dateStyle="long" value="${loan.endDate}"/></td>
+                        <th><fmt:message key="loan.book"/></th>
+                        <th><fmt:message key="loan.status"/></th>
+                        <th><fmt:message key="loan.start"/></th>
+                        <th><fmt:message key="loan.end"/></th>
                     </tr>
-                </c:forEach>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    <c:forEach var="loan" items="${requestScope.loans}">
+                        <tr>
+                            <td>${loan.bookInfo}</td>
+                            <td>${loan.status}</td>
+                            <td><fmt:formatDate type="date" dateStyle="long" value="${loan.startDate}"/></td>
+                            <td><fmt:formatDate type="date" dateStyle="long" value="${loan.endDate}"/></td>
+                        </tr>
+                    </c:forEach>
+                    </tbody>
+                </table>
+            </c:if>
         </div>
     </div>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
