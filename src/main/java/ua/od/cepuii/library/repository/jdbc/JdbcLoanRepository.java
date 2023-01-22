@@ -21,7 +21,7 @@ public class JdbcLoanRepository implements LoanRepository {
     private final ConnectionPool connectionPool;
     private static final String INSERT_LOAN = "INSERT INTO loan (user_id, book_id, duration, status_id) VALUES (?,?,?,?)";
     private static final String SELECT_BY_ID = "SELECT id, user_id,book_id, start_time, duration, status_id, fine FROM loan WHERE id=?  ";
-    private static final String SELECT_ALL = "SELECT loan.id l_id, loan.book_id l_bookId, loan.user_id l_userId," + "loan.start_time l_start_time, " + "loan.duration l_duration, b.title b_title, b.date_publication b_date, ls.status l_status " + "FROM loan " + "JOIN loan_status ls on ls.id = loan.status_id " + "JOIN book b on b.id = loan.book_id ";
+    private static final String SELECT_ALL = "SELECT loan.id l_id, loan.book_id l_bookId, loan.user_id l_userId," + "loan.start_time l_start_time, " + "loan.duration l_duration, b.title b_title, b.date_publication b_date, b.fine b_fine, ls.status l_status " + "FROM loan " + "JOIN loan_status ls on ls.id = loan.status_id " + "JOIN book b on b.id = loan.book_id ";
     private static final String ORDER_BY = "ORDER BY status, b.title, duration ";
     private static final String LIMIT_OFFSET = "LIMIT ? OFFSET ?;";
     private static final String SELECT_ALL_WITH_LIMITS = SELECT_ALL + "WHERE b.title LIKE ? AND ls.status LIKE ? AND loan.status_id<>3 " + ORDER_BY + LIMIT_OFFSET;
@@ -38,6 +38,8 @@ public class JdbcLoanRepository implements LoanRepository {
     private static final String SELECT_USERS_WITH_OVERDUE = "SELECT loan.id l_id, loan.book_id bookId,  b.fine b_fine, loan.user_id userId FROM loan JOIN book b on b.id = loan.book_id WHERE loan.status_id = 1 AND (loan.start_time::DATE + loan.duration) < now();";
 
     private static final String SET_USER_FINE = "UPDATE users SET fine = fine + ? WHERE id = ?;";
+
+    private static final String SUBTRACT_FINE_BY_USER_ID = "UPDATE users SET fine = fine - ? WHERE id = ?;";
 
     public JdbcLoanRepository(DbExecutor<Loan> dbExecutor, ConnectionPool connectionPool) {
         this.dbExecutor = dbExecutor;
@@ -131,12 +133,15 @@ public class JdbcLoanRepository implements LoanRepository {
     }
 
     @Override
-    public boolean updateStatus(Loan loan) {
+    public boolean updateStatus(Loan loan, boolean fineSubtract) {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
                 boolean update = dbExecutor.executeUpdate(connection, UPDATE_STATUS, List.of(loan.getStatus().ordinal(), loan.getId()));
                 if (update && loan.getStatus().equals(LoanStatus.RETURNED)) {
+                    if (fineSubtract) {
+                        dbExecutor.executeUpdate(connection, SUBTRACT_FINE_BY_USER_ID, List.of(loan.getFine(), loan.getUserId()));
+                    }
                     dbExecutor.executeById(connection, DECREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
                 }
                 connection.commit();

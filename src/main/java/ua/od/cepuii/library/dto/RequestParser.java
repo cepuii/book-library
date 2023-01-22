@@ -82,6 +82,7 @@ public class RequestParser {
                 .id(getLong(request, "loanId"))
                 .userId(getLong(request, "userId"))
                 .bookId(getLong(request, "bookId"))
+                .fine(getInt(request, "fine"))
                 .status(getStatus(request))
                 .build();
         if (request.getParameter("days") != null) {

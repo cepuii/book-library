@@ -18,10 +18,11 @@ public class SetOrderStatus implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         Loan loan = RequestParser.getLoan(request);
-        boolean b = loanService.setOrderStatus(loan);
-        log.info("set status: {} in result: {} ", loan.getStatus(), b);
+        boolean fineSubtract = RequestParser.getBoolean(request, "subtractFine");
+        boolean b = loanService.setOrderStatus(loan, fineSubtract);
+        log.info("update loan {} ", b);
         if (b) {
-            return ConfigurationManager.getProperty("path.controller.orders") + "&" + ConfigurationManager.getProperty("path.success");
+            return ConfigurationManager.getProperty("path.controller.orders.success");
         }
         return ConfigurationManager.getProperty("path.controller.orders");
     }

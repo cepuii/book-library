@@ -30,6 +30,7 @@ public class Mapper {
                 .userId(loan.getUserId())
                 .startDate(start)
                 .endDate(end)
+                .fine(loan.getFine())
                 .bookInfo(loan.getBookInfo())
                 .status(loan.getStatus().toString())
                 .build();

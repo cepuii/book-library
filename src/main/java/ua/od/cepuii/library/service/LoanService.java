@@ -50,8 +50,8 @@ public class LoanService {
         return null;
     }
 
-    public boolean setOrderStatus(Loan loan) {
-        return loanRepository.updateStatus(loan);
+    public boolean setOrderStatus(Loan loan, boolean fineSubtract) {
+        return loanRepository.updateStatus(loan, fineSubtract);
     }
 
     public Collection<Long> getBooksIdsByUserId(long userId) {

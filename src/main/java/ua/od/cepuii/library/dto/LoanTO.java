@@ -19,5 +19,6 @@ public class LoanTO {
     private Date startDate;
     private Date endDate;
     private String status;
+    private int fine;
     private String bookInfo;
 }

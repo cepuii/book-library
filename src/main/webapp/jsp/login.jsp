@@ -36,10 +36,10 @@
 
 
             <br/>
-            <input type="submit"
+            <input type="submit" class="btn btn-primary"
                    formaction="${pageContext.request.contextPath}/controller?command=login"
                    value="Login"/>
-            <button onclick="window.history.back()" type="button">
+            <button onclick="window.history.back()" type="button" class="btn btn-outline-primary">
                 <fmt:message key="books.filter.cansel"/>
             </button>
         </form>

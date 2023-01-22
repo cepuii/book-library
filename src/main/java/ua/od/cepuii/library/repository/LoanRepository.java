@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface LoanRepository extends AbstractEntityRepository<Loan> {
     Collection<Loan> getAllByUserId(long userId, int limit, int offset);
 
-    boolean updateStatus(Loan loan);
+    boolean updateStatus(Loan loan, boolean fineSubtract);
 
     Collection<Long> getBooksIdsByUserId(long userId);
 
