@@ -24,9 +24,9 @@ public class SaveLibrarian implements ActionCommand {
             request.setAttribute("newUser", user);
             request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.add"));
             log.error("can`t add user {}", user);
-            return ConfigurationManager.getProperty("path.page.add.librarian");
+            return ConfigurationManager.getProperty("path.controller.add.librarian.forward");
 
         }
-        return ConfigurationManager.getProperty("path.controller.users") + "&" + ConfigurationManager.getProperty("path.success");
+        return ConfigurationManager.getProperty("path.controller.users.success");
     }
 }

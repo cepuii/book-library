@@ -21,16 +21,16 @@
             <div class="mb-1">
                 <label>
                     <fmt:message key="users.email"/>*:
-                    <ctg:showMessage error="${sessionScope.emailExist}"/>
+                    <ctg:showMessage error="${requestScope.emailExist}"/>
                     <input class="form-control" type="email" name="email"
                            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required
-                           value="${sessionScope.userEmail}">
+                           value="${requestScope.userEmail}">
                 </label>
             </div>
             <div class="mb-1">
                 <label>
                     <fmt:message key="users.password"/>*:
-                    <ctg:showMessage error="${sessionScope.badPassword}"/>
+                    <ctg:showMessage error="${requestScope.badPassword}"/>
                     <input class="form-control" type="password" name="password" id="password"
                            title="<fmt:message key="users.password.required"/>"
                            pattern="^(?=.*[a-zA-Z])(?=.*[0-9]).{4,20}$" required>
@@ -40,7 +40,7 @@
             <div class="mb-auto">
                 <label>
                     <fmt:message key="users.password.confirm"/>*:
-                    <ctg:showMessage error="${sessionScope.badConfirm}"/>
+                    <ctg:showMessage error="${requestScope.badConfirm}"/>
                     <input class="form-control" type="password" name="confirmPassword" id="confirm_password"
                            pattern="^(?=.*[a-zA-Z])(?=.*[0-9]).{4,20}$"
                            title="<fmt:message key="users.password.confirm"/>" required>
@@ -59,8 +59,9 @@
         </form>
     </div>
 
-        <script src="${pageContext.request.contextPath}/js/showPass.js"></script>
-
+    <script src="${pageContext.request.contextPath}WEB-INF/js/showPass.js"></script>
+    <jsp:include page="/jsp/fragments/footer.jsp"/>
+</div>
 </body>
 </html>
 

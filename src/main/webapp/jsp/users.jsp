@@ -286,6 +286,7 @@
     <hr/>
 
     <jsp:include page="/jsp/fragments/showResult.jsp"/>
-
+    <jsp:include page="/jsp/fragments/footer.jsp"/>
+</div>
 </body>
 </html>

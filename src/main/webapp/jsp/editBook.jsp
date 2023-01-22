@@ -106,6 +106,8 @@
                    formaction="${pageContext.request.contextPath}/controller?command=save_book">
         </form>
     </div>
+<jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
+
 </body>
 </html>

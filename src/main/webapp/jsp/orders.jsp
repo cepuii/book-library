@@ -7,7 +7,6 @@
     <jsp:include page="/jsp/fragments/headTag.jspf"/>
     <title><fmt:message key="orders.title"/></title>
 </head>
-<body>
 
 <div class="container">
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
@@ -87,9 +86,9 @@
             </tbody>
         </table>
     </div>
+
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
+    <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
-
-<jsp:include page="/jsp/fragments/showResult.jsp"/>
-
 </body>
 </html>

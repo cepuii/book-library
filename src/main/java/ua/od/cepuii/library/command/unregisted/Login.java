@@ -30,7 +30,7 @@ public class Login implements ActionCommand {
             RequestParser.setUserInfo(request, user);
             CookieUtil.setUserToCookie(response, user);
             log.info("user login: {}", user);
-            page = ConfigurationManager.getProperty("path.page.main");
+            page = ConfigurationManager.getProperty("path.controller.books");
         } else {
             log.info("error incorrect login");
             request.setAttribute("userEmail", email);

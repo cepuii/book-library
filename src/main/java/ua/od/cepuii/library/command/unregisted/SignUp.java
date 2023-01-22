@@ -2,7 +2,6 @@ package ua.od.cepuii.library.command.unregisted;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
@@ -26,35 +25,33 @@ public class SignUp implements ActionCommand {
         if (userService.isExistEmail(user.getEmail())) {
             forwardBack = true;
             log.error("email already exist: {}", user.getEmail());
-            request.getSession().setAttribute("emailExist", MessageManager.getProperty("message.signUp.email.exist"));
+            request.setAttribute("emailExist", MessageManager.getProperty("message.signUp.email.exist"));
         }
         if (forwardBack) {
-            request.getSession().setAttribute("userEmail", user.getEmail());
+            request.setAttribute("userEmail", user.getEmail());
             return ConfigurationManager.getProperty("path.page.signUp.forward");
         }
         long userId = userService.createOrUpdate(user);
         user.setId(userId);
-        request.getSession().invalidate();
         RequestParser.setUserInfo(request, user);
         CookieUtil.setUserToCookie(response, user);
-        return ConfigurationManager.getProperty("path.page.main");
+        return ConfigurationManager.getProperty("path.controller.books");
     }
 
     private static boolean validateUser(HttpServletRequest request, User user) {
         boolean forwardBack = false;
-        HttpSession session = request.getSession();
         if (!ValidationUtil.validatePass(user.getPassword())) {
             forwardBack = true;
-            session.setAttribute("badPassword", MessageManager.getProperty("message.signUp.password"));
+            request.setAttribute("badPassword", MessageManager.getProperty("message.signUp.password"));
         }
         if (!ValidationUtil.validateEmail(user.getEmail())) {
             forwardBack = true;
-            session.setAttribute("badEmail", MessageManager.getProperty("message.signUp.email"));
+            request.setAttribute("badEmail", MessageManager.getProperty("message.signUp.email"));
         }
         String confirmPassword = request.getParameter("confirmPassword");
         if (confirmPassword == null || !confirmPassword.equals(user.getPassword())) {
             forwardBack = true;
-            session.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));
+            request.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));
         }
         return forwardBack;
     }

@@ -12,7 +12,7 @@ public class Logout implements ActionCommand {
         CookieUtil.cleanCookie(request);
         request.getSession().invalidate();
         request.getSession(true).setAttribute("logout", "true");
-        return ConfigurationManager.getProperty("path.page.login");
+        return ConfigurationManager.getProperty("path.controller.books");
     }
 
 }

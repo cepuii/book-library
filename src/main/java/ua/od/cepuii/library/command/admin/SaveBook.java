@@ -19,7 +19,7 @@ public class SaveBook implements ActionCommand {
         Book book = RequestParser.getBook(request);
         boolean update = bookService.createOrUpdate(book);
         if (update) {
-            return ConfigurationManager.getProperty("path.page.main") + "?" + ConfigurationManager.getProperty("path.success");
+            return ConfigurationManager.getProperty("path.controller.books.success");
         }
 
         long bookId = RequestParser.getLong(request, "bookId");

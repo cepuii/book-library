@@ -64,7 +64,8 @@
             </div>
         </form>
     </div>
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
+    <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
-<jsp:include page="/jsp/fragments/showResult.jsp"/>
 </body>
 </html>

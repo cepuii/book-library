@@ -9,6 +9,7 @@ import ua.od.cepuii.library.dto.BookTO;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.exception.RequestParserException;
 import ua.od.cepuii.library.resource.ConfigurationManager;
+import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.BookService;
 
 import java.sql.SQLException;
@@ -28,7 +29,8 @@ public class EditBook implements ActionCommand {
             return ConfigurationManager.getProperty("path.page.edit.book");
         } catch (SQLException | RequestParserException e) {
             log.error(e.getMessage());
-            return ConfigurationManager.getProperty("path.page.main");
+            request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.edit"));
+            return ConfigurationManager.getProperty("path.controller.books");
         }
     }
 }

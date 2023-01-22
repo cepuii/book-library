@@ -3,8 +3,6 @@
 <hr/>
 <header class="d-flex flex-wrap align-items-center justify-content-between  mt-1 border-bottom">
                 <span class="navbar-brand align-items-center">
-                <img src="${pageContext.request.contextPath}/image/logo.png" alt="" width="90"
-                     height="51" class="d-inline-block align-text-top"/>
                 <fmt:message key="header.title"/>
             </span>
     <ul class="nav col-12 col-md-auto mb-2 ms-3  mb-md-0">
@@ -18,17 +16,17 @@
                     key="orders.title"/> </a></li>
         </c:if>
         <c:if test="${sessionScope.userRole eq 'ADMIN'}">
-            <li><a href="${pageContext.request.contextPath}/controller?command=show_users&modifaed=true"
+            <li><a href="${pageContext.request.contextPath}/controller?command=show_users&modified=true"
                    class="nav-link px-2 link-dark"><fmt:message key="users.href"/> </a></li>
         </c:if>
-        <c:if test="${not empty sessionScope.userEmail}">
+        <c:if test="${not empty sessionScope.userId}">
             <li><a href="${pageContext.request.contextPath}/controller?command=show_profile"
                    class="nav-link px-2 link-dark"><fmt:message key="profile"/> </a></li>
         </c:if>
 
     </ul>
     <c:choose>
-        <c:when test="${not empty sessionScope.userEmail}">
+        <c:when test="${not empty sessionScope.userId}">
             <div class="row justify-content-end">
                 <div class="col px-2">
                         ${sessionScope.userEmail} hello!

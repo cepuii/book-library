@@ -27,6 +27,9 @@ public class RequestParser {
 
     public static Page getPageFromSession(HttpServletRequest request, Service service, FilterAndSortParams filterParam) {
         Page page = getPageFromSession(request);
+        if (request.getParameter("modified") != null) {
+            page.setCurrentPage(1);
+        }
         int pageAmount = service.getPageAmount(page, filterParam);
         page.setPageAmount(pageAmount);
         return page;
