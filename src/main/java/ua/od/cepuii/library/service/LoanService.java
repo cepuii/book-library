@@ -63,4 +63,9 @@ public class LoanService {
         Collection<Loan> loanHistory = loanRepository.getLoanHistory(userId, page.getLimit(), page.getOffset());
         return Mapper.mapToLoanTO(loanHistory);
     }
+
+    public void updateFine() {
+        loanRepository.updateFine();
+        log.info("update users fines");
+    }
 }

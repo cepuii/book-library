@@ -21,17 +21,11 @@ public class JdbcLoanRepository implements LoanRepository {
     private final ConnectionPool connectionPool;
     private static final String INSERT_LOAN = "INSERT INTO loan (user_id, book_id, duration, status_id) VALUES (?,?,?,?)";
     private static final String SELECT_BY_ID = "SELECT id, user_id,book_id, start_time, duration, status_id, fine FROM loan WHERE id=?  ";
-    private static final String SELECT_ALL = "SELECT loan.id l_id, loan.book_id l_bookId, loan.user_id l_userId," +
-            "loan.start_time l_start_time, " +
-            "loan.duration l_duration, b.title b_title, b.date_publication b_date, ls.status l_status " +
-            "FROM loan " +
-            "JOIN loan_status ls on ls.id = loan.status_id " +
-            "JOIN book b on b.id = loan.book_id ";
+    private static final String SELECT_ALL = "SELECT loan.id l_id, loan.book_id l_bookId, loan.user_id l_userId," + "loan.start_time l_start_time, " + "loan.duration l_duration, b.title b_title, b.date_publication b_date, ls.status l_status " + "FROM loan " + "JOIN loan_status ls on ls.id = loan.status_id " + "JOIN book b on b.id = loan.book_id ";
     private static final String ORDER_BY = "ORDER BY status, b.title, duration ";
     private static final String LIMIT_OFFSET = "LIMIT ? OFFSET ?;";
     private static final String SELECT_ALL_WITH_LIMITS = SELECT_ALL + "WHERE b.title LIKE ? AND ls.status LIKE ? AND loan.status_id<>3 " + ORDER_BY + LIMIT_OFFSET;
-    private static final String SELECT_ALL_BY_USER_ID = SELECT_ALL +
-            "WHERE loan.user_id = ? AND loan.status_id<>3 " + ORDER_BY + LIMIT_OFFSET;
+    private static final String SELECT_ALL_BY_USER_ID = SELECT_ALL + "WHERE loan.user_id = ? AND loan.status_id<>3 " + ORDER_BY + LIMIT_OFFSET;
     private static final String SELECT_ALL_WITH_STATUS_RETURNED_BY_USER_ID = SELECT_ALL + "WHERE loan.user_id=? AND loan.status_id=3 " + LIMIT_OFFSET;
     private static final String DELETE_BY_ID = "DELETE FROM loan WHERE id=?";
     private static final String UPDATE = "UPDATE loan SET duration=?, status_id=?";
@@ -39,13 +33,11 @@ public class JdbcLoanRepository implements LoanRepository {
     private static final String INCREASE_BOOK_BORROW_AMOUNT = "UPDATE book SET no_of_borrow=(no_of_borrow+1) WHERE id=?;";
     private static final String DECREASE_BOOK_BORROW_AMOUNT = "UPDATE book SET no_of_borrow=(no_of_borrow-1) WHERE id=?;";
 
-    private static final String GET_BOOKS_IDS_BY_USER_ID = "SELECT loan.book_id l_bookId " +
-            "FROM loan  " +
-            "         JOIN loan_status ls on ls.id = loan.status_id " +
-            "         JOIN book b on b.id = loan.book_id " +
-            "         JOIN users u on u.id = loan.user_id " +
-            "WHERE loan.status_id != 3 " +
-            "  AND user_id=? ";
+    private static final String GET_BOOKS_IDS_BY_USER_ID = "SELECT loan.book_id l_bookId " + "FROM loan  " + "         JOIN loan_status ls on ls.id = loan.status_id " + "         JOIN book b on b.id = loan.book_id " + "         JOIN users u on u.id = loan.user_id " + "WHERE loan.status_id != 3 " + "  AND user_id=? ";
+
+    private static final String SELECT_USERS_WITH_OVERDUE = "SELECT loan.id l_id, loan.book_id bookId,  b.fine b_fine, loan.user_id userId FROM loan JOIN book b on b.id = loan.book_id WHERE loan.status_id = 1 AND (loan.start_time::DATE + loan.duration) < now();";
+
+    private static final String SET_USER_FINE = "UPDATE users SET fine = fine + ? WHERE id = ?;";
 
     public JdbcLoanRepository(DbExecutor<Loan> dbExecutor, ConnectionPool connectionPool) {
         this.dbExecutor = dbExecutor;
@@ -57,8 +49,7 @@ public class JdbcLoanRepository implements LoanRepository {
         try (Connection connection = connectionPool.getConnection()) {
             Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
             try {
-                long loanId = dbExecutor.executeInsert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(),
-                        loan.getDuration(), loan.getStatus().ordinal()));
+                long loanId = dbExecutor.executeInsert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(), loan.getDuration(), loan.getStatus().ordinal()));
                 dbExecutor.executeById(connection, INCREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
                 connection.commit();
                 return loanId;
@@ -146,7 +137,7 @@ public class JdbcLoanRepository implements LoanRepository {
             try {
                 boolean update = dbExecutor.executeUpdate(connection, UPDATE_STATUS, List.of(loan.getStatus().ordinal(), loan.getId()));
                 if (update && loan.getStatus().equals(LoanStatus.RETURNED)) {
-                    dbExecutor.executeById(connection, INCREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
+                    dbExecutor.executeById(connection, DECREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
                 }
                 connection.commit();
                 return update;
@@ -163,8 +154,7 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Collection<Long> getBooksIdsByUserId(long userId) {
         Collection<Long> booksIds = new HashSet<>();
-        try (Connection connection = connectionPool.getConnection();
-             PreparedStatement statement = connection.prepareStatement(GET_BOOKS_IDS_BY_USER_ID)) {
+        try (Connection connection = connectionPool.getConnection(); PreparedStatement statement = connection.prepareStatement(GET_BOOKS_IDS_BY_USER_ID)) {
             statement.setLong(1, userId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -185,6 +175,40 @@ public class JdbcLoanRepository implements LoanRepository {
             log.error(e.getMessage());
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public void updateFine() {
+        try (Connection connection = connectionPool.getConnection()) {
+            connection.setSavepoint();
+            try (PreparedStatement statement = connection.prepareStatement(SELECT_USERS_WITH_OVERDUE);
+                 PreparedStatement setLoanStatus = connection.prepareStatement(UPDATE_STATUS);
+                 PreparedStatement setUserFineStatement = connection.prepareStatement(SET_USER_FINE);
+                 ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    long loanId = resultSet.getLong("l_id");
+                    setLoanStatus.setInt(1, 2);
+                    setLoanStatus.setLong(2, loanId);
+                    log.info("{}", setLoanStatus);
+                    setLoanStatus.addBatch();
+                    int fine = resultSet.getInt("b_fine");
+                    setUserFineStatement.setInt(1, fine);
+                    long userId = resultSet.getLong("userId");
+                    setUserFineStatement.setLong(2, userId);
+                    log.info("{}", setUserFineStatement);
+                    setUserFineStatement.addBatch();
+                }
+                int[] ints = setLoanStatus.executeBatch();
+                int[] ints1 = setUserFineStatement.executeBatch();
+                log.info("execute queries {} {}", ints.length, ints1.length);
+                connection.commit();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                connection.rollback();
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
     }
 }
 

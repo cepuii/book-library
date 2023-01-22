@@ -29,7 +29,7 @@ public class JdbcUserRepository implements UserRepository {
     private static final String UPDATE_USER_PASSWORD = "UPDATE users SET password = ? WHERE id=?";
     private static final String UPDATE_USER_BLOCK = "UPDATE users SET blocked=? WHERE id=?";
     private static final String DELETE_BY_ID = "DELETE FROM users WHERE id=?";
-    private static final String SELECT_ALL = "SELECT users.id users_id, email, password, registered, blocked, ur.role role " +
+    private static final String SELECT_ALL = "SELECT users.id users_id, email, password, registered, fine, blocked, ur.role role " +
             "FROM users JOIN user_role ur on ur.id = users.role_id ";
 
     private static final String SELECT_ALL_WITH_WHERE = SELECT_ALL + "WHERE email LIKE ? AND role LIKE ? " +

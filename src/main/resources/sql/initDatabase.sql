@@ -60,6 +60,7 @@ CREATE TABLE users
     password   VARCHAR                 NOT NULL,
     registered TIMESTAMP DEFAULT now() NOT NULL,
     blocked    BOOLEAN   DEFAULT false NOT NULL,
+    fine       INTEGER   DEFAULT 0     NOT NULL,
     role_id    BIGINT    DEFAULT 0     NOT NULL,
 
     FOREIGN KEY (role_id) REFERENCES user_role (id) ON DELETE CASCADE

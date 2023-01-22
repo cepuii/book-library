@@ -76,13 +76,15 @@ public class RepositoryUtil {
     }
 
     private static Optional<User> getUser(ResultSet resultSet) throws SQLException {
-        User user = new User();
-        user.setId(resultSet.getLong("users_id"));
-        user.setEmail(resultSet.getString("email"));
-        user.setPassword(resultSet.getString("password"));
-        user.setDateTime(resultSet.getTimestamp("registered").toLocalDateTime());
-        user.setBlocked(resultSet.getBoolean("blocked"));
-        user.setRole(Role.valueOf(resultSet.getString("role")));
+        User user = User.builder()
+                .id(resultSet.getLong("users_id"))
+                .email(resultSet.getString("email"))
+                .password(resultSet.getString("password"))
+                .dateTime(resultSet.getTimestamp("registered").toLocalDateTime())
+                .blocked(resultSet.getBoolean("blocked"))
+                .role(Role.valueOf(resultSet.getString("role")))
+                .fine(resultSet.getInt("fine"))
+                .build();
         return Optional.of(user);
     }
 

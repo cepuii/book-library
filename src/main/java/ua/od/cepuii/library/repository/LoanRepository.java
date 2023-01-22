@@ -12,4 +12,6 @@ public interface LoanRepository extends AbstractEntityRepository<Loan> {
     Collection<Long> getBooksIdsByUserId(long userId);
 
     Collection<Loan> getLoanHistory(long userId, int limit, int offset);
+
+    void updateFine();
 }
