@@ -1,9 +1,9 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/fragments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jsp"/>
     <title><fmt:message key="header.signup"/></title>
 </head>
 <body>

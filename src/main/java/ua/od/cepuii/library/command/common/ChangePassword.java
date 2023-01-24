@@ -19,6 +19,7 @@ public class ChangePassword implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+        //TODO check validation
         String oldPassword = request.getParameter("oldPassword");
         String newPassword = request.getParameter("newPassword");
         long userId = RequestParser.getLong(request, "userId");
@@ -26,7 +27,7 @@ public class ChangePassword implements ActionCommand {
         if (!forwardBack) {
             if (userService.updatePassword(userId, newPassword)) {
                 log.info("userId: {}, changePassword", userId);
-                request.getSession().setAttribute("success", "Success");
+                request.getSession().setAttribute("success", MessageManager.getProperty("message.password.change"));
                 return ConfigurationManager.getProperty("path.controller.profile.success");
             }
             request.setAttribute("badPassword", MessageManager.getProperty("message.signUp.password"));
@@ -49,11 +50,9 @@ public class ChangePassword implements ActionCommand {
             forwardBack = true;
             request.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));
         }
-        if (!ValidationUtil.validatePass(oldPassword)) {
-            if (userService.checkPassword(userId, oldPassword)) {
-                forwardBack = true;
-                request.setAttribute("badOldPassword", MessageManager.getProperty("message.change.password"));
-            }
+        if (!ValidationUtil.validatePass(oldPassword) && userService.checkPassword(userId, oldPassword)) {
+            forwardBack = true;
+            request.setAttribute("badOldPassword", MessageManager.getProperty("message.change.password"));
         }
         return forwardBack;
     }

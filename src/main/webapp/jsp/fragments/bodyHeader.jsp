@@ -1,5 +1,5 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 
 <hr/>
 <header class="d-flex flex-wrap align-items-center justify-content-between  mt-1 border-bottom">

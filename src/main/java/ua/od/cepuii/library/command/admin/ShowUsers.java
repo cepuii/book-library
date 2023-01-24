@@ -22,19 +22,19 @@ public class ShowUsers implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+
         FilterParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
         Page currentPage = RequestParser.getPageFromSession(request, userService, filterParam);
-        try {
-            Collection<UserTO> users = userService.getAll(currentPage, filterParam);
-            request.setAttribute("users", users);
-            request.getSession().setAttribute("filter", filterParam);
-            request.getSession().setAttribute("page", currentPage);
-            log.info("page attributes {}", currentPage);
-            log.info("filter attributes {}", filterParam);
-            return ConfigurationManager.getProperty("path.page.users");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ConfigurationManager.getProperty("path.page.error");
-        }
+
+        Collection<UserTO> users = userService.getAll(currentPage, filterParam);
+        request.setAttribute("users", users);
+
+        request.getSession().setAttribute("filter", filterParam);
+        request.getSession().setAttribute("page", currentPage);
+        log.info("page attributes {}", currentPage);
+        log.info("filter attributes {}", filterParam);
+
+        RequestParser.setFromSessionToRequest(request, "wrongAction");
+        return ConfigurationManager.getProperty("path.page.users");
     }
 }

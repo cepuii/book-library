@@ -26,12 +26,17 @@ public class ShowProfile implements ActionCommand {
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         long userId = RequestParser.getLong(request, "userId");
         UserTO user = userService.getById(userId);
+
         log.info("show user profile, {}", user);
+
         request.setAttribute("user", user);
+
         Page page = RequestParser.getPageFromSession(request);
         Collection<LoanTO> loanHistory = loanService.getLoanHistory(userId, page);
+
         request.setAttribute("loans", loanHistory);
         RequestParser.setFromSessionToRequest(request, "emailExist");
+        RequestParser.setFromSessionToRequest(request, "wrongAction");
         RequestParser.setFromSessionToRequest(request, "success");
         return ConfigurationManager.getProperty("path.page.profile");
     }

@@ -8,6 +8,7 @@ import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.UserTO;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.UserRepository;
+import ua.od.cepuii.library.util.PasswordUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.Collection;
@@ -35,11 +36,12 @@ public class UserService implements Service {
 
     public User getUserByEmailAndPassword(String email, String password) {
         Optional<User> byEmail = userRepository.getByEmail(email);
-        if (byEmail.isPresent() && byEmail.get().getPassword().equals(password)) {
+        if (byEmail.isPresent() && PasswordUtil.verify(byEmail.get().getPassword(), password.getBytes())) {
             return byEmail.get();
         }
         return null;
     }
+
     public boolean blockUnblock(long id, boolean isBlocked) {
         return userRepository.updateBlocked(id, isBlocked);
     }
@@ -67,11 +69,12 @@ public class UserService implements Service {
     }
 
     public boolean updatePassword(long userId, String newPassword) {
-        return userRepository.updatePassword(userId, newPassword);
+        String hash = PasswordUtil.getHash(newPassword.getBytes());
+        return userRepository.updatePassword(userId, hash);
     }
 
     public boolean checkPassword(long userId, String oldPassword) {
-        Optional<User> byId = userRepository.getById(userId);
-        return byId.orElse(new User()).getPassword().equals(oldPassword);
+        Optional<User> user = userRepository.getById(userId);
+        return user.isPresent() && PasswordUtil.verify(user.get().getPassword(), oldPassword.getBytes());
     }
 }

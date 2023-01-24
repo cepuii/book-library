@@ -1,10 +1,10 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/fragments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jsp"/>
     <title><fmt:message key="books.catalog.edit"/></title>
 </head>
 <body>
@@ -22,8 +22,7 @@
             <div class="mb-3">
                 <label for="title" class="form-label"><fmt:message key="books.title"/>
                     <input type="text" class="form-control" id="title" name="title" placeholder="${placeholderTitle}"
-                           title="<fmt:message key="books.required.title"/>"
-                           pattern="^[0-9A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє'.,;:+\-~`!@#$^&*()={}| ]{2,70}" required
+                           title="<fmt:message key="books.required.title"/>" required
                            value="${requestScope.book.title}">
                 </label>
             </div>
@@ -78,7 +77,6 @@
                         <c:forEach var="author" items="${requestScope.book.authors}" varStatus="status">
                             <input type="hidden" name="authorId" value="${author.id}">
                             <input type="text" class="form-control" name="authorName"
-                                   pattern='^[A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє`.]{2,20}'
                                    value="${author.name}" required>
                         </c:forEach>
                         <%--                        <c:choose>--%>
@@ -102,8 +100,7 @@
                             <div class="provider-append mb-2 ">
                                 <c:if test="${empty requestScope.book.authors}">
                                     <div class="form-group mb-2">
-                                        <input type='text' class='form-control' name='newAuthor'
-                                               pattern='^[A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє`. ]{2,20}' required>
+                                        <input type='text' class='form-control' name='newAuthor' required>
                                     </div>
                                 </c:if>
                             </div>
@@ -123,7 +120,7 @@
             var txtNewInputBox = document.createElement('div');
             txtNewInputBox.className = "form-group mb-2";
             // Then add the content (a new input box) of the element.
-            txtNewInputBox.innerHTML = "<input type='text' class='form-control' name='newAuthor' pattern='^[A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє`. ]{2,20}' required>";
+            txtNewInputBox.innerHTML = "<input type='text' class='form-control' name='newAuthor' required>";
 
             // Finally put it where it is supposed to appear.
             document.getElementById("new-providers").appendChild(txtNewInputBox);

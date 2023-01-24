@@ -5,8 +5,8 @@ import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.entity.enums.Role;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import java.time.ZoneOffset;
+import java.util.Date;
 
 public class UserUtil {
 
@@ -38,7 +38,7 @@ public class UserUtil {
     public static final UserTO USER_TO = UserTO.builder()
             .id(USER_ID)
             .email(USER_EMAIL)
-            .registered(LocalDateTime.of(2000, 1, 1, 1, 1).format(DateTimeFormatter.ofPattern("d MMM uuuu h:m", Locale.ENGLISH)))
+            .registered(Date.from(LocalDateTime.of(2000, 1, 1, 1, 1).toInstant(ZoneOffset.UTC)))
             .role(Role.READER)
             .build();
     public static final User NEW_USER = User.builder()

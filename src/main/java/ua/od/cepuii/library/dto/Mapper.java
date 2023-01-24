@@ -5,11 +5,10 @@ import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.entity.User;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class Mapper {
@@ -23,8 +22,8 @@ public class Mapper {
 
     public static LoanTO getLoanTO(Loan loan) {
         LocalDate startDate = loan.getStartDate();
-        Date start = getDate(startDate);
-        Date end = getDate(startDate.plusDays(loan.getDuration()));
+        Date start = getDate(startDate.atStartOfDay());
+        Date end = getDate(startDate.plusDays(loan.getDuration()).atStartOfDay());
         return LoanTO.builder()
                 .id(loan.getId())
                 .bookId(loan.getBookId())
@@ -37,9 +36,10 @@ public class Mapper {
                 .build();
     }
 
-    private static Date getDate(LocalDate startDate) {
-        return Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    private static Date getDate(LocalDateTime startDate) {
+        return Date.from(startDate.toInstant(ZoneOffset.UTC));
     }
+
     public static BookTO getBookTO(Book book) {
         return BookTO.builder()
                 .id(book.getId())
@@ -57,7 +57,7 @@ public class Mapper {
         return UserTO.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .registered(user.getDateTime().format(DateTimeFormatter.ofPattern("d MMM uuuu h:m", Locale.ENGLISH)))
+                .registered(getDate(user.getDateTime()))
                 .blocked(user.isBlocked())
                 .role(user.getRole())
                 .fine(user.getFine())

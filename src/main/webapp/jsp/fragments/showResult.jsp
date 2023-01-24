@@ -1,5 +1,5 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 <%--       show exception if wrong action on page--%>
 <div class="container">
     <c:if test="${not empty wrongAction}">

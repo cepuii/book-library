@@ -2,28 +2,34 @@ package ua.od.cepuii.library.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.enums.Role;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
+import ua.od.cepuii.library.service.UserService;
 
 import java.io.IOException;
 import java.util.*;
 
 public class SecurityFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
-
     private static final Map<Role, List<String>> accessMap = new EnumMap<>(Role.class);
     private static List<String> common = new ArrayList<>();
     private static List<String> unregister = new ArrayList<>();
+
+    private UserService userService;
 
     @Override
     public void init(FilterConfig config) {
         log.debug("Filter initialization starts");
 
         initAccessLists(config);
+        userService = AppContext.getInstance().getUserService();
 
         log.debug("Filter initialization finished");
     }
@@ -40,6 +46,7 @@ public class SecurityFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (accessAllowed(request)) {
             log.info("access allow");
             chain.doFilter(request, response);
@@ -47,7 +54,7 @@ public class SecurityFilter implements Filter {
             log.info("access deny");
             HttpServletRequest req = (HttpServletRequest) request;
             req.getSession().setAttribute("wrongAction", MessageManager.getProperty("message.access.deny"));
-            request.getRequestDispatcher(ConfigurationManager.getProperty("path.controller.books")).forward(request, response);
+            httpResponse.sendRedirect(req.getContextPath() + ConfigurationManager.getProperty("path.controller.profile"));
         }
     }
 
@@ -59,7 +66,7 @@ public class SecurityFilter implements Filter {
             return false;
         }
 
-        if (unregister.contains(commandName)) {
+        if (unregister.contains(commandName) || commandName.equals("logout")) {
             return true;
         }
 
@@ -68,10 +75,12 @@ public class SecurityFilter implements Filter {
             return false;
         }
 
-        Role userRole = Role.valueOf((String) session.getAttribute("userRole"));
-        if (userRole == null) {
+        long userId = RequestParser.getLong(httpRequest, "userId");
+        if (userService.getById(userId).isBlocked()) {
             return false;
         }
+
+        Role userRole = Role.valueOf((String) session.getAttribute("userRole"));
 
         return accessMap.get(userRole).contains(commandName) || common.contains(commandName);
     }

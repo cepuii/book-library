@@ -1,17 +1,17 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 
 <!doctype html>
 <html lang="en">
 <head>
     <title><fmt:message key="header.login"/></title>
-    <jsp:include page="/jsp/fragments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jsp"/>
 </head>
 <body>
 <div class="container">
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
     <div class="container p-5 my-5 border">
-        <h5>Welcome to the library</h5>
+        <h5><fmt:message key="greeting"/></h5>
         <hr>
         <ctg:showMessage error="${requestScope.errorLoginPassMessage}"/>
         <form name="LoginForm" method="post">
@@ -33,17 +33,24 @@
                 </label>
 
             </div>
-
+            <div class="mb-auto">
+                <label class="form-check-label" for="flexCheckDefault"><fmt:message key="users.password.show"/>
+                    <input class="form-check-input" type="checkbox" id="flexCheckDefault"
+                           onclick="show();">
+                </label>
+            </div>
 
             <br/>
             <input type="submit" class="btn btn-primary"
                    formaction="${pageContext.request.contextPath}/controller?command=login"
-                   value="Login"/>
+                   value="<fmt:message key="header.login"/>"/>
+
             <button onclick="window.history.back()" type="button" class="btn btn-outline-primary">
                 <fmt:message key="books.filter.cansel"/>
             </button>
         </form>
     </div>
+    <script src="../js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
 </body>

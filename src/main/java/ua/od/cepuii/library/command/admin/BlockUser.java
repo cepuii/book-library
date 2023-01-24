@@ -6,9 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
-import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.resource.ConfigurationManager;
+import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
+
+import static ua.od.cepuii.library.dto.RequestParser.getBoolean;
+import static ua.od.cepuii.library.dto.RequestParser.getLong;
 
 public class BlockUser implements ActionCommand {
 
@@ -18,10 +21,18 @@ public class BlockUser implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long userId = RequestParser.getLong(request, "userId");
-        boolean isBlocked = RequestParser.getBoolean(request, "isBlocked");
-        boolean blockUnblock = userService.blockUnblock(userId, isBlocked);
-        log.info("user {} blockUnblock isComplete {}", userId, blockUnblock);
-        return ConfigurationManager.getProperty("path.controller.users");
+        long blockUserId = getLong(request, "blockUserId");
+        boolean isBlocked = getBoolean(request, "isBlocked");
+        long userId = getLong(request, "userId");
+        String path;
+        if (blockUserId == userId) {
+            request.getSession().setAttribute("wrongAction", MessageManager.getProperty("message.block.yourself"));
+            path = ConfigurationManager.getProperty("path.controller.users");
+        } else {
+            boolean blockUnblock = userService.blockUnblock(blockUserId, isBlocked);
+            log.info("user {} blockUnblock isComplete {}", blockUserId, blockUnblock);
+            path = ConfigurationManager.getProperty("path.controller.users.success");
+        }
+        return path;
     }
 }

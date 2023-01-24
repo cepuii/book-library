@@ -1,6 +1,7 @@
 package ua.od.cepuii.library.dto;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.entity.Author;
@@ -12,11 +13,11 @@ import ua.od.cepuii.library.entity.enums.PublicationType;
 import ua.od.cepuii.library.entity.enums.Role;
 import ua.od.cepuii.library.exception.RequestParserException;
 import ua.od.cepuii.library.service.Service;
+import ua.od.cepuii.library.util.PasswordUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 
 public class RequestParser {
     private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
@@ -154,15 +155,6 @@ public class RequestParser {
         return 0;
     }
 
-    public static Author getNewAuthor(HttpServletRequest request) {
-        return new Author(Objects.requireNonNull(request.getParameter("newAuthor")));
-    }
-
-    public static Author getAuthorFromString(String authorString) {
-        String[] split = authorString.replace(',', '=').replaceAll("['}]", "").split("=");
-        return new Author(Long.parseLong(split[1].strip()), split[3].strip());
-    }
-
     public static boolean getBoolean(HttpServletRequest request, String boolParam) {
         return Boolean.parseBoolean(request.getParameter(boolParam));
     }
@@ -170,7 +162,7 @@ public class RequestParser {
     public static User getUser(HttpServletRequest request) {
         long userId = getLong(request, "userId");
         String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        String password = PasswordUtil.getHash(request.getParameter("password").getBytes());
         Role role = getRole(request);
         log.info("user: {}, {}", email, role);
         return User.builder()
@@ -193,9 +185,11 @@ public class RequestParser {
     }
 
     public static void setUserInfo(HttpServletRequest request, User user) {
-        request.getSession().setAttribute("userId", user.getId());
-        request.getSession().setAttribute("userEmail", user.getEmail());
-        request.getSession().setAttribute("userRole", user.getRole().toString());
+        HttpSession session = request.getSession();
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("userEmail", user.getEmail());
+        session.setAttribute("userRole", user.getRole().toString());
+
     }
 
     public static void setFromSessionToRequest(HttpServletRequest request, String s) {

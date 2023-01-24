@@ -37,7 +37,6 @@ public class Controller extends HttpServlet {
     private String processRequest(HttpServletRequest request, HttpServletResponse response) {
         ActionFactory client = new ActionFactory();
         ActionCommand command = client.defineCommand(request);
-        log.info("request info {}", request.getPathInfo());
         String page = command.execute(request, response);
         if (page != null) {
             log.info("go to page: {}", page);

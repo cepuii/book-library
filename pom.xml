@@ -26,6 +26,7 @@
         <lombok.version>1.18.24</lombok.version>
         <slf4j-api.version>2.0.5</slf4j-api.version>
         <lombok.version>1.18.24</lombok.version>
+        <argon2-jvm.version>2.7</argon2-jvm.version>
     </properties>
 
     <dependencies>
@@ -110,13 +111,17 @@
             <version>${mockito-junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-<!--        -->
+        <!--        -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>${argon2-jvm.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

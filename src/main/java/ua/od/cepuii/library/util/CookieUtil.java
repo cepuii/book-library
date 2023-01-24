@@ -22,6 +22,10 @@ public class CookieUtil {
         cookie.setMaxAge(60 * 60 * 24);
         cookie.setPath("/");
         response.addCookie(cookie);
+        cookie = new Cookie("userBlock", String.valueOf(user.isBlocked()));
+        cookie.setMaxAge(60 * 60 * 24);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 
 

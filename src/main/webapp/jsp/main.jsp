@@ -5,13 +5,13 @@
   Time: 9:35 PM
   To change this template use File | Settings | File Templates.
 --%>
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/fragments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jsp"/>
     <title><fmt:message key="main.title"/></title>
 </head>
 <body>
@@ -23,7 +23,6 @@
 
 
     <div class="container">
-        Books catalog
         <c:if test="${empty requestScope.data}">
             <jsp:include page="/controller?command=show_books&currentPage=1&modifaed=true"/>
         </c:if>
@@ -119,24 +118,24 @@
             <tbody>
 
             <%--            start loop by books--%>
-            <c:forEach var="user" items="${requestScope.books}">
+            <c:forEach var="book" items="${requestScope.books}">
                 <c:set var="authorsString" scope="request">
-                    <ctg:getAuthors authorSet="${user.authors}"/>
+                    <ctg:getAuthors authorSet="${book.authors}"/>
                 </c:set>
                 <c:set var="authorsStringId" scope="request">
-                    <ctg:getAuthors authorSet="${user.authors}"/>
+                    <ctg:getAuthors authorSet="${book.authors}"/>
                 </c:set>
                 <tr>
-                    <td>${user.title}</td>
-                    <td>${user.publicationType.name}</td>
-                    <td>${user.datePublication}</td>
+                    <td>${book.title}</td>
+                    <td>${book.publicationType.name}</td>
+                    <td>${book.datePublication}</td>
                     <td>${authorsString}</td>
                     <td>
                         <c:choose>
                             <%--buttons for READER--%>
                             <c:when test="${sessionScope.userRole eq 'READER'}">
                                 <c:set var="testContain" scope="page">
-                                    <ctg:isContain bookId="${user.id}"/>
+                                    <ctg:isContain bookId="${book.id}"/>
                                 </c:set>
                                 <c:choose>
                                     <c:when test="${testContain}">
@@ -144,7 +143,7 @@
                                               action="${pageContext.request.contextPath}/controller">
                                             <input type="hidden" name="command"
                                                    value="remove_book_from_order">
-                                            <input type="hidden" name="bookId" value="${user.id}">
+                                            <input type="hidden" name="bookId" value="${book.id}">
                                             <button class="btn-sm" type="submit">
                                                 <small>
                                                     <fmt:message key="books.order.inOrder"/>
@@ -156,8 +155,8 @@
                                         <form name="AddBookToOrder" method="post"
                                               action="${pageContext.request.contextPath}/controller">
                                             <input type="hidden" name="command" value="add_book_to_order">
-                                            <input type="hidden" name="bookId" value="${user.id}">
-                                            <input type="hidden" name="book" value="${user}">
+                                            <input type="hidden" name="bookId" value="${book.id}">
+                                            <input type="hidden" name="book" value="${book}">
                                             <div class="input-group-sm">
                                                 <div class="row">
                                                     <div class="col">
@@ -195,7 +194,7 @@
                                               action="${pageContext.request.contextPath}/controller">
                                             <input type="hidden" name="command"
                                                    value="remove_book">
-                                            <input type="hidden" name="bookId" value="${user.id}">
+                                            <input type="hidden" name="bookId" value="${book.id}">
                                             <button class="btn btn-outline-primary" type="submit">
                                                 <small>
                                                     <fmt:message key="books.catalog.remove"/>
@@ -206,7 +205,7 @@
                                     <div class="col">
                                         <form name="EditBook" method="get"
                                               action="${pageContext.request.contextPath}/controller">
-                                            <input type="hidden" name="bookId" value="${user.id}">
+                                            <input type="hidden" name="bookId" value="${book.id}">
                                             <input type="hidden" name="command" value="edit_book">
                                             <button type="submit" class="btn btn-primary">
                                                 <fmt:message key="books.catalog.edit"/>

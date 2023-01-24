@@ -1,4 +1,4 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
 
 <div class="container">
     <footer class="footer fixed-bottom justify-content-center">

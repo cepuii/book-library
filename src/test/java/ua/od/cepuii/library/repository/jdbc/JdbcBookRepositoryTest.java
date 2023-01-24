@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.postgresql.jdbc.PSQLSavepoint;
 import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
+import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
 
@@ -27,6 +28,7 @@ import static ua.od.cepuii.library.util.BookUtil.*;
 class JdbcBookRepositoryTest {
 
     private final DbExecutor<Book> mockDbExecutor = mock(DbExecutor.class);
+    private final DbExecutor<Author> mockDbExecutorAuthor = mock(DbExecutor.class);
     private final ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
     @Mock
     Connection mockConnection;
@@ -36,7 +38,7 @@ class JdbcBookRepositoryTest {
     ResultSet mockResultSet;
 
     @InjectMocks
-    private JdbcBookRepository bookRepository = new JdbcBookRepository(mockDbExecutor, mockConnectionPool);
+    private JdbcBookRepository bookRepository = new JdbcBookRepository(mockDbExecutor, mockDbExecutorAuthor, mockConnectionPool);
 
     @BeforeEach
     void setUp() throws SQLException {
@@ -97,20 +99,20 @@ class JdbcBookRepositoryTest {
 
     @Test
     void getById() throws SQLException {
-        when(mockDbExecutor.select(any(Connection.class), anyString(), anyLong(), any(Function.class))).thenReturn(Optional.of(BOOK));
+        when(mockDbExecutor.selectById(any(Connection.class), anyString(), anyLong(), any(Function.class))).thenReturn(Optional.of(BOOK));
         assertEquals(BOOK, bookRepository.getById(LOAN_ID).get());
 
         verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockDbExecutor, times(1)).select(any(Connection.class), anyString(), anyLong(), any(Function.class));
+        verify(mockDbExecutor, times(1)).selectById(any(Connection.class), anyString(), anyLong(), any(Function.class));
     }
 
     @Test
     void getByIdCatchException() throws SQLException {
-        when(mockDbExecutor.select(any(Connection.class), anyString(), anyLong(), any(Function.class))).thenThrow(SQLException.class);
+        when(mockDbExecutor.selectById(any(Connection.class), anyString(), anyLong(), any(Function.class))).thenThrow(SQLException.class);
         assertEquals(Optional.empty(), bookRepository.getById(LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockDbExecutor, times(1)).select(any(Connection.class), anyString(), anyLong(), any(Function.class));
+        verify(mockDbExecutor, times(1)).selectById(any(Connection.class), anyString(), anyLong(), any(Function.class));
     }
 
     @Test

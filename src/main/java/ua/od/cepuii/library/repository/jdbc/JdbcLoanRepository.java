@@ -68,7 +68,7 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Optional<Loan> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.select(connection, SELECT_BY_ID, id, RepositoryUtil::fillLoan);
+            return dbExecutor.selectById(connection, SELECT_BY_ID, id, RepositoryUtil::fillLoan);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -159,13 +159,18 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Collection<Long> getBooksIdsByUserId(long userId) {
         Collection<Long> booksIds = new HashSet<>();
-        try (Connection connection = connectionPool.getConnection(); PreparedStatement statement = connection.prepareStatement(GET_BOOKS_IDS_BY_USER_ID)) {
+
+        try (Connection connection = connectionPool.getConnection();
+             PreparedStatement statement = connection.prepareStatement(GET_BOOKS_IDS_BY_USER_ID)) {
+
             statement.setLong(1, userId);
+
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     booksIds.add(resultSet.getLong("l_bookId"));
                 }
             }
+
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

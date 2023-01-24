@@ -5,6 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
+import java.util.Locale;
 
 public class CookieFilter implements Filter {
     @Override
@@ -13,10 +14,30 @@ public class CookieFilter implements Filter {
         if (req.getSession().getAttribute("userEmail") == null && req.getSession().getAttribute("logout") == null) {
             checkUserInCookie(req);
         }
+        if (req.getSession().getAttribute("lang") == null) {
+            checkLocaleInCookie(req);
+        }
         chain.doFilter(request, response);
     }
 
-    private static void checkUserInCookie(HttpServletRequest req) {
+    private void checkLocaleInCookie(HttpServletRequest req) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie ck : cookies) {
+                if ("lang".equals(ck.getName()) && !ck.getValue().isEmpty()) {
+                    String lang = ck.getValue();
+                    req.getSession().setAttribute("lang", lang);
+                    if (lang.equals("uk")) {
+                        Locale.setDefault(new Locale("uk", "UA"));
+                    } else {
+                        Locale.setDefault(Locale.US);
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkUserInCookie(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         if (cookies != null) {
             for (Cookie ck : cookies) {

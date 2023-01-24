@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import ua.od.cepuii.library.entity.enums.Role;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +18,7 @@ public class UserTO implements Serializable {
     private static final long serialVersionUID = 1;
     private long id;
     private String email;
-    private String registered;
+    private Date registered;
     private boolean blocked;
     private int fine;
     private Role role;

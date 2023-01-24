@@ -21,7 +21,8 @@ import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.*;
 
 public class JdbcBookRepository implements BookRepository {
     private static final Logger log = LoggerFactory.getLogger(JdbcBookRepository.class);
-    private final DbExecutor<Book> dbExecutor;
+    private final DbExecutor<Book> executor;
+    private final DbExecutor<Author> authorExecutor;
     private final ConnectionPool connectionPool;
     private static final String INSERT_BOOK = "INSERT INTO book (title, publication_id, date_publication, fine, total) VALUES (?,?,?,?,?);";
     private static final String INSERT_BOOK_AUTHORS = "INSERT INTO book_author (book_id, author_id) VALUES (?,?);";
@@ -37,14 +38,12 @@ public class JdbcBookRepository implements BookRepository {
             "WHERE (book.total - book.no_of_borrow) > 0 AND title LIKE ? AND a.name LIKE ? ";
 
     private static final String UPDATE_AUTHOR = "UPDATE author SET name=? WHERE id=?";
-    private static final String INSERT_AUTHOR_IF_NOT_EXIST = "WITH val AS (SELECT id, \"name\" " +
-            "FROM author WHERE name = ?), " +
-            "ins AS ( INSERT INTO author (\"name\") " +
-            "SELECT ? WHERE NOT exists(SELECT 1 FROM val) RETURNING id) " +
-            "SELECT id FROM ins UNION ALL SELECT id FROM val;";
+    private static final String SELECT_AUTHOR_BY_NAME = "SELECT id a_id, name a_name FROM author WHERE name=?";
+    private static final String INSERT_AUTHOR = "INSERT INTO author(name) VALUES (?);";
 
-    public JdbcBookRepository(DbExecutor<Book> dbExecutor, ConnectionPool connectionPool) {
-        this.dbExecutor = dbExecutor;
+    public JdbcBookRepository(DbExecutor<Book> executor, DbExecutor<Author> authorExecutor, ConnectionPool connectionPool) {
+        this.executor = executor;
+        this.authorExecutor = authorExecutor;
         this.connectionPool = connectionPool;
     }
 
@@ -53,7 +52,7 @@ public class JdbcBookRepository implements BookRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                long bookId = dbExecutor.insert(connection, INSERT_BOOK, getBookFields(book));
+                long bookId = executor.insert(connection, INSERT_BOOK, getBookFields(book));
                 updateAuthors(book.getAuthors(), connection, bookId);
                 connection.commit();
                 return bookId;
@@ -74,7 +73,7 @@ public class JdbcBookRepository implements BookRepository {
     @Override
     public Optional<Book> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.select(connection, SELECT_BY_ID, id, resultSet -> fillBooks(resultSet).stream().findFirst());
+            return executor.selectById(connection, SELECT_BY_ID, id, resultSet -> fillBooks(resultSet).stream().findFirst());
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -90,7 +89,7 @@ public class JdbcBookRepository implements BookRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean executeUpdate = dbExecutor.update(connection, UPDATE, getBookFieldsForUpdate(book));
+                boolean executeUpdate = executor.update(connection, UPDATE, getBookFieldsForUpdate(book));
                 if (executeUpdate) {
                     updateAuthors(book.getAuthors(), connection, book.getId());
                 }
@@ -109,10 +108,15 @@ public class JdbcBookRepository implements BookRepository {
     private void updateAuthors(Collection<Author> authors, Connection connection, long bookId) throws SQLException {
         for (Author author : authors) {
             if (ValidationUtil.isNew(author)) {
-                long authorId = dbExecutor.insert(connection, INSERT_AUTHOR_IF_NOT_EXIST, List.of(author.getName(), author.getName()));
-                dbExecutor.insertWithoutGeneratedKey(connection, INSERT_BOOK_AUTHORS, List.of(bookId, authorId));
+                Optional<Author> optionalAuthor = authorExecutor.selectByParams(connection, SELECT_AUTHOR_BY_NAME, List.of(author.getName()), RepositoryUtil::fillAuthor);
+                if (optionalAuthor.isEmpty()) {
+                    long authorId = executor.insert(connection, INSERT_AUTHOR, List.of(author.getName()));
+                    executor.insertWithoutGeneratedKey(connection, INSERT_BOOK_AUTHORS, List.of(bookId, authorId));
+                } else {
+                    executor.update(connection, UPDATE_AUTHOR, List.of(optionalAuthor.get().getName(), optionalAuthor.get().getId()));
+                }
             } else {
-                dbExecutor.update(connection, UPDATE_AUTHOR, List.of(author.getName(), author.getId()));
+                executor.update(connection, UPDATE_AUTHOR, List.of(author.getName(), author.getId()));
             }
         }
     }
@@ -122,7 +126,7 @@ public class JdbcBookRepository implements BookRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean b = dbExecutor.queryById(connection, DELETE_BOOK, id);
+                boolean b = executor.queryById(connection, DELETE_BOOK, id);
                 connection.commit();
                 return b;
             } catch (SQLException e) {
@@ -140,7 +144,7 @@ public class JdbcBookRepository implements BookRepository {
         String titleFilter = prepareForLike(validateForLike(filterParam.getFirstParam()));
         String authorFilter = prepareForLike(validateForLike(filterParam.getSecondParam()));
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.selectAllWithLimit(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, titleFilter, authorFilter, limit, offset, RepositoryUtil::fillBooks);
+            return executor.selectAllWithLimit(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, titleFilter, authorFilter, limit, offset, RepositoryUtil::fillBooks);
         } catch (SQLException e) {
             log.error(e.getMessage());
             return Collections.emptyList();
@@ -152,7 +156,7 @@ public class JdbcBookRepository implements BookRepository {
         String titleForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
         String authorForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.selectCount(connection, COUNT_SELECT_ALL_FILTER, List.of(titleForSearch, authorForSearch));
+            return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER, List.of(titleForSearch, authorForSearch));
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

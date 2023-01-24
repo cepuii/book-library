@@ -20,17 +20,17 @@ import static ua.od.cepuii.library.util.BookUtil.NOT_FOUND_ID;
 import static ua.od.cepuii.library.util.BookUtil.NO_OF_RECORDS;
 import static ua.od.cepuii.library.util.UserUtil.*;
 
-public class UserServiceTest {
+ class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-    @InjectMocks
-    private UserService userService;
+     @Mock
+     private UserRepository userRepository;
+     @InjectMocks
+     private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+     @BeforeEach
+     void setUp() {
+         MockitoAnnotations.openMocks(this);
+     }
 //
 //    ublic long createOrUpdate(User user) {
 //        if (ValidationUtil.isNew(user)) {

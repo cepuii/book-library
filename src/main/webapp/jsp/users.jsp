@@ -1,10 +1,10 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/fragments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jsp"/>
     <title><fmt:message key="users.href"/></title>
 </head>
 <body>
@@ -127,7 +127,7 @@
             <c:forEach var="user" items="${requestScope.users}">
                 <tr>
                     <td>${user.email}</td>
-                    <td>${user.registered}</td>
+                    <td><fmt:formatDate dateStyle="long" value="${user.registered}"/></td>
                     <td>${user.role}</td>
                     <td>${user.fine}</td>
                     <td>
@@ -140,24 +140,21 @@
                                       action="${pageContext.request.contextPath}/controller">
                                     <input type="hidden" name="command"
                                            value="block_user">
-                                    <input type="hidden" name="userId" value="${user.id}">
+                                    <input type="hidden" name="blockUserId" value="${user.id}">
                                     <c:choose>
                                         <c:when test="${user.blocked}">
                                             <input type="hidden" name="isBlocked" value="false">
-                                            <c:set var="blockAction">
+                                            <button class="btn btn-primary" type="submit">
                                                 <fmt:message key="users.enable"/>
-                                            </c:set>
+                                            </button>
                                         </c:when>
                                         <c:otherwise>
                                             <input type="hidden" name="isBlocked" value="true">
-                                            <c:set var="blockAction">
+                                            <button class="btn btn-outline-primary" type="submit">
                                                 <fmt:message key="users.block"/>
-                                            </c:set>
+                                            </button>
                                         </c:otherwise>
                                     </c:choose>
-                                    <button class="btn btn-outline-primary" type="submit">
-                                            ${blockAction}
-                                    </button>
                                 </form>
                             </div>
                         </div>

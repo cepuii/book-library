@@ -10,8 +10,10 @@ public class Logout implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         CookieUtil.cleanCookie(request);
+        String lang = (String) request.getSession().getAttribute("lang");
         request.getSession().invalidate();
         request.getSession(true).setAttribute("logout", "true");
+        request.getSession().setAttribute("lang", lang);
         return ConfigurationManager.getProperty("path.controller.books");
     }
 

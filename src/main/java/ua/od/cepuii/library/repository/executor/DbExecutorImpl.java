@@ -28,6 +28,17 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
+    public Optional<T> selectByParams(Connection connection, String sql, List<Object> params, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            setParams(params, preparedStatement);
+            log.info("{}", preparedStatement);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                return rsHandler.apply(rs);
+            }
+        }
+    }
+
+    @Override
     public boolean insertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
@@ -44,7 +55,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Optional<T> select(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
+    public Optional<T> selectById(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
             log.info("{}", preparedStatement);

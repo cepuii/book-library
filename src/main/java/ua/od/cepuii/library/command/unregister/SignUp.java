@@ -12,6 +12,7 @@ import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
+import ua.od.cepuii.library.util.PasswordUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 public class SignUp implements ActionCommand {
@@ -50,7 +51,7 @@ public class SignUp implements ActionCommand {
             request.setAttribute("badEmail", MessageManager.getProperty("message.signUp.email"));
         }
         String confirmPassword = request.getParameter("confirmPassword");
-        if (confirmPassword == null || !confirmPassword.equals(user.getPassword())) {
+        if (confirmPassword == null || PasswordUtil.verify(confirmPassword, user.getPassword().getBytes())) {
             forwardBack = true;
             request.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));
         }

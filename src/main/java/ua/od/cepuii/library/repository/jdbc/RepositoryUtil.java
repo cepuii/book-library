@@ -9,7 +9,6 @@ import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.entity.enums.PublicationType;
 import ua.od.cepuii.library.entity.enums.Role;
-import ua.od.cepuii.library.exception.RepositoryException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -48,12 +47,17 @@ public class RepositoryUtil {
         return books;
     }
 
-    public static Collection<Author> fillAuthors(ResultSet resultSet) throws SQLException {
-        String[] authorsIds = resultSet.getString("authors_id").split(", ");
-        String[] authors = resultSet.getString("authors").split(", ");
+    public static Collection<Author> fillAuthors(ResultSet resultSet) {
+        String[] authorsIds = new String[0];
         Collection<Author> authorSet = new TreeSet<>(Comparator.comparing(Author::getName));
-        for (int i = 0; i < authorsIds.length; i++) {
-            authorSet.add(new Author(Long.parseLong(authorsIds[i]), authors[i]));
+        try {
+            authorsIds = resultSet.getString("authors_id").split(", ");
+            String[] authors = resultSet.getString("authors").split(", ");
+            for (int i = 0; i < authorsIds.length; i++) {
+                authorSet.add(new Author(Long.parseLong(authorsIds[i]), authors[i]));
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         return authorSet;
     }
@@ -62,8 +66,9 @@ public class RepositoryUtil {
         try {
             return Optional.of(new Author(resultSet.getInt("a_id"), resultSet.getString("a_name")));
         } catch (SQLException e) {
-            throw new RepositoryException("Can`t populate author from result set", e);
+            log.error(e.getMessage());
         }
+        return Optional.empty();
     }
 
     public static Optional<User> fillUser(ResultSet resultSet) {
@@ -71,8 +76,9 @@ public class RepositoryUtil {
             resultSet.next();
             return getUser(resultSet);
         } catch (SQLException e) {
-            throw new RepositoryException("Can`t populate user from result set", e);
+            log.error(e.getMessage());
         }
+        return Optional.empty();
     }
 
     private static Optional<User> getUser(ResultSet resultSet) throws SQLException {
@@ -98,8 +104,9 @@ public class RepositoryUtil {
             log.info("populate users: {}", users.size());
             return users;
         } catch (SQLException e) {
-            throw new RepositoryException("Can`t populate users from resultSet", e);
+            log.error(e.getMessage());
         }
+        return Collections.emptyList();
     }
 
     public static Optional<Loan> fillLoan(ResultSet resultSet) {
@@ -107,8 +114,9 @@ public class RepositoryUtil {
             resultSet.next();
             return getLoan(resultSet);
         } catch (SQLException e) {
-            throw new RepositoryException("Can`t populate loan from result set", e);
+            log.error(e.getMessage());
         }
+        return Optional.empty();
     }
 
     private static Optional<Loan> getLoan(ResultSet resultSet) throws SQLException {
@@ -138,7 +146,7 @@ public class RepositoryUtil {
                 loans.add(loan.orElseThrow());
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Can`t populate loans collection", e);
+            log.error(e.getMessage());
         }
         return loans;
     }

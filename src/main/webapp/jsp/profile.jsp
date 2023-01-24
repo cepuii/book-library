@@ -1,10 +1,10 @@
-<%@ include file="/jsp/fragments/pageSettings.jspf" %>
-<%@ include file="/jsp/fragments/taglibs.jspf" %>
+<%@ include file="/jsp/fragments/pageSettings.jsp" %>
+<%@ include file="/jsp/fragments/taglibs.jsp" %>
 
 <!doctype html>
 <html lang="${sessionScope.lang}">
 <head>
-    <jsp:include page="/jsp/fragments/headTag.jspf"/>
+    <jsp:include page="/jsp/fragments/headTag.jsp"/>
     <title><fmt:message key="profile"/></title>
 </head>
 
@@ -33,7 +33,8 @@
                     <label>
                         <fmt:message key="users.registered"/>:
                         <input class="form-control" type="text" name="registered"
-                               value="${requestScope.user.registered}" disabled>
+                               value="<fmt:formatDate dateStyle="long" value="${requestScope.user.registered}"/>"
+                               disabled>
                     </label>
 
                 </div>

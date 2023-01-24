@@ -16,7 +16,7 @@ public class JdbcRepositoryFactory implements RepositoryFactory {
 
     @Override
     public BookRepository getBookRepository() {
-        return new JdbcBookRepository(new DbExecutorImpl<>(), new HikariConnectionPool());
+        return new JdbcBookRepository(new DbExecutorImpl<>(), new DbExecutorImpl<>(), new HikariConnectionPool());
     }
 
     @Override

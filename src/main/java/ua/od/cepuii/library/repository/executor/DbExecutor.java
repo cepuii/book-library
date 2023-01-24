@@ -14,9 +14,11 @@ public interface DbExecutor<T extends AbstractEntity> {
 
     long insert(Connection connection, String sql, List<Object> params) throws SQLException;
 
+    Optional<T> selectByParams(Connection connection, String sql, List<Object> params, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
+
     boolean insertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException;
 
-    Optional<T> select(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
+    Optional<T> selectById(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
 
     boolean update(Connection connection, String sql, List<Object> params) throws SQLException;
 

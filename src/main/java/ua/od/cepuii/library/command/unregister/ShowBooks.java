@@ -38,7 +38,9 @@ public class ShowBooks implements ActionCommand {
             Collection<Long> booksIdsByUserId = loanService.getBooksIdsByUserId(userId);
             session.setAttribute("loanItems", booksIdsByUserId);
         }
+
         RequestParser.setFromSessionToRequest(request, "wrongAction");
+        RequestParser.setFromSessionToRequest(request, "success");
         log.info("page attributes {}", page);
         return ConfigurationManager.getProperty("path.page.main");
     }

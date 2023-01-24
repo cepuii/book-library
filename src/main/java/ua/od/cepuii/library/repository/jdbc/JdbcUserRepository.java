@@ -68,7 +68,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.select(connection, SELECT_BY_ID, id, RepositoryUtil::fillUser);
+            return dbExecutor.selectById(connection, SELECT_BY_ID, id, RepositoryUtil::fillUser);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
