@@ -6,17 +6,17 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.LoanService;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class RemoveBookFromOrder implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(RemoveBookFromOrder.class);
-    LoanService loanService = new LoanService();
+    LoanService loanService = AppContext.getInstance().getLoanService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
@@ -29,9 +29,8 @@ public class RemoveBookFromOrder implements ActionCommand {
             long bookId = RequestParser.getLong(request, "bookId");
             loanItems.remove(bookId);
             session.setAttribute("loanItems", loanItems);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
-
         }
         return ConfigurationManager.getProperty("path.controller.orders");
     }

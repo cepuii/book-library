@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.unregisted;
+package ua.od.cepuii.library.command.unregister;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

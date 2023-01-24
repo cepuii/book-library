@@ -18,6 +18,7 @@
         <hr>
         <form method="post" action="${pageContext.request.contextPath}/controller">
             <input type="hidden" name="command" value="sign_up">
+            <input type="hidden" name="userId" value="0">
             <div class="mb-1">
                 <label>
                     <fmt:message key="users.email"/>*:
@@ -59,7 +60,7 @@
         </form>
     </div>
 
-    <script src="${pageContext.request.contextPath}WEB-INF/js/showPass.js"></script>
+    <script src="../js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
 </body>

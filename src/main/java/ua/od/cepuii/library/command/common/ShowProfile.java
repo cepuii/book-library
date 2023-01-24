@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.LoanTO;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
@@ -18,8 +19,8 @@ import java.util.Collection;
 public class ShowProfile implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowProfile.class);
 
-    private final UserService userService = new UserService();
-    private final LoanService loanService = new LoanService();
+    private final UserService userService = AppContext.getInstance().getUserService();
+    private final LoanService loanService = AppContext.getInstance().getLoanService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {

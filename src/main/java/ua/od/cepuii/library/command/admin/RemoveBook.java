@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.BookService;
@@ -12,7 +13,7 @@ import ua.od.cepuii.library.util.ValidationUtil;
 
 public class RemoveBook implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(RemoveBook.class);
-    BookService bookService = new BookService();
+    BookService bookService = AppContext.getInstance().getBookService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {

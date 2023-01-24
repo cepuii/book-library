@@ -5,7 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
-import ua.od.cepuii.library.dto.FilterAndSortParams;
+import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.LoanTO;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
@@ -19,12 +20,12 @@ import static ua.od.cepuii.library.dto.RequestParser.*;
 
 public class ShowOrders implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowOrders.class);
-    private final LoanService loanService = new LoanService();
+    private final LoanService loanService = AppContext.getInstance().getLoanService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         Page page = getPageFromSession(request);
-        FilterAndSortParams filter = getFilterParams(request, "", "");
+        FilterParams filter = getFilterParams(request, "", "");
         Role userRole = RequestParser.getRole(request);
         Collection<LoanTO> loans;
         if (Role.LIBRARIAN == userRole) {

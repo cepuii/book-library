@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.resource.ConfigurationManager;
@@ -19,7 +20,7 @@ import java.util.Set;
 public class AddBookToOrder implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(AddBookToOrder.class);
 
-    private final LoanService loanService = new LoanService();
+    private final LoanService loanService = AppContext.getInstance().getLoanService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {

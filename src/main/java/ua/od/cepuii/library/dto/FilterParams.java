@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @NoArgsConstructor
 @ToString
-public class FilterAndSortParams implements Serializable {
+public class FilterParams implements Serializable {
 
     private String firstParam;
     private String secondParam;
@@ -16,15 +16,15 @@ public class FilterAndSortParams implements Serializable {
 
     private long userId;
 
-    public FilterAndSortParams(String firstValue, String secondValue, String orderBy, boolean descending) {
+    public FilterParams(String firstValue, String secondValue, String orderBy, boolean descending) {
         this.firstParam = firstValue == null ? "" : firstValue;
         this.secondParam = secondValue == null ? "" : secondValue;
         this.orderBy = orderBy == null ? "" : orderBy;
         this.descending = descending;
     }
 
-    public static FilterAndSortParams cleanFilter() {
-        return new FilterAndSortParams(null, null, null, false);
+    public static FilterParams cleanFilter() {
+        return new FilterParams(null, null, null, false);
     }
 
     public String getOrderBy() {

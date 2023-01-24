@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.command.unregisted;
+package ua.od.cepuii.library.command.unregister;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -6,10 +6,11 @@ import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
-import ua.od.cepuii.library.dto.FilterAndSortParams;
+import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.BookTO;
+import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.BookService;
 import ua.od.cepuii.library.service.LoanService;
@@ -19,14 +20,14 @@ import java.util.Collection;
 public class ShowBooks implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowBooks.class);
 
-    private final BookService bookService = new BookService();
-    private final LoanService loanService = new LoanService();
+    private final BookService bookService = AppContext.getInstance().getBookService();
+    private final LoanService loanService = AppContext.getInstance().getLoanService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        FilterAndSortParams filterParam = RequestParser.getFilterParams(request, "titleSearch", "authorSearch");
+        FilterParams filterParam = RequestParser.getFilterParams(request, "titleSearch", "authorSearch");
         Page page = RequestParser.getPageFromSession(request, bookService, filterParam);
-        Collection<Book> books = bookService.getAll(page, filterParam);
+        Collection<BookTO> books = bookService.getAll(page, filterParam);
         request.setAttribute("books", books);
         request.setAttribute("data", "receive");
         HttpSession session = request.getSession();

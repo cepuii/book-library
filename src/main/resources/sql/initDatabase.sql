@@ -19,7 +19,7 @@ CREATE TABLE publication_type
 CREATE TABLE book
 (
     id               BIGINT  DEFAULT nextval('global_seq') PRIMARY KEY,
-    title            VARCHAR             NOT NULL,
+    title            VARCHAR UNIQUE      NOT NULL,
     publication_id   INTEGER             NOT NULL,
     date_publication INTEGER             NOT NULL,
     fine             INTEGER DEFAULT 100 NOT NULL,

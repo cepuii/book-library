@@ -15,7 +15,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     private static final Logger log = LoggerFactory.getLogger(DbExecutorImpl.class);
 
     @Override
-    public long executeInsert(Connection connection, String sql, List<Object> params) throws SQLException {
+    public long insert(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(params, preparedStatement);
             preparedStatement.executeUpdate();
@@ -28,7 +28,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public boolean executeInsertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
+    public boolean insertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
             preparedStatement.execute();
@@ -44,7 +44,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Optional<T> executeSelect(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
+    public Optional<T> select(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
             log.info("{}", preparedStatement);
@@ -55,7 +55,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> selectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setObject(1, param);
             log.info("{}", preparedStatement);
@@ -66,7 +66,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllWithLimit(Connection connection, String sql, String firstParam, String secondParam, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> selectAllWithLimit(Connection connection, String sql, String firstParam, String secondParam, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, firstParam);
             preparedStatement.setString(2, secondParam);
@@ -80,7 +80,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public boolean executeUpdate(Connection connection, String sql, List<Object> params) throws SQLException {
+    public boolean update(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
             boolean result = preparedStatement.executeUpdate() != 0;
@@ -91,7 +91,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
 
 
     @Override
-    public boolean executeById(Connection connection, String sql, long id) throws SQLException {
+    public boolean queryById(Connection connection, String sql, long id) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
             log.info("{}", preparedStatement);
@@ -100,7 +100,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllById(Connection connection, String sql, long id, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> selectAllById(Connection connection, String sql, long id, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             log.info("id {}, limit {}, offset {}", id, limit, offset);
             preparedStatement.setLong(1, id);
@@ -111,5 +111,17 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
                 return rsHandler.apply(rs);
             }
         }
+    }
+
+    @Override
+    public int selectCount(Connection connection, String sqlQuery, List<Object> strings) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
+            setParams(strings, statement);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        }
+        return 0;
     }
 }

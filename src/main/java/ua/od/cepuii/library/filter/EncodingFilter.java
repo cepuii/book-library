@@ -1,22 +1,20 @@
 package ua.od.cepuii.library.filter;
 
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 
 import java.io.IOException;
 
-@WebFilter(urlPatterns = "/*")
 public class EncodingFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(EncodingFilter.class);
     private String encoding;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        encoding = ConfigurationManager.getProperty("encoding");
+        encoding = filterConfig.getInitParameter("encoding");
         log.debug("initialize encodingFilter with param: {}", encoding);
+
     }
 
     @Override

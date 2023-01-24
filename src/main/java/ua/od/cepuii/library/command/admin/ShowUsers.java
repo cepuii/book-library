@@ -5,7 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
-import ua.od.cepuii.library.dto.FilterAndSortParams;
+import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.dto.UserTO;
@@ -17,11 +18,11 @@ import java.util.Collection;
 public class ShowUsers implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowUsers.class);
 
-    private final UserService userService = new UserService();
+    private final UserService userService = AppContext.getInstance().getUserService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        FilterAndSortParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
+        FilterParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
         Page currentPage = RequestParser.getPageFromSession(request, userService, filterParam);
         try {
             Collection<UserTO> users = userService.getAll(currentPage, filterParam);

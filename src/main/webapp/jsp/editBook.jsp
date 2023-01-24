@@ -14,7 +14,6 @@
 <c:set var="placeholderFine" scope="request"><fmt:message key="books.edit.placeholder.fine"/></c:set>
 <c:set var="placeholderAuthors" scope="request"><fmt:message key="books.edit.placeholder.authors"/></c:set>
 <div class="container">
-
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
 
     <div class="justify-content-center ">
@@ -23,12 +22,14 @@
             <div class="mb-3">
                 <label for="title" class="form-label"><fmt:message key="books.title"/>
                     <input type="text" class="form-control" id="title" name="title" placeholder="${placeholderTitle}"
+                           title="<fmt:message key="books.required.title"/>"
+                           pattern="^[0-9A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє'.,;:+\-~`!@#$^&*()={}| ]{2,70}" required
                            value="${requestScope.book.title}">
                 </label>
             </div>
             <div class="mb-3">
                 <label for="pt" class="form-label"><fmt:message key="books.publicationType"/>
-                    <select class="form-select" name="publicationType" id="pt">
+                    <select class="form-select" name="publicationType" id="pt" required>
                         <option value="BOOK" ${requestScope.book.publicationType eq '' ? 'selected':''}>Choose type of
                             publication
                         </option>
@@ -51,54 +52,64 @@
                     <fmt:message key="books.datePublication"/>
                     <input type="number" class="form-control" id="date-publication" name="datePublication"
                            placeholder="${placeholderDate}"
-                           value="${requestScope.book.datePublication}">
+                           pattern="^\d{4}$"
+                           value="${requestScope.book.datePublication}" required>
                 </label>
             </div>
             <div class="mb-3">
-                <label for="date-publication" class="form-label">
+                <label for="total" class="form-label">
                     <fmt:message key="books.total"/>
                     <input type="number" class="form-control" id="total" name="total" placeholder="${placeholderTotal}"
-                           value="${requestScope.book.total}">
+                           pattern="^\d{4}$"
+                           value="${requestScope.book.total}" required>
                 </label>
             </div>
             <div class="mb-3">
                 <label for="fine" class="form-label">
                     <fmt:message key="books.fine"/>
                     <input type="number" class="form-control" id="fine" name="fine" placeholder="${placeholderFine}"
-                           value="${requestScope.book.fine}">
+                           pattern="^\d{4}$"
+                           value="${requestScope.book.fine}" required>
                 </label>
             </div>
             <div class="mb-xxl-0">
                 <div class="container">
                     <label class="form-label"><fmt:message key="books.authors"/>
-                        <%--                        <c:forTokens var="author" items="${book.authors}" delims="," varStatus="status">--%>
-                        <%--                            <input type="text" class="form-control" id="authorSet" name="authorSet"--%>
-                        <%--                                   value="${author.name}">--%>
-                        <%--                        </c:forTokens>--%>
-
-                        <%--                        <jsp:useBean id="author" class="ua.od.cepuii.library.entity.Author"/>--%>
                         <c:forEach var="author" items="${requestScope.book.authors}" varStatus="status">
                             <input type="hidden" name="authorId" value="${author.id}">
                             <input type="text" class="form-control" name="authorName"
-                                   value="${author.name}">
+                                   pattern='^[A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє`.]{2,20}'
+                                   value="${author.name}" required>
                         </c:forEach>
-                        <c:choose>
-                            <c:when test="${requestScope.book!=null}">
-                                <div class="input-group mb-3">
-                                    <input type="hidden" name="bookId" value="${requestScope.book.id}">
-                                    <c:set var="inputName"><fmt:message key="books.edit.add.author"/></c:set>
-                                    <input type="text" class="form-control" placeholder="${inputName}" name="newAuthor">
-                                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2"
-                                            formaction="${pageContext.request.contextPath}/controller?command=add_author">
-                                        <fmt:message key="add"/></button>
-                                </div>
-                            </c:when>
-                            <c:otherwise>
-                                <input type="hidden" name="authorId" value="0">
-                                <input type="text" class="form-control" placeholder="${placeholderAuthors}"
-                                       name="authorName">
-                            </c:otherwise>
-                        </c:choose>
+                        <%--                        <c:choose>--%>
+                        <%--                            <c:when test="${requestScope.book!=null}">--%>
+                        <%--                                <div class="input-group mb-3">--%>
+                        <%--                                    <input type="hidden" name="bookId" value="${requestScope.book.id}">--%>
+                        <%--                                    <c:set var="inputName"><fmt:message key="books.edit.add.author"/></c:set>--%>
+                        <%--                                    <input type="text" class="form-control" placeholder="${inputName}" name="newAuthor">--%>
+                        <%--                                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2"--%>
+                        <%--                                            formaction="${pageContext.request.contextPath}/controller?command=add_author">--%>
+                        <%--                                        <fmt:message key="add"/></button>--%>
+                        <%--                                </div>--%>
+                        <%--                            </c:when>--%>
+                        <%--                            <c:otherwise>--%>
+                        <%--                                <input type="hidden" name="authorId" value="0">--%>
+                        <%--                                <input type="text" class="form-control" placeholder="${placeholderAuthors}"--%>
+                        <%--                                       name="authorName">--%>
+                        <%--                            </c:otherwise>--%>
+                        <%--                        </c:choose>--%>
+                        <div id="new-providers" class="form-label mb-2">
+                            <div class="provider-append mb-2 ">
+                                <c:if test="${empty requestScope.book.authors}">
+                                    <div class="form-group mb-2">
+                                        <input type='text' class='form-control' name='newAuthor'
+                                               pattern='^[A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє`. ]{2,20}' required>
+                                    </div>
+                                </c:if>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="createNewElement()">
+                            <fmt:message key="books.edit.add.author"/></button>
                     </label>
                 </div>
             </div>
@@ -106,7 +117,20 @@
                    formaction="${pageContext.request.contextPath}/controller?command=save_book">
         </form>
     </div>
-<jsp:include page="/jsp/fragments/footer.jsp"/>
+    <script type="text/JavaScript">
+        function createNewElement() {
+            // First create a DIV element.
+            var txtNewInputBox = document.createElement('div');
+            txtNewInputBox.className = "form-group mb-2";
+            // Then add the content (a new input box) of the element.
+            txtNewInputBox.innerHTML = "<input type='text' class='form-control' name='newAuthor' pattern='^[A-Za-zА-ЩЬЮЯҐІЇЄа-щьюяґіїє`. ]{2,20}' required>";
+
+            // Finally put it where it is supposed to appear.
+            document.getElementById("new-providers").appendChild(txtNewInputBox);
+        }
+    </script>
+
+    <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
 
 </body>

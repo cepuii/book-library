@@ -5,6 +5,7 @@ import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.entity.User;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
@@ -37,9 +38,8 @@ public class Mapper {
     }
 
     private static Date getDate(LocalDate startDate) {
-        return new Date((startDate.getYear() - 1900), startDate.getMonthValue() - 1, startDate.getDayOfMonth());
+        return Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
-
     public static BookTO getBookTO(Book book) {
         return BookTO.builder()
                 .id(book.getId())
@@ -66,5 +66,9 @@ public class Mapper {
 
     public static Collection<UserTO> mapToUserTO(Collection<User> users) {
         return users.stream().map(Mapper::getUserTO).collect(Collectors.toList());
+    }
+
+    public static Collection<BookTO> mapToBookTo(Collection<Book> books) {
+        return books.stream().map(Mapper::getBookTO).collect(Collectors.toList());
     }
 }

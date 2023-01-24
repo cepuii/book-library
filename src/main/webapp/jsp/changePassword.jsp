@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/showPass.js"></script>
+    <script src="../js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 
 </div>

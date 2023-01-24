@@ -1,6 +1,6 @@
 package ua.od.cepuii.library.repository;
 
-import ua.od.cepuii.library.dto.FilterAndSortParams;
+import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.AbstractEntity;
 
 import java.util.Collection;
@@ -16,5 +16,5 @@ public interface AbstractEntityRepository<T extends AbstractEntity> {
 
     boolean delete(long id);
 
-    Collection<T> getAll(FilterAndSortParams params, String orderBy, int limit, int offset);
+    Collection<T> getAll(FilterParams params, String orderBy, int limit, int offset);
 }

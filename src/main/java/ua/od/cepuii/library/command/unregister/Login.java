@@ -1,10 +1,11 @@
-package ua.od.cepuii.library.command.unregisted;
+package ua.od.cepuii.library.command.unregister;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.resource.ConfigurationManager;
@@ -15,7 +16,7 @@ import ua.od.cepuii.library.util.CookieUtil;
 public class Login implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(Login.class);
-    private final UserService userService = new UserService();
+    private final UserService userService = AppContext.getInstance().getUserService();
     private static final String PARAM_NAME_EMAIL = "email";
     private static final String PARAM_NAME_PASSWORD = "password";
 

@@ -54,17 +54,13 @@
                                 <fmt:message key="books.sort.name"/>
                                 <select name="orderBy">
                                     <option value="b_title" ${sessionScope.filter.orderBy eq 'b_title' ? 'selected':''}>
-                                        <fmt:message
-                                                key="books.sort.title"/></option>
+                                        <fmt:message key="books.sort.title"/></option>
                                     <option value="pt_name" ${sessionScope.filter.orderBy eq 'pt_name' ? 'selected':''}>
-                                        <fmt:message
-                                                key="books.sort.type"/></option>
+                                        <fmt:message key="books.sort.type"/></option>
                                     <option value="b_date" ${sessionScope.filter.orderBy eq 'b_date' ? 'selected':''}>
-                                        <fmt:message
-                                                key="books.sort.date"/></option>
+                                        <fmt:message key="books.sort.date"/></option>
                                     <option value="authors" ${sessionScope.filter.orderBy eq 'authors' ? 'selected':''}>
-                                        <fmt:message
-                                                key="books.sort.author"/></option>
+                                        <fmt:message key="books.sort.author"/></option>
                                 </select>
                             </label>
                         </div>
@@ -73,11 +69,9 @@
                                 <fmt:message key="books.order"/>
                                 <select name="descending">
                                     <option value="false" ${sessionScope.filter.descending eq "false" ? "selected" : ""}>
-                                        <fmt:message
-                                                key="books.sort.asc"/></option>
+                                        <fmt:message key="books.sort.asc"/></option>
                                     <option value="true" ${sessionScope.filter.descending eq "true" ? "selected" : ""}>
-                                        <fmt:message
-                                                key="books.sort.desc"/></option>
+                                        <fmt:message key="books.sort.desc"/></option>
                                 </select>
                             </label>
                         </div>
@@ -255,8 +249,10 @@
             </c:if>
         </ul>
     </div>
+
     <jsp:include page="/jsp/fragments/showResult.jsp"/>
-<jsp:include page="/jsp/fragments/footer.jsp"/>
+
+    <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
 
 </body>

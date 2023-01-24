@@ -11,7 +11,6 @@ import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.entity.enums.PublicationType;
 import ua.od.cepuii.library.entity.enums.Role;
 import ua.od.cepuii.library.exception.RequestParserException;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.Service;
 import ua.od.cepuii.library.util.ValidationUtil;
 
@@ -25,7 +24,7 @@ public class RequestParser {
     private RequestParser() {
     }
 
-    public static Page getPageFromSession(HttpServletRequest request, Service service, FilterAndSortParams filterParam) {
+    public static Page getPageFromSession(HttpServletRequest request, Service service, FilterParams filterParam) {
         Page page = getPageFromSession(request);
         if (request.getParameter("modified") != null) {
             page.setCurrentPage(1);
@@ -50,17 +49,17 @@ public class RequestParser {
         return page;
     }
 
-    public static FilterAndSortParams getFilterParams(HttpServletRequest request, String firstParam, String secondParam) {
-        FilterAndSortParams filter = (FilterAndSortParams) request.getSession().getAttribute("filter");
+    public static FilterParams getFilterParams(HttpServletRequest request, String firstParam, String secondParam) {
+        FilterParams filter = (FilterParams) request.getSession().getAttribute("filter");
         String firstValue = request.getParameter(firstParam);
         String secondValue = request.getParameter(secondParam);
         String orderBy = request.getParameter("orderBy");
         String descending = request.getParameter("descending");
         if (request.getParameter("cleanFilter") != null) {
-            return FilterAndSortParams.cleanFilter();
+            return FilterParams.cleanFilter();
         }
         if (filter == null) {
-            filter = new FilterAndSortParams(firstValue, secondValue, orderBy, Boolean.parseBoolean(descending));
+            filter = new FilterParams(firstValue, secondValue, orderBy, Boolean.parseBoolean(descending));
         }
         if (firstValue != null) {
             filter.setFirstParam(firstValue);
@@ -103,7 +102,7 @@ public class RequestParser {
     public static Book getBook(HttpServletRequest request) throws RequestParserException {
         return Book.builder()
                 .id(getLong(request, "bookId"))
-                .title(request.getParameter("title"))
+                .title(getString(request, "title"))
                 .publicationType(PublicationType.valueOf(request.getParameter("publicationType")))
                 .datePublication(getInt(request, "datePublication"))
                 .total(getInt(request, "total"))
@@ -112,20 +111,33 @@ public class RequestParser {
                 .build();
     }
 
+    private static String getString(HttpServletRequest request, String title) {
+        String parameter = request.getParameter(title);
+        return parameter == null ? "" : parameter;
+    }
+
     private static int getInt(HttpServletRequest request, String paramName) throws RequestParserException {
         String stringParam = request.getParameter(paramName);
         if (ValidationUtil.isDigit(stringParam)) {
             return Integer.parseInt(stringParam);
         }
-        throw new RequestParserException(MessageManager.getProperty("message.wrongParam") + ": " + stringParam);
+        return 0;
     }
 
     private static Collection<Author> getAuthors(HttpServletRequest request) {
         String[] authorIds = request.getParameterValues("authorId");
         String[] authorNames = request.getParameterValues("authorName");
         Collection<Author> authors = new HashSet<>();
-        for (int i = 0; i < authorIds.length; i++) {
-            authors.add(new Author(Integer.parseInt(authorIds[i]), authorNames[i]));
+        if (authorIds != null) {
+            for (int i = 0; i < authorIds.length; i++) {
+                authors.add(new Author(Integer.parseInt(authorIds[i]), authorNames[i]));
+            }
+        }
+        String[] newAuthors = request.getParameterValues("newAuthor");
+        if (newAuthors != null) {
+            for (String newAuthor : newAuthors) {
+                authors.add(new Author(newAuthor));
+            }
         }
         return authors;
     }

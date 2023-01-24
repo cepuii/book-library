@@ -5,9 +5,9 @@ import ua.od.cepuii.library.command.common.*;
 import ua.od.cepuii.library.command.librarian.SetOrderStatus;
 import ua.od.cepuii.library.command.reader.AddBookToOrder;
 import ua.od.cepuii.library.command.reader.RemoveBookFromOrder;
-import ua.od.cepuii.library.command.unregisted.Login;
-import ua.od.cepuii.library.command.unregisted.ShowBooks;
-import ua.od.cepuii.library.command.unregisted.SignUp;
+import ua.od.cepuii.library.command.unregister.Login;
+import ua.od.cepuii.library.command.unregister.ShowBooks;
+import ua.od.cepuii.library.command.unregister.SignUp;
 
 public enum CommandEnum {
     SHOW_BOOKS(new ShowBooks()),
@@ -18,7 +18,6 @@ public enum CommandEnum {
     SAVE_BOOK(new SaveBook()),
     SAVE_USER(new SaveLibrarian()),
     SAVE_USER_CHANGE(new SaveUserChange()),
-    ADD_AUTHOR(new AddAuthor()),
     ADD_LIBRARIAN(new AddLibrarian()),
     LOGIN(new Login()),
     SIGN_UP(new SignUp()),

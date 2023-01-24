@@ -3,7 +3,7 @@ package ua.od.cepuii.library.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
-import ua.od.cepuii.library.dto.FilterAndSortParams;
+import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
@@ -52,7 +52,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                long insert = dbExecutor.executeInsert(connection, INSERT_USER, List.of(user.getEmail(), user.getPassword(), user.getRole().ordinal()));
+                long insert = dbExecutor.insert(connection, INSERT_USER, List.of(user.getEmail(), user.getPassword(), user.getRole().ordinal()));
                 connection.commit();
                 return insert;
             } catch (Exception e) {
@@ -68,7 +68,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelect(connection, SELECT_BY_ID, id, RepositoryUtil::fillUser);
+            return dbExecutor.select(connection, SELECT_BY_ID, id, RepositoryUtil::fillUser);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -80,7 +80,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
+                boolean update = dbExecutor.update(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
                 connection.commit();
                 return update;
             } catch (Exception e) {
@@ -98,7 +98,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER_PASSWORD, List.of(password, userId));
+                boolean update = dbExecutor.update(connection, UPDATE_USER_PASSWORD, List.of(password, userId));
                 connection.commit();
                 return update;
             } catch (Exception e) {
@@ -116,7 +116,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean b = dbExecutor.executeById(connection, DELETE_BY_ID, id);
+                boolean b = dbExecutor.queryById(connection, DELETE_BY_ID, id);
                 connection.commit();
                 return b;
             } catch (Exception e) {
@@ -130,11 +130,11 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public Collection<User> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
+    public Collection<User> getAll(FilterParams params, String orderBy, int limit, int offset) {
         try (Connection connection = connectionPool.getConnection()) {
             String firstParam = prepareForLike(validateForLike(params.getFirstParam()));
             String secondParam = prepareForLike(validateForLike(params.getSecondParam()));
-            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL_WITH_WHERE + orderBy + LIMIT_OFFSET, firstParam, secondParam, limit, offset, RepositoryUtil::fillUsers);
+            return dbExecutor.selectAllWithLimit(connection, SELECT_ALL_WITH_WHERE + orderBy + LIMIT_OFFSET, firstParam, secondParam, limit, offset, RepositoryUtil::fillUsers);
         } catch (SQLException e) {
             log.error(e.getMessage());
             return Collections.emptyList();
@@ -144,7 +144,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> getByEmail(String email) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAllByParam(connection, SELECT_BY_EMAIL, email, RepositoryUtil::fillUsers).stream().findAny();
+            return dbExecutor.selectAllByParam(connection, SELECT_BY_EMAIL, email, RepositoryUtil::fillUsers).stream().findAny();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -152,7 +152,7 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public int getCount(FilterAndSortParams filterParam) {
+    public int getCount(FilterParams filterParam) {
         try (Connection connection = connectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(GET_COUNT)) {
             String userForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
@@ -175,7 +175,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.executeUpdate(connection, UPDATE_USER_BLOCK, List.of(isBlocked, id));
+                boolean update = dbExecutor.update(connection, UPDATE_USER_BLOCK, List.of(isBlocked, id));
                 connection.commit();
                 return update;
 

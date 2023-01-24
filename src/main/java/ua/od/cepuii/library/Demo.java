@@ -1,17 +1,9 @@
 package ua.od.cepuii.library;
 
-
-import ua.od.cepuii.library.service.UserService;
-
-import java.sql.SQLException;
-
 public class Demo {
 
-    public static void main(String[] args) throws SQLException {
-        UserService service = new UserService();
-
-        System.out.println(service.getUserByEmailAndPassword("ivan@email", "qwerty"));
-
+    public static void main(String[] args) {
+        System.out.println("-3423".matches("^\\d{4}$"));
     }
 
 }

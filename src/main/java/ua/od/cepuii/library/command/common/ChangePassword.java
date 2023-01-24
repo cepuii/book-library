@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
@@ -14,7 +15,7 @@ import ua.od.cepuii.library.util.ValidationUtil;
 public class ChangePassword implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(ChangePassword.class);
-    private final UserService userService = new UserService();
+    private final UserService userService = AppContext.getInstance().getUserService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {

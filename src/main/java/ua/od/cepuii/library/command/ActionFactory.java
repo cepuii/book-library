@@ -1,7 +1,7 @@
 package ua.od.cepuii.library.command;
 
 import jakarta.servlet.http.HttpServletRequest;
-import ua.od.cepuii.library.command.unregisted.EmptyCommand;
+import ua.od.cepuii.library.command.unregister.EmptyCommand;
 import ua.od.cepuii.library.resource.MessageManager;
 
 public class ActionFactory {

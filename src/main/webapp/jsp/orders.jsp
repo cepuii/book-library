@@ -84,7 +84,7 @@
                                     </c:when>
                                 </c:choose>
                                 </select>
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn btn-primary" confirm="Are your sure?" type="submit">
                                     <fmt:message key="books.order.setStatus"/>
                                 </button>
                             </form>

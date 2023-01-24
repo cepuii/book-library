@@ -3,7 +3,7 @@ package ua.od.cepuii.library.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
-import ua.od.cepuii.library.dto.FilterAndSortParams;
+import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.repository.LoanRepository;
@@ -49,10 +49,10 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public long insert(Loan loan) {
         try (Connection connection = connectionPool.getConnection()) {
-            Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
+            Savepoint savepoint = connection.setSavepoint();
             try {
-                long loanId = dbExecutor.executeInsert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(), loan.getDuration(), loan.getStatus().ordinal()));
-                dbExecutor.executeById(connection, INCREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
+                long loanId = dbExecutor.insert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(), loan.getDuration(), loan.getStatus().ordinal()));
+                dbExecutor.queryById(connection, INCREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
                 connection.commit();
                 return loanId;
             } catch (SQLException e) {
@@ -68,7 +68,7 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Optional<Loan> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelect(connection, SELECT_BY_ID, id, RepositoryUtil::fillLoan);
+            return dbExecutor.select(connection, SELECT_BY_ID, id, RepositoryUtil::fillLoan);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -80,7 +80,7 @@ public class JdbcLoanRepository implements LoanRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean b = dbExecutor.executeUpdate(connection, UPDATE, List.of(loan.getDuration(), loan.getStatus().ordinal()));
+                boolean b = dbExecutor.update(connection, UPDATE, List.of(loan.getDuration(), loan.getStatus().ordinal()));
                 connection.commit();
                 return b;
             } catch (Exception e) {
@@ -97,7 +97,7 @@ public class JdbcLoanRepository implements LoanRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean b = dbExecutor.executeById(connection, DELETE_BY_ID, id);
+                boolean b = dbExecutor.queryById(connection, DELETE_BY_ID, id);
                 connection.commit();
                 return b;
             } catch (SQLException e) {
@@ -111,11 +111,11 @@ public class JdbcLoanRepository implements LoanRepository {
     }
 
     @Override
-    public Collection<Loan> getAll(FilterAndSortParams params, String orderBy, int limit, int offset) {
+    public Collection<Loan> getAll(FilterParams params, String orderBy, int limit, int offset) {
         String bookTitleSearch = prepareForLike(validateForLike(params.getFirstParam()));
         String statusSearch = prepareForLike(validateForLike(params.getSecondParam()));
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAllWithLimit(connection, SELECT_ALL_WITH_LIMITS, bookTitleSearch, statusSearch, limit, offset, RepositoryUtil::fillLoans);
+            return dbExecutor.selectAllWithLimit(connection, SELECT_ALL_WITH_LIMITS, bookTitleSearch, statusSearch, limit, offset, RepositoryUtil::fillLoans);
         } catch (SQLException e) {
             log.error(e.getMessage());
             return Collections.emptyList();
@@ -125,7 +125,7 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Collection<Loan> getAllByUserId(long userId, int limit, int offset) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAllById(connection, SELECT_ALL_BY_USER_ID, userId, limit, offset, RepositoryUtil::fillLoans);
+            return dbExecutor.selectAllById(connection, SELECT_ALL_BY_USER_ID, userId, limit, offset, RepositoryUtil::fillLoans);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -137,12 +137,12 @@ public class JdbcLoanRepository implements LoanRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.executeUpdate(connection, UPDATE_STATUS, List.of(loan.getStatus().ordinal(), loan.getId()));
+                boolean update = dbExecutor.update(connection, UPDATE_STATUS, List.of(loan.getStatus().ordinal(), loan.getId()));
                 if (update && loan.getStatus().equals(LoanStatus.RETURNED)) {
                     if (fineSubtract) {
-                        dbExecutor.executeUpdate(connection, SUBTRACT_FINE_BY_USER_ID, List.of(loan.getFine(), loan.getUserId()));
+                        dbExecutor.update(connection, SUBTRACT_FINE_BY_USER_ID, List.of(loan.getFine(), loan.getUserId()));
                     }
-                    dbExecutor.executeById(connection, DECREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
+                    dbExecutor.queryById(connection, DECREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
                 }
                 connection.commit();
                 return update;
@@ -175,7 +175,7 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Collection<Loan> getLoanHistory(long userId, int limit, int offset) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.executeSelectAllById(connection, SELECT_ALL_WITH_STATUS_RETURNED_BY_USER_ID, userId, limit, offset, RepositoryUtil::fillLoans);
+            return dbExecutor.selectAllById(connection, SELECT_ALL_WITH_STATUS_RETURNED_BY_USER_ID, userId, limit, offset, RepositoryUtil::fillLoans);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }

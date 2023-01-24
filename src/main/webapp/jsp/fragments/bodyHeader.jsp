@@ -1,5 +1,6 @@
+<%@ include file="/jsp/fragments/pageSettings.jspf" %>
 <%@ include file="/jsp/fragments/taglibs.jspf" %>
-<fmt:setBundle basename="text"/>
+
 <hr/>
 <header class="d-flex flex-wrap align-items-center justify-content-between  mt-1 border-bottom">
                 <span class="navbar-brand align-items-center">
