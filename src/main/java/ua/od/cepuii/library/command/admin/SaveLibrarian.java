@@ -20,6 +20,11 @@ public class SaveLibrarian implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         User user = RequestParser.getUser(request);
+        if (userService.isExistEmail(user.getEmail())) {
+            request.setAttribute("wrongAction", MessageManager.getProperty("message.signUp.email.exist"));
+            log.error("can`t add user {}", user.getEmail());
+            return ConfigurationManager.getProperty("path.controller.add.librarian.forward");
+        }
         long l = userService.createOrUpdate(user);
         if (l == -1) {
             request.setAttribute("newUser", user);

@@ -27,9 +27,6 @@ public class RequestParser {
 
     public static Page getPageFromSession(HttpServletRequest request, Service service, FilterParams filterParam) {
         Page page = getPageFromSession(request);
-        if (request.getParameter("modified") != null) {
-            page.setCurrentPage(1);
-        }
         int pageAmount = service.getPageAmount(page, filterParam);
         page.setPageAmount(pageAmount);
         return page;
@@ -37,7 +34,7 @@ public class RequestParser {
 
     public static Page getPageFromSession(HttpServletRequest request) {
         Page page = (Page) request.getSession().getAttribute("page");
-        if (page == null) {
+        if (page == null || request.getParameter("modified") != null) {
             page = Page.builder()
                     .currentPage(1)
                     .noOfRecords(5)

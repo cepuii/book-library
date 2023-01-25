@@ -20,13 +20,14 @@ public class RemoveBookFromOrder implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long loanId = Long.parseLong(request.getParameter("loanId"));
+        long loanId = RequestParser.getLong(request, "loanId");
+        long bookId = RequestParser.getLong(request, "bookId");
+
         try {
             //TODO if false show message "cant delete";
-            loanService.delete(loanId);
+            loanService.delete(loanId, bookId);
             HttpSession session = request.getSession();
             Set<Long> loanItems = (HashSet<Long>) session.getAttribute("loanItems");
-            long bookId = RequestParser.getLong(request, "bookId");
             loanItems.remove(bookId);
             session.setAttribute("loanItems", loanItems);
         } catch (Exception e) {

@@ -12,10 +12,7 @@ public class HikariConnectionPool implements ConnectionPool {
     private static final HikariDataSource ds;
 
     static {
-//        config.addDataSourceProperty("characterEncoding", "utf8");
-//        config.addDataSourceProperty("useUnicode", "true");
         ds = new HikariDataSource(config);
-
     }
 
     public Connection getConnection() {

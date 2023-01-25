@@ -34,6 +34,7 @@ public class ShowProfile implements ActionCommand {
         Page page = RequestParser.getPageFromSession(request);
         Collection<LoanTO> loanHistory = loanService.getLoanHistory(userId, page);
 
+        request.getSession().setAttribute("page", page);
         request.setAttribute("loans", loanHistory);
         RequestParser.setFromSessionToRequest(request, "emailExist");
         RequestParser.setFromSessionToRequest(request, "wrongAction");

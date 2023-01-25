@@ -50,7 +50,7 @@
         <filter-class>ua.od.cepuii.library.filter.SecurityFilter</filter-class>
         <init-param>
             <param-name>admin</param-name>
-            <param-value>add_librarian block_user edit_book remove_book save_book save_librarian show_users
+            <param-value>add_librarian block_user edit_book remove_book save_book save_librarian show_users save_user
             </param-value>
         </init-param>
         <init-param>
@@ -63,11 +63,11 @@
         </init-param>
         <init-param>
             <param-name>common</param-name>
-            <param-value>change_password logout save_user_change show_orders show_profile</param-value>
+            <param-value>change_password logout save_user_change show_orders</param-value>
         </init-param>
         <init-param>
             <param-name>unregister</param-name>
-            <param-value>login show_books sign_up</param-value>
+            <param-value>login show_books sign_up show_profile</param-value>
         </init-param>
     </filter>
 

@@ -24,18 +24,22 @@ public class ShowOrders implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        Page page = getPageFromSession(request);
         FilterParams filter = getFilterParams(request, "", "");
         Role userRole = RequestParser.getRole(request);
         Collection<LoanTO> loans;
+        Page page;
         if (Role.LIBRARIAN == userRole) {
+            page = getPageFromSession(request, loanService, filter);
             loans = loanService.getAll(filter, page);
         } else {
             long userId = getLong(request, "userId");
+            filter.setId(userId);
+            page = getPageFromSession(request, loanService, filter);
             loans = loanService.getAllByUserId(userId, page);
             log.info("load loans for user: {}", userId);
         }
         log.info("loans {}", loans.size());
+        request.getSession().setAttribute("page", page);
         request.setAttribute("loans", loans);
         return ConfigurationManager.getProperty("path.page.orders");
     }

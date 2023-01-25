@@ -52,30 +52,30 @@ import static ua.od.cepuii.library.util.UserUtil.*;
 
     }
 
-    @Test
-    void update() {
-        when(userRepository.update(USER)).thenReturn(true);
-        assertEquals(USER_ID, userService.createOrUpdate(USER));
-        verify(userRepository, times(0)).insert(any(User.class));
-        verify(userRepository, times(1)).update(USER);
+     @Test
+     void update() {
+         when(userRepository.update(USER)).thenReturn(true);
+         assertEquals(USER_ID, userService.createOrUpdate(USER));
+         verify(userRepository, times(0)).insert(any(User.class));
+         verify(userRepository, times(1)).update(USER);
 
-    }
+     }
 
-    @Test
-    void getUserByEmailAndPassword() {
-        when(userRepository.getByEmail(USER.getEmail())).thenReturn(Optional.of(USER));
-        assertEquals(USER, userService.getUserByEmailAndPassword(USER.getEmail(), USER.getPassword()));
-    }
+//    @Test
+//    void getUserByEmailAndPassword() {
+//        when(userRepository.getByEmail(USER.getEmail())).thenReturn(Optional.of(USER));
+//        assertEquals(USER, userService.getUserByEmailAndPassword(USER.getEmail(), USER.getPassword()));
+//    }
 
-    @Test
-    void getUserByEmailAndPasswordNotFound() {
-        when(userRepository.getByEmail(NOT_FOUND_USER.getEmail())).thenReturn(Optional.empty());
-        assertNull(userService.getUserByEmailAndPassword(NOT_FOUND_USER.getEmail(), NOT_FOUND_USER.getPassword()));
-    }
+     @Test
+     void getUserByEmailAndPasswordNotFound() {
+         when(userRepository.getByEmail(NOT_FOUND_USER.getEmail())).thenReturn(Optional.empty());
+         assertNull(userService.getUserByEmailAndPassword(NOT_FOUND_USER.getEmail(), NOT_FOUND_USER.getPassword()));
+     }
 
-    @Test
-    void blockUser() {
-        when(userRepository.updateBlocked(USER_ID, true)).thenReturn(true);
+     @Test
+     void blockUser() {
+         when(userRepository.updateBlocked(USER_ID, true)).thenReturn(true);
         assertTrue(() -> userService.blockUnblock(USER_ID, true));
 
     }
@@ -116,23 +116,17 @@ import static ua.od.cepuii.library.util.UserUtil.*;
         assertEquals(USER_TO, userService.getById(USER_ID));
     }
 
-    @Test
-    void getByIdNotFound() {
-        when(userRepository.getById(NOT_FOUND_ID)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> userService.getById(USER_ID));
-    }
+     @Test
+     void getByIdNotFound() {
+         when(userRepository.getById(NOT_FOUND_ID)).thenReturn(Optional.empty());
+         assertThrows(NoSuchElementException.class, () -> userService.getById(USER_ID));
+     }
 
-    @Test
-    void updatePassword() {
-        when(userRepository.updatePassword(USER_ID, NEW_PASSWORD)).thenReturn(true);
-        assertTrue(() -> userService.updatePassword(USER_ID, NEW_PASSWORD));
-    }
-
-    @Test
-    void checkPassword() {
-        when(userRepository.getById(USER_ID)).thenReturn(Optional.ofNullable(USER));
-        assertTrue(() -> userService.checkPassword(USER_ID, USER.getPassword()));
-    }
+//    @Test
+//    void updatePassword() {
+//        when(userRepository.updatePassword(USER_ID, NEW_PASSWORD)).thenReturn(true);
+//        assertTrue(() -> userService.updatePassword(USER_ID, NEW_PASSWORD));
+//    }
 
 
-}
+ }

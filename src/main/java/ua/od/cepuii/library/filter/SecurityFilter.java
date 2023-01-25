@@ -2,7 +2,6 @@ package ua.od.cepuii.library.filter;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +45,6 @@ public class SecurityFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (accessAllowed(request)) {
             log.info("access allow");
             chain.doFilter(request, response);
@@ -54,7 +52,7 @@ public class SecurityFilter implements Filter {
             log.info("access deny");
             HttpServletRequest req = (HttpServletRequest) request;
             req.getSession().setAttribute("wrongAction", MessageManager.getProperty("message.access.deny"));
-            httpResponse.sendRedirect(req.getContextPath() + ConfigurationManager.getProperty("path.controller.profile"));
+            req.getRequestDispatcher(ConfigurationManager.getProperty("path.controller.profile")).forward(request, response);
         }
     }
 
@@ -66,19 +64,25 @@ public class SecurityFilter implements Filter {
             return false;
         }
 
-        if (unregister.contains(commandName) || commandName.equals("logout")) {
+        if (commandName.equals("logout")) {
             return true;
         }
+
+        long userId = RequestParser.getLong(httpRequest, "userId");
+        if (userId != 0 && userService.getById(userId).isBlocked()) {
+            return false;
+        }
+
+        if (unregister.contains(commandName)) {
+            return true;
+        }
+
 
         HttpSession session = httpRequest.getSession(false);
         if (session == null) {
             return false;
         }
 
-        long userId = RequestParser.getLong(httpRequest, "userId");
-        if (userService.getById(userId).isBlocked()) {
-            return false;
-        }
 
         Role userRole = Role.valueOf((String) session.getAttribute("userRole"));
 

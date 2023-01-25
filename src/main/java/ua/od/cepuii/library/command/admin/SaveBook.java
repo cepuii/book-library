@@ -19,7 +19,7 @@ public class SaveBook implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         Book book = RequestParser.getBook(request);
-        if (!bookService.isExistTitle(book)) {
+        if (bookService.isExistTitle(book)) {
             String error = MessageManager.getProperty("message.book.title.exist");
             log.error(error);
             request.setAttribute("wrongAction", error);
@@ -29,6 +29,7 @@ public class SaveBook implements ActionCommand {
                 request.getSession().setAttribute("success", MessageManager.getProperty("message.book.add"));
                 return ConfigurationManager.getProperty("path.controller.books");
             }
+
             request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.edit"));
         }
         request.setAttribute("book", book);

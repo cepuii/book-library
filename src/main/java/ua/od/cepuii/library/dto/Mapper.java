@@ -33,6 +33,7 @@ public class Mapper {
                 .fine(loan.getFine())
                 .bookInfo(loan.getBookInfo())
                 .status(loan.getStatus().toString())
+                .userEmail(loan.getUserEmail())
                 .build();
     }
 

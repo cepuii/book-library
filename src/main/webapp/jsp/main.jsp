@@ -21,6 +21,7 @@
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
     <c:set var="actionCommand" value="show_books"/>
 
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
 
     <div class="container">
         <c:if test="${empty requestScope.data}">
@@ -249,7 +250,6 @@
         </ul>
     </div>
 
-    <jsp:include page="/jsp/fragments/showResult.jsp"/>
 
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>

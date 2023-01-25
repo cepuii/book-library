@@ -21,6 +21,9 @@
             <thead>
             <tr>
                 <th><fmt:message key="loan.book"/></th>
+                <c:if test="${sessionScope.userRole eq 'LIBRARIAN'}">
+                    <th><fmt:message key="users.add.email"/></th>
+                </c:if>
                 <th><fmt:message key="loan.status"/></th>
                 <th><fmt:message key="loan.start"/></th>
                 <th><fmt:message key="loan.end"/></th>
@@ -32,6 +35,9 @@
             <c:forEach var="loan" items="${requestScope.loans}">
                 <tr>
                     <td>${loan.bookInfo}</td>
+                    <c:if test="${sessionScope.userRole eq 'LIBRARIAN'}">
+                        <td>${loan.userEmail}</td>
+                    </c:if>
                     <td>${loan.status}</td>
                     <td><fmt:formatDate type="date" dateStyle="long" value="${loan.startDate}"/></td>
                     <td><fmt:formatDate type="date" dateStyle="long" value="${loan.endDate}"/></td>
@@ -94,6 +100,33 @@
             </c:forEach>
             </tbody>
         </table>
+
+        <ul class="pagination justify-content-center" style="margin:20px 0">
+
+            <c:if test="${sessionScope.page.currentPage ne 1}">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/controller?command=show_orders&currentPage=${sessionScope.page.currentPage-1}">
+                        <fmt:message key="main.prev"/></a>
+                </li>
+            </c:if>
+            <c:forEach begin="${sessionScope.page.currentPage > 2 ? sessionScope.page.currentPge - 1 : 1}"
+                       end="${sessionScope.page.pageAmount > 5 ? 5 : sessionScope.page.pageAmount}"
+                       varStatus="loop">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/controller?command=show_orders&currentPage=${loop.index}">
+                            ${loop.index}</a>
+                </li>
+            </c:forEach>
+            <c:if test="${sessionScope.page.currentPage ne sessionScope.page.pageAmount}">
+                <li class="page-item">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/controller?command=show_orders&currentPage=${sessionScope.page.currentPage+1}">
+                        <fmt:message key="main.next"/></a>
+                </li>
+            </c:if>
+        </ul>
     </div>
 
     <jsp:include page="/jsp/fragments/footer.jsp"/>

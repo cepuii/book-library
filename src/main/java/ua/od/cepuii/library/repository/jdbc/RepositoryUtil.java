@@ -136,6 +136,7 @@ public class RepositoryUtil {
                 .duration(resultSet.getInt("l_duration"))
                 .bookInfo(resultSet.getString("b_title") + " ," + resultSet.getInt("b_date"))
                 .status(LoanStatus.valueOf(resultSet.getString("l_status")))
+                .userEmail(resultSet.getString("u_email"))
                 .fine(resultSet.getInt("b_fine"))
                 .build();
         log.info("loan load from db {}", loan);

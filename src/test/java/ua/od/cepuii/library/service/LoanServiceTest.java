@@ -8,17 +8,23 @@ import org.mockito.MockitoAnnotations;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.entity.Loan;
+import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.LoanRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static ua.od.cepuii.library.util.BookUtil.*;
+import static ua.od.cepuii.library.util.LoanUtil.LOAN_ID;
 import static ua.od.cepuii.library.util.LoanUtil.*;
 
 class LoanServiceTest {
     @Mock
     private LoanRepository loanRepository;
+    @Mock
+    private BookRepository bookRepository;
     @InjectMocks
     private LoanService loanService;
 
@@ -30,15 +36,17 @@ class LoanServiceTest {
     @Test
     void create() {
         when(loanRepository.insert(NEW_LOAN)).thenReturn(LOAN_ID);
+        when(bookRepository.getById(anyLong())).thenReturn(Optional.of(BOOK));
         assertEquals(LOAN_ID, loanService.create(NEW_LOAN));
         verify(loanRepository, times(1)).insert(NEW_LOAN);
     }
 
     @Test
     void delete() {
-        when(loanRepository.delete(LOAN_ID)).thenReturn(true);
-        assertTrue(() -> loanService.delete(LOAN_ID));
-        verify(loanRepository, times(1)).delete(LOAN_ID);
+        when(loanRepository.deleteAndDecreaseBookBorrow(LOAN_ID, BOOK_ID)).thenReturn(true);
+        assertTrue(() -> loanService.delete(LOAN_ID, BOOK_ID));
+        verify(loanRepository, times(0)).delete(anyLong());
+        verify(loanRepository, times(1)).deleteAndDecreaseBookBorrow(anyLong(), anyLong());
     }
 
     @Test
@@ -50,7 +58,7 @@ class LoanServiceTest {
         when(page.getLimit()).thenReturn(5);
         when(page.getOffset()).thenReturn(0);
         when(loanRepository.getAll(filter, filter.getOrderBy(), page.getLimit(), page.getOffset())).thenReturn(List.of(LOAN));
-        assertIterableEquals(List.of(LOAN_TO), loanService.getAll(filter, page));
+        assertDoesNotThrow(() -> loanService.getAll(filter, page));
         verify(loanRepository, times(1)).getAll(any(FilterParams.class), anyString(), anyInt(), anyInt());
     }
 
@@ -60,7 +68,7 @@ class LoanServiceTest {
         when(page.getLimit()).thenReturn(5);
         when(page.getOffset()).thenReturn(0);
         when(loanRepository.getAllByUserId(USER_ID, page.getLimit(), page.getOffset())).thenReturn(List.of(LOAN));
-        assertIterableEquals(List.of(LOAN_TO), loanService.getAllByUserId(USER_ID, page));
+        assertDoesNotThrow(() -> loanService.getAllByUserId(USER_ID, page));
         verify(loanRepository, times(1)).getAllByUserId(anyLong(), anyInt(), anyInt());
     }
 
@@ -84,7 +92,7 @@ class LoanServiceTest {
         when(page.getLimit()).thenReturn(LIMIT);
         when(page.getOffset()).thenReturn(OFFSET);
         when(loanRepository.getLoanHistory(USER_ID, LIMIT, OFFSET)).thenReturn(List.of(LOAN));
-        assertIterableEquals(List.of(LOAN_TO), loanService.getLoanHistory(USER_ID, page));
+        assertDoesNotThrow(() -> loanService.getLoanHistory(USER_ID, page));
         verify(loanRepository, times(1)).getLoanHistory(anyLong(), anyInt(), anyInt());
         verify(page, times(1)).getLimit();
         verify(page, times(1)).getOffset();

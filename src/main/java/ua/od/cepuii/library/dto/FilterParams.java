@@ -14,7 +14,7 @@ public class FilterParams implements Serializable {
     private String orderBy;
     private boolean descending;
 
-    private long userId;
+    private long id;
 
     public FilterParams(String firstValue, String secondValue, String orderBy, boolean descending) {
         this.firstParam = firstValue == null ? "" : firstValue;
@@ -59,11 +59,11 @@ public class FilterParams implements Serializable {
         this.secondParam = secondParam == null ? "" : secondParam;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getId() {
+        return id;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setId(long id) {
+        this.id = id;
     }
 }

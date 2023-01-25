@@ -9,6 +9,7 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Loan;
+import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.LoanService;
@@ -29,7 +30,7 @@ public class AddBookToOrder implements ActionCommand {
         if (!ValidationUtil.isDigit(days)) {
             log.error("wrong duration");
             request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
-            return ConfigurationManager.getProperty("path.page.main.forward");
+            return ConfigurationManager.getProperty("path.controller.books.forward");
         }
         try {
             Loan loan = RequestParser.getLoan(request);
@@ -47,9 +48,11 @@ public class AddBookToOrder implements ActionCommand {
                 log.info("loan create: {}", loanCreate);
                 session.setAttribute(loanItems1, loanItems);
             }
-        } catch (NullPointerException e) {
-            log.error(MessageManager.getProperty("message.somethingWrong"));
+        } catch (RepositoryException e) {
+            log.error(e.getMessage());
+            request.setAttribute("wrongDuration", e.getMessage());
+            return ConfigurationManager.getProperty("path.controller.books.forward");
         }
-        return ConfigurationManager.getProperty("path.controller.books");
+        return ConfigurationManager.getProperty("path.controller.books.success");
     }
 }
