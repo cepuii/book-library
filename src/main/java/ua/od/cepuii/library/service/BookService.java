@@ -58,4 +58,9 @@ public class BookService implements Service {
         Collection<Book> books = bookRepository.getAll(filterParam, orderBy, page.getLimit(), page.getOffset());
         return Mapper.mapToBookTo(books);
     }
+
+    public boolean isExistTitle(Book book) {
+        Optional<Book> bookOptional = bookRepository.getByTitle(book.getTitle());
+        return bookOptional.isPresent();
+    }
 }

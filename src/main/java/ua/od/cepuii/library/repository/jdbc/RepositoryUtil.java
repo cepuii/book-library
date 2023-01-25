@@ -26,25 +26,34 @@ public class RepositoryUtil {
 
     public static Collection<Book> fillBooks(ResultSet resultSet) {
         Collection<Book> books = new ArrayList<>();
-        while (true) {
-            try {
-                if (!resultSet.next()) break;
-                long id = resultSet.getLong("b_id");
-                Book book = Book.builder()
-                        .id(id)
-                        .title(resultSet.getString("b_title"))
-                        .publicationType(PublicationType.valueOf(resultSet.getString("pt_name")))
-                        .datePublication(resultSet.getInt("b_date"))
-                        .total(resultSet.getInt("b_total"))
-                        .authors(fillAuthors(resultSet))
-                        .build();
+        try {
+            while (resultSet.next()) {
+                Book book = getBook(resultSet).orElseThrow();
                 books.add(book);
-            } catch (SQLException e) {
-                log.error(e.getMessage());
             }
+        } catch (SQLException e) {
+            log.error(e.getMessage());
         }
         log.info("fill books, size {}", books.size());
         return books;
+    }
+
+    public static Optional<Book> getBook(ResultSet resultSet) {
+        try {
+            long id = resultSet.getLong("b_id");
+            Book book = Book.builder()
+                    .id(id)
+                    .title(resultSet.getString("b_title"))
+                    .publicationType(PublicationType.valueOf(resultSet.getString("pt_name")))
+                    .datePublication(resultSet.getInt("b_date"))
+                    .total(resultSet.getInt("b_total"))
+                    .authors(fillAuthors(resultSet))
+                    .build();
+            return Optional.of(book);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
     }
 
     public static Collection<Author> fillAuthors(ResultSet resultSet) {

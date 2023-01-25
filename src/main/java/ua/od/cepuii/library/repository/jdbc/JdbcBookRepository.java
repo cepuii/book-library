@@ -31,7 +31,7 @@ public class JdbcBookRepository implements BookRepository {
     private static final String SELECT_ALL = "SELECT * " + "FROM (SELECT book.id b_id, " + "book.title b_title, " + "pt.type pt_name, " + "book.date_publication b_date, " + "book.total b_total, " + "string_agg(cast(a.id as VARCHAR), ', ') as authors_id, " + "string_agg(a.name, ', ') as authors " + "FROM book " + "JOIN book_author ba ON book.id = ba.book_id " + "JOIN author a ON a.id = ba.author_id " + "JOIN publication_type pt ON pt.id = book.publication_id " + "WHERE (book.total - book.no_of_borrow) > 0 AND book.title LIKE ? " + "GROUP BY book.id, book.title, pt.type " + "ORDER BY ";
     private static final String SELECT_ALL_PART2 = ") as bbap " + "WHERE authors LIKE ? " + "LIMIT ? OFFSET ?;";
     private static final String SELECT_BY_ID = "SELECT * " + "FROM (SELECT book.id b_id, " + "book.title b_title, " + "pt.type pt_name, " + "book.date_publication b_date, " + "book.total b_total, " + "string_agg(cast(a.id as VARCHAR), ', ') as authors_id, " + "string_agg(a.name, ', ') as authors " + "FROM book " + "JOIN book_author ba ON book.id = ba.book_id " + "JOIN author a ON a.id = ba.author_id " + "JOIN publication_type pt ON pt.id = book.publication_id " + "WHERE (book.total - book.no_of_borrow) > 0 " + "GROUP BY book.id, book.title, pt.type) as bbap WHERE b_id=?";
-    private static final String SELECT_BY_TITLE = SELECT_ALL + " WHERE book.title LIKE ? ;";
+    private static final String SELECT_BY_TITLE = SELECT_ALL + " WHERE book.title=? ;";
     private static final String SELECT_ALL_BY_AUTHOR = SELECT_ALL + "WHERE a.name LIKE ? ;";
     private static final String COUNT_SELECT_ALL_FILTER = "SELECT count(DISTINCT title) FROM book " +
             "JOIN book_author ba on book.id = ba.book_id " + "JOIN author a on a.id = ba.author_id " +
@@ -161,6 +161,16 @@ public class JdbcBookRepository implements BookRepository {
             log.error(e.getMessage());
         }
         return 0;
+    }
+
+    @Override
+    public Optional<Book> getByTitle(String title) {
+        try (Connection connection = connectionPool.getConnection()) {
+            return executor.selectByParams(connection, SELECT_BY_TITLE, List.of(title), RepositoryUtil::getBook);
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return Optional.empty();
     }
 }
 

@@ -8,14 +8,18 @@
     <title><fmt:message key="books.catalog.edit"/></title>
 </head>
 <body>
+
 <c:set var="placeholderTitle" scope="request"><fmt:message key="books.edit.placeholder.title"/></c:set>
 <c:set var="placeholderDate" scope="request"><fmt:message key="books.edit.placeholder.datePublication"/></c:set>
 <c:set var="placeholderTotal" scope="request"><fmt:message key="books.edit.placeholder.total"/></c:set>
 <c:set var="placeholderFine" scope="request"><fmt:message key="books.edit.placeholder.fine"/></c:set>
 <c:set var="placeholderAuthors" scope="request"><fmt:message key="books.edit.placeholder.authors"/></c:set>
+
 <div class="container">
+
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
 
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
     <div class="justify-content-center ">
         <form method="post">
             <input type="hidden" name="bookId" value="${requestScope.book==null ? 0 : requestScope.book.id}">

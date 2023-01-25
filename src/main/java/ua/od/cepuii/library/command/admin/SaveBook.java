@@ -19,14 +19,19 @@ public class SaveBook implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         Book book = RequestParser.getBook(request);
-        //TODO book title already exist
-        boolean update = bookService.createOrUpdate(book);
-        if (update) {
-            request.getSession().setAttribute("success", MessageManager.getProperty("message.book.add"));
-            return ConfigurationManager.getProperty("path.controller.books");
+        if (!bookService.isExistTitle(book)) {
+            String error = MessageManager.getProperty("message.book.title.exist");
+            log.error(error);
+            request.setAttribute("wrongAction", error);
+        } else {
+            boolean update = bookService.createOrUpdate(book);
+            if (update) {
+                request.getSession().setAttribute("success", MessageManager.getProperty("message.book.add"));
+                return ConfigurationManager.getProperty("path.controller.books");
+            }
+            request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.edit"));
         }
-
-        long bookId = RequestParser.getLong(request, "bookId");
-        return ConfigurationManager.getProperty("path.controller.edit_book") + bookId;
+        request.setAttribute("book", book);
+        return ConfigurationManager.getProperty("path.page.edit.book.forward");
     }
 }
