@@ -1,6 +1,6 @@
 package ua.od.cepuii.library.repository;
 
-import ua.od.cepuii.library.model.Book;
+import ua.od.cepuii.library.entity.Book;
 
 import java.sql.SQLException;
 import java.util.Collection;

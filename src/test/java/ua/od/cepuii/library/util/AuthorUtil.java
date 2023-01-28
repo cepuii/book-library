@@ -1,6 +1,6 @@
 package ua.od.cepuii.library.util;
 
-import ua.od.cepuii.library.model.Author;
+import ua.od.cepuii.library.entity.Author;
 
 public class AuthorUtil {
 

@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS user_role CASCADE;
 DROP TABLE IF EXISTS publication_type CASCADE;
+DROP TABLE IF EXISTS loan_status CASCADE;
 DROP TABLE IF EXISTS loan;
 DROP TABLE IF EXISTS book_author;
 DROP TABLE IF EXISTS author;
@@ -63,21 +64,28 @@ CREATE TABLE users
 
 CREATE UNIQUE INDEX users_unique_email_idx ON users (email);
 
-
+CREATE TABLE loan_status
+(
+    id     INTEGER PRIMARY KEY,
+    status VARCHAR NOT NULL
+);
 
 CREATE TABLE loan
 (
     id         BIGINT  DEFAULT nextval('global_seq') PRIMARY KEY,
-    user_id    INTEGER                 NOT NULL,
-    book_id    INTEGER                 NOT NULL,
-    start_time DATE    DEFAULT now()   NOT NULL,
-    duration   INTEGER DEFAULT ('0')   NOT NULL,
-    status     VARCHAR DEFAULT ('RAW') NOT NULL,
-    fine       INTEGER DEFAULT 0       NOT NULL,
+    user_id    INTEGER               NOT NULL,
+    book_id    INTEGER               NOT NULL,
+    start_time DATE    DEFAULT now() NOT NULL,
+    duration   INTEGER DEFAULT ('0') NOT NULL,
+    status_id  INTEGER               NOT NULL,
+    fine       INTEGER DEFAULT 0     NOT NULL,
 
+    CONSTRAINT unique_indexs_user_book_id UNIQUE (user_id, book_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (book_id) REFERENCES book (id)
+    FOREIGN KEY (book_id) REFERENCES book (id),
+    FOREIGN KEY (status_id) REFERENCES loan_status (id)
 );
+
 
 INSERT INTO user_role
 VALUES (0, 'UNREGISTER'),
@@ -90,3 +98,8 @@ VALUES (0, 'BOOK'),
        (1, 'JOURNAL'),
        (2, 'ARTICLE'),
        (3, 'NEWSPAPER');
+
+INSERT INTO loan_status
+VALUES (0, 'RAW'),
+       (1, 'COMPLETE'),
+       (2, 'OUT_DATE');

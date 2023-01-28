@@ -1,8 +1,11 @@
-package ua.od.cepuii.library.model;
+package ua.od.cepuii.library.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Author extends AbstractEntity {
+public class Author extends AbstractEntity implements Serializable {
+
+    private static final long serialVersionUID = 1;
     private String name;
 
     public Author(long id, String name) {

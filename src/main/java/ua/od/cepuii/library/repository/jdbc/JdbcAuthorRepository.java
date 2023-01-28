@@ -1,10 +1,9 @@
 package ua.od.cepuii.library.repository.jdbc;
 
 import ua.od.cepuii.library.db.ConnectionPool;
+import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.exception.RepositoryException;
-import ua.od.cepuii.library.model.Author;
 import ua.od.cepuii.library.repository.AuthorRepository;
-import ua.od.cepuii.library.repository.RepositoryUtil;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
 
 import java.sql.*;
@@ -14,6 +13,7 @@ import java.util.Optional;
 
 public class JdbcAuthorRepository implements AuthorRepository {
     private final DbExecutor<Author> dbExecutor;
+    private final ConnectionPool connectionPool;
 
     private static final String SELECT_ALL = "SELECT id,name FROM author";
     private static final String GET_BY_ID = "SELECT id, name FROM author WHERE id=? ";
@@ -24,7 +24,6 @@ public class JdbcAuthorRepository implements AuthorRepository {
             "ins AS ( INSERT INTO author (\"name\") " +
             "SELECT ? WHERE NOT exists(SELECT 1 FROM val) RETURNING id) " +
             "SELECT id FROM ins UNION ALL SELECT id FROM val;";
-    private final ConnectionPool connectionPool;
 
     public JdbcAuthorRepository(DbExecutor<Author> dbExecutor, ConnectionPool connectionPool) {
         this.dbExecutor = dbExecutor;

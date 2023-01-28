@@ -1,11 +1,10 @@
 package ua.od.cepuii.library.repository.jdbc;
 
 import ua.od.cepuii.library.db.ConnectionPool;
-import ua.od.cepuii.library.model.Author;
-import ua.od.cepuii.library.model.Book;
+import ua.od.cepuii.library.entity.Author;
+import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.repository.AuthorRepository;
 import ua.od.cepuii.library.repository.BookRepository;
-import ua.od.cepuii.library.repository.RepositoryUtil;
 import ua.od.cepuii.library.repository.executor.DbExecutor;
 import ua.od.cepuii.library.repository.executor.DbExecutorImpl;
 

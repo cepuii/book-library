@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.model;
+package ua.od.cepuii.library.entity.enums;
 
 public enum PublicationType {
     BOOK("Book"), JOURNAL("Journal"), ARTICLE("Article"), NEWSPAPER("Newspaper");
