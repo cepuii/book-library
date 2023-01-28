@@ -102,4 +102,4 @@ VALUES (0, 'BOOK'),
 INSERT INTO loan_status
 VALUES (0, 'RAW'),
        (1, 'COMPLETE'),
-       (2, 'OUT_DATE');
+       (2, 'OVERDUE');

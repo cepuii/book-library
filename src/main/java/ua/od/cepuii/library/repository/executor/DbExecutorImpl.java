@@ -1,5 +1,7 @@
 package ua.od.cepuii.library.repository.executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.entity.AbstractEntity;
 
 import java.sql.*;
@@ -10,34 +12,39 @@ import java.util.function.Function;
 
 public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
 
+    private static final Logger log = LoggerFactory.getLogger(DbExecutorImpl.class);
+
     @Override
-    public long executeInsert(Connection connection, String sql, List<Object> params) throws SQLException {
-        Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
+    public long insert(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             setParams(params, preparedStatement);
             preparedStatement.executeUpdate();
+            log.info("{}", preparedStatement);
             try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
                 rs.next();
-                long id = rs.getLong("id");
-                connection.commit();
-                return id;
+                return rs.getLong("id");
             }
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
         }
     }
 
     @Override
-    public void executeInsertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
-        Savepoint savepoint = connection.setSavepoint("InsertSavePoint");
+    public Optional<T> selectByParams(Connection connection, String sql, List<Object> params, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            setParams(params, preparedStatement);
+            log.info("{}", preparedStatement);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                return rsHandler.apply(rs);
+            }
+        }
+    }
+
+    @Override
+    public boolean insertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
             preparedStatement.execute();
-            connection.commit();
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
+            log.info("{}", preparedStatement);
+            return true;
         }
     }
 
@@ -48,9 +55,10 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Optional<T> executeSelect(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
+    public Optional<T> selectById(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
+            log.info("{}", preparedStatement);
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
             }
@@ -58,9 +66,10 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public Collection<T> executeSelectAllByParam(Connection connection, String sql, String param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+    public Collection<T> selectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, param);
+            preparedStatement.setObject(1, param);
+            log.info("{}", preparedStatement);
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 return rsHandler.apply(rs);
             }
@@ -68,39 +77,62 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
     @Override
-    public boolean executeUpdate(Connection connection, String sql, List<Object> params) throws SQLException {
-        Savepoint savepoint = connection.setSavepoint("UpdateSavePoint");
+    public Collection<T> selectAllWithLimit(Connection connection, String sql, String firstParam, String secondParam, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, firstParam);
+            preparedStatement.setString(2, secondParam);
+            preparedStatement.setInt(3, limit);
+            preparedStatement.setInt(4, offset);
+            log.info("{}", preparedStatement);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                return rsHandler.apply(rs);
+            }
+        }
+    }
+
+    @Override
+    public boolean update(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
             boolean result = preparedStatement.executeUpdate() != 0;
-            connection.commit();
+            log.info("{}", preparedStatement);
             return result;
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
         }
     }
 
 
     @Override
-    public boolean executeDelete(Connection connection, String sql, long id) throws SQLException {
-        Savepoint savepoint = connection.setSavepoint("DeleteSavePoint");
+    public boolean queryById(Connection connection, String sql, long id) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
-            boolean result = preparedStatement.executeUpdate() != 0;
-            connection.commit();
-            return result;
-        } catch (SQLException e) {
-            connection.rollback(savepoint);
-            throw e;
+            log.info("{}", preparedStatement);
+            return preparedStatement.executeUpdate() != 0;
         }
     }
 
     @Override
-    public Collection<T> executeSelectAll(Connection connection, String sql, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet rs = preparedStatement.executeQuery()) {
-            return rsHandler.apply(rs);
+    public Collection<T> selectAllById(Connection connection, String sql, long id, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            log.info("id {}, limit {}, offset {}", id, limit, offset);
+            preparedStatement.setLong(1, id);
+            preparedStatement.setInt(2, limit);
+            preparedStatement.setInt(3, offset);
+            log.info("{}", preparedStatement);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                return rsHandler.apply(rs);
+            }
         }
+    }
+
+    @Override
+    public int selectCount(Connection connection, String sqlQuery, List<Object> strings) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(sqlQuery)) {
+            setParams(strings, statement);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        }
+        return 0;
     }
 }

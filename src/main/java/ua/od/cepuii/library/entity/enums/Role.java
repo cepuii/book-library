@@ -4,5 +4,6 @@ public enum Role {
     UNREGISTER,
     READER,
     LIBRARIAN,
-    ADMIN
+    ADMIN;
+
 }

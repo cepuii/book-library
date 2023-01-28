@@ -3,4 +3,89 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
+
+    <welcome-file-list>
+        <welcome-file>/jsp/main.jsp</welcome-file>
+    </welcome-file-list>
+
+    <servlet>
+        <servlet-name>Controller</servlet-name>
+        <servlet-class>ua.od.cepuii.library.controller.Controller</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Controller</servlet-name>
+        <url-pattern>/controller</url-pattern>
+    </servlet-mapping>
+
+    <listener>
+        <listener-class>ua.od.cepuii.library.listener.ContextListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>ua.od.cepuii.library.filter.EncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>CookieFilter</filter-name>
+        <filter-class>ua.od.cepuii.library.filter.CookieFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>CookieFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
+    <filter>
+        <filter-name>SecurityFilter</filter-name>
+        <filter-class>ua.od.cepuii.library.filter.SecurityFilter</filter-class>
+        <init-param>
+            <param-name>admin</param-name>
+            <param-value>add_librarian block_user edit_book remove_book save_book save_librarian show_users save_user
+            </param-value>
+        </init-param>
+        <init-param>
+            <param-name>reader</param-name>
+            <param-value>add_book_to_order remove_book_from_order</param-value>
+        </init-param>
+        <init-param>
+            <param-name>librarian</param-name>
+            <param-value>set_order_status</param-value>
+        </init-param>
+        <init-param>
+            <param-name>common</param-name>
+            <param-value>change_password logout save_user_change show_orders</param-value>
+        </init-param>
+        <init-param>
+            <param-name>unregister</param-name>
+            <param-value>login show_books sign_up show_profile</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>SecurityFilter</filter-name>
+        <servlet-name>Controller</servlet-name>
+    </filter-mapping>
+
+
+    <jsp-config>
+        <taglib>
+            <taglib-uri>customtag</taglib-uri>
+            <taglib-location>/WEB-INF/tld/custom.tld</taglib-location>
+        </taglib>
+    </jsp-config>
+    <error-page>
+        <exception-type>java.lang.RuntimeException</exception-type>
+        <location>/jsp/error/error.jsp</location>
+    </error-page>
+
 </web-app>

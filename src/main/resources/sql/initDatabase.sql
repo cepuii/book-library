@@ -18,11 +18,13 @@ CREATE TABLE publication_type
 
 CREATE TABLE book
 (
-    id               BIGINT DEFAULT nextval('global_seq') PRIMARY KEY,
-    title            VARCHAR NOT NULL,
-    publication_id   INTEGER NOT NULL,
-    date_publication INTEGER NOT NULL,
-    total            INTEGER NOT NULL,
+    id               BIGINT  DEFAULT nextval('global_seq') PRIMARY KEY,
+    title            VARCHAR UNIQUE      NOT NULL,
+    publication_id   INTEGER             NOT NULL,
+    date_publication INTEGER             NOT NULL,
+    fine             INTEGER DEFAULT 100 NOT NULL,
+    total            INTEGER             NOT NULL,
+    no_of_borrow     INTEGER DEFAULT 0   NOT NULL,
 
     FOREIGN KEY (publication_id) REFERENCES publication_type (id) ON DELETE CASCADE
 );
@@ -54,10 +56,11 @@ CREATE TABLE user_role
 CREATE TABLE users
 (
     id         BIGINT    DEFAULT nextval('global_seq') PRIMARY KEY,
-    email      VARCHAR                 NOT NULL,
+    email      VARCHAR UNIQUE          NOT NULL,
     password   VARCHAR                 NOT NULL,
     registered TIMESTAMP DEFAULT now() NOT NULL,
     blocked    BOOLEAN   DEFAULT false NOT NULL,
+    fine       INTEGER   DEFAULT 0     NOT NULL,
     role_id    BIGINT    DEFAULT 0     NOT NULL,
 
     FOREIGN KEY (role_id) REFERENCES user_role (id) ON DELETE CASCADE
@@ -79,9 +82,7 @@ CREATE TABLE loan
     start_time DATE    DEFAULT now() NOT NULL,
     duration   INTEGER DEFAULT ('0') NOT NULL,
     status_id  INTEGER               NOT NULL,
-    fine       INTEGER DEFAULT 0     NOT NULL,
 
-    CONSTRAINT unique_indexs_user_book_id UNIQUE (user_id, book_id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (book_id) REFERENCES book (id),
     FOREIGN KEY (status_id) REFERENCES loan_status (id)
@@ -102,4 +103,5 @@ VALUES (0, 'BOOK'),
 INSERT INTO loan_status
 VALUES (0, 'RAW'),
        (1, 'COMPLETE'),
-       (2, 'OUT_DATE');
+       (2, 'OVERDUE'),
+       (3, 'RETURNED');

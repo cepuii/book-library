@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+        version="2.1">
+
+    <tlib-version>1.0</tlib-version>
+    <short-name>ctg</short-name>
+    <uri>customtag</uri>
+
+    <tag>
+        <name>isContain</name>
+        <tag-class>ua.od.cepuii.library.tld.IsContainCustomTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>bookId</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Long</type>
+        </attribute>
+    </tag>
+    <tag>
+        <name>getAuthors</name>
+        <tag-class>ua.od.cepuii.library.tld.GetAuthorsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>authorSet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag>
+        <name>getAuthorsId</name>
+        <tag-class>ua.od.cepuii.library.tld.GetAuthorsIdTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>authorSet</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    <tag-file>
+        <name>showMessage</name>
+        <path>/WEB-INF/tags/showMessage.tag</path>
+    </tag-file>
+</taglib>
