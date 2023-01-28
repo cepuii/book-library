@@ -73,7 +73,7 @@
 
     <filter-mapping>
         <filter-name>SecurityFilter</filter-name>
-        <servlet-name>Controller</servlet-name>
+        <url-pattern>/controller*</url-pattern>
     </filter-mapping>
 
 

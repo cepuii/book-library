@@ -13,7 +13,6 @@ import ua.od.cepuii.library.entity.enums.PublicationType;
 import ua.od.cepuii.library.entity.enums.Role;
 import ua.od.cepuii.library.exception.RequestParserException;
 import ua.od.cepuii.library.service.Service;
-import ua.od.cepuii.library.util.PasswordUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.Collection;
@@ -159,7 +158,7 @@ public class RequestParser {
     public static User getUser(HttpServletRequest request) {
         long userId = getLong(request, "userId");
         String email = request.getParameter("email");
-        String password = PasswordUtil.getHash(request.getParameter("password").getBytes());
+        String password = request.getParameter("password");
         Role role = getRole(request);
         log.info("user: {}, {}", email, role);
         return User.builder()

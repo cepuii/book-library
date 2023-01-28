@@ -22,7 +22,14 @@
                 <label for="inputEmail4" class="form-label"><fmt:message key="users.add.email"/>
                     <input type="hidden" name="userId" value="0">
                     <input type="email" class="form-control" id="inputEmail4" name="email"
-                           value="${requestScope.newUser.email}">
+                           value="${requestScope.newUser.email}" onfocus="clearClass('email')"
+                           onblur="validate('email')">
+                    <div class="valid-feedback">
+                        <fmt:message key="ok"/>
+                    </div>
+                    <div class="invalid-feedback">
+                        <fmt:message key="message.signUp.email.exist"/>
+                    </div>
                 </label>
             </div>
             <br/>
@@ -53,9 +60,10 @@
             </div>
         </form>
     </div>
-    <script src="../js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/showResult.jsp"/>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
+<script src="${pageContext.request.contextPath}/js/validateField.js"></script>
+<script src="${pageContext.request.contextPath}/js/showPass.js"></script>
 </body>
 </html>

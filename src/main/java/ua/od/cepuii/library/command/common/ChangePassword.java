@@ -19,7 +19,10 @@ public class ChangePassword implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        //TODO check validation
+        if (request.getMethod().equalsIgnoreCase("get")) {
+            return ConfigurationManager.getProperty("path.page.changePassword");
+        }
+        //TODO move Validation
         String oldPassword = request.getParameter("oldPassword");
         String newPassword = request.getParameter("newPassword");
         long userId = RequestParser.getLong(request, "userId");

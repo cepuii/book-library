@@ -231,7 +231,7 @@
                         <fmt:message key="main.prev"/></a>
                 </li>
             </c:if>
-            <c:forEach begin="${sessionScope.page.currentPage > 2 ? sessionScope.page.currentPge - 1 : 1}"
+            <c:forEach begin="${sessionScope.page.currentPage > 2 ? sessionScope.page.currentPage - 1 : 1}"
                        end="${sessionScope.page.pageAmount > 5 ? 5 : sessionScope.page.pageAmount}"
                        varStatus="loop">
                 <li class="page-item">

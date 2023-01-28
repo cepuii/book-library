@@ -23,6 +23,7 @@ public class EncodingFilter implements Filter {
         if (reqEncoding == null) {
             log.info("set character encoding: {}", encoding);
             request.setCharacterEncoding(encoding);
+            response.setCharacterEncoding(encoding);
         }
         chain.doFilter(request, response);
     }

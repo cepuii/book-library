@@ -24,6 +24,8 @@ public interface DbExecutor<T extends AbstractEntity> {
 
     boolean queryById(Connection connection, String sql, long id) throws SQLException;
 
+    boolean queryByString(Connection connection, String sql, String value) throws SQLException;
+
     Collection<T> selectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 
     Collection<T> selectAllWithLimit(Connection connection, String sql, String titleFilter, String authorFilter, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;

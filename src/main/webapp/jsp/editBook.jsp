@@ -27,7 +27,14 @@
                 <label for="title" class="form-label"><fmt:message key="books.title"/>
                     <input type="text" class="form-control" id="title" name="title" placeholder="${placeholderTitle}"
                            title="<fmt:message key="books.required.title"/>" required
-                           value="${requestScope.book.title}">
+                           value="${requestScope.book.title}"
+                           onfocus="clearClass('title')" onblur="validate('title')">
+                    <div class="valid-feedback">
+                        <fmt:message key="ok"/>
+                    </div>
+                    <div class="invalid-feedback">
+                        <fmt:message key="message.book.title.exist"/>
+                    </div>
                 </label>
             </div>
             <div class="mb-3">
@@ -133,6 +140,6 @@
 
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
-
+<script src="${pageContext.request.contextPath}/js/validateField.js"></script>
 </body>
 </html>

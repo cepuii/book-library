@@ -22,6 +22,9 @@ public class Login implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getMethod().equalsIgnoreCase("get")) {
+            return ConfigurationManager.getProperty("path.page.login");
+        }
         String page;
         String email = request.getParameter(PARAM_NAME_EMAIL);
         String password = request.getParameter(PARAM_NAME_PASSWORD);

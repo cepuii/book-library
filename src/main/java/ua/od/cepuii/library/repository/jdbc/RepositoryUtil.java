@@ -169,4 +169,13 @@ public class RepositoryUtil {
     public static String validateForLike(String title) {
         return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
     }
+
+    public static boolean isExistResult(ResultSet resultSet) {
+        try {
+            return resultSet.next();
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+        }
+        return false;
+    }
 }

@@ -42,14 +42,16 @@
             </div>
         </c:when>
         <c:otherwise>
-            <form>
-                <button type="submit" class="btn btn-outline-primary me-2"
-                        formaction="${pageContext.request.contextPath}/jsp/login.jsp"><fmt:message
-                        key="header.login"/>
+            <form class="col-2" action="${pageContext.request.contextPath}/controller" method="get">
+                <input type="hidden" name="command" value="login">
+                <button type="submit" class="btn btn-outline-primary me-2">
+                    <fmt:message key="header.login"/>
                 </button>
-                <button type="submit" class="btn btn-primary"
-                        formaction="${pageContext.request.contextPath}/jsp/signup.jsp"><fmt:message
-                        key="header.signup"/>
+            </form>
+            <form class="col-2" action="${pageContext.request.contextPath}/controller" method="get">
+                <input type="hidden" name="command" value="sign_up">
+                <button type="submit" class="btn btn-primary">
+                    <fmt:message key="header.signup"/>
                 </button>
             </form>
         </c:otherwise>

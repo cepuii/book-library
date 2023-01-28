@@ -12,7 +12,6 @@ import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
-import ua.od.cepuii.library.util.PasswordUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 public class SignUp implements ActionCommand {
@@ -22,6 +21,9 @@ public class SignUp implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getMethod().equalsIgnoreCase("get")) {
+            return ConfigurationManager.getProperty("path.page.signUp");
+        }
         User user = RequestParser.getUser(request);
         boolean forwardBack = validateUser(request, user);
         if (userService.isExistEmail(user.getEmail())) {
@@ -51,7 +53,7 @@ public class SignUp implements ActionCommand {
             request.setAttribute("badEmail", MessageManager.getProperty("message.signUp.email"));
         }
         String confirmPassword = request.getParameter("confirmPassword");
-        if (confirmPassword == null || PasswordUtil.verify(confirmPassword, user.getPassword().getBytes())) {
+        if (confirmPassword == null || user.getPassword().equals(confirmPassword)) {
             forwardBack = true;
             request.setAttribute("badConfirm", MessageManager.getProperty("message.signUp.password.confirm"));
         }

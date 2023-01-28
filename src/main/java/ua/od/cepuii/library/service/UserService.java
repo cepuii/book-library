@@ -25,6 +25,7 @@ public class UserService implements Service {
 
     public long createOrUpdate(User user) {
         if (ValidationUtil.isNew(user)) {
+            user.setPassword(PasswordUtil.getHash(user.getPassword().getBytes()));
             long insert = userRepository.insert(user);
             log.info("user create and save, userId: {}", insert);
             return insert;

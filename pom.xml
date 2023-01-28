@@ -122,6 +122,11 @@
             <artifactId>argon2-jvm</artifactId>
             <version>${argon2-jvm.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -12,7 +12,6 @@ import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 
 import java.io.IOException;
-
 public class Controller extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
@@ -20,7 +19,6 @@ public class Controller extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String s = processRequest(req, resp);
         req.getRequestDispatcher(s).forward(req, resp);
-
     }
 
     @Override

@@ -28,8 +28,23 @@ public class JdbcBookRepository implements BookRepository {
     private static final String INSERT_BOOK_AUTHORS = "INSERT INTO book_author (book_id, author_id) VALUES (?,?);";
     private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?;";
     private static final String UPDATE = "UPDATE book SET title=?, publication_id=?, date_publication=?, fine =?,  total=? WHERE id=?";
-    private static final String SELECT_ALL = "SELECT * " + "FROM (SELECT book.id b_id, " + "book.title b_title, " + "pt.type pt_name, " + "book.date_publication b_date, " + "book.total b_total, " + "string_agg(cast(a.id as VARCHAR), ', ') as authors_id, " + "string_agg(a.name, ', ') as authors " + "FROM book " + "JOIN book_author ba ON book.id = ba.book_id " + "JOIN author a ON a.id = ba.author_id " + "JOIN publication_type pt ON pt.id = book.publication_id " + "WHERE (book.total - book.no_of_borrow) > 0 AND book.title LIKE ? " + "GROUP BY book.id, book.title, pt.type " + "ORDER BY ";
-    private static final String SELECT_ALL_PART2 = ", b_title) as bbap " + "WHERE authors LIKE ? " + "LIMIT ? OFFSET ?;";
+    private static final String SELECT_ALL = "SELECT * " +
+            "FROM (SELECT book.id b_id, " +
+            "book.title b_title, " +
+            "pt.type pt_name, " +
+            "book.date_publication b_date, " +
+            "book.total b_total, " +
+            "string_agg(cast(a.id as VARCHAR), ', ') as authors_id, " +
+            "string_agg(a.name, ', ') as authors " +
+            "FROM book " +
+            "JOIN book_author ba ON book.id = ba.book_id " +
+            "JOIN author a ON a.id = ba.author_id " +
+            "JOIN publication_type pt ON pt.id = book.publication_id " +
+            "WHERE (book.total - book.no_of_borrow) > 0 AND book.title LIKE ? " +
+            "GROUP BY book.id, book.title, pt.type " +
+            "ORDER BY ";
+    private static final String SELECT_ALL_PART2 = ", b_title) as bbap " +
+            "WHERE authors LIKE ? " + "LIMIT ? OFFSET ?;";
     private static final String SELECT_BY_ID = "SELECT * " +
             "FROM (SELECT book.id b_id, book.title b_title, pt.type pt_name, book.date_publication b_date, " +
             "book.total b_total, string_agg(cast(a.id as VARCHAR), ', ') as authors_id, string_agg(a.name, ', ') as authors " +
@@ -47,6 +62,7 @@ public class JdbcBookRepository implements BookRepository {
     private static final String UPDATE_AUTHOR = "UPDATE author SET name=? WHERE id=?";
     private static final String SELECT_AUTHOR_BY_NAME = "SELECT id a_id, name a_name FROM author WHERE name=?";
     private static final String INSERT_AUTHOR = "INSERT INTO author(name) VALUES (?);";
+    private static final String GET_BY_TITLE = "SELECT book.id b_id FROM book WHERE book.title = ?";
 
     public JdbcBookRepository(DbExecutor<Book> executor, DbExecutor<Author> authorExecutor, ConnectionPool connectionPool) {
         this.executor = executor;
@@ -171,13 +187,13 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Optional<Book> getByTitle(String title) {
+    public boolean isExistTitle(String title) {
         try (Connection connection = connectionPool.getConnection()) {
-            return executor.selectByParams(connection, SELECT_BY_TITLE, List.of(title), RepositoryUtil::getBook);
+            return executor.queryByString(connection, GET_BY_TITLE, title);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
-        return Optional.empty();
+        return false;
     }
 }
 

@@ -19,7 +19,7 @@ public class SaveBook implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         Book book = RequestParser.getBook(request);
-        if (bookService.isExistTitle(book)) {
+        if (bookService.isExistTitle(book.getTitle())) {
             String error = MessageManager.getProperty("message.book.title.exist");
             log.error(error);
             request.setAttribute("wrongAction", error);

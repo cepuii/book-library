@@ -42,9 +42,8 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     public boolean insertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             setParams(params, preparedStatement);
-            preparedStatement.execute();
             log.info("{}", preparedStatement);
-            return true;
+            return preparedStatement.executeUpdate() != 0;
         }
     }
 
@@ -101,12 +100,22 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
     }
 
 
+    //TODO rename this metgod
     @Override
     public boolean queryById(Connection connection, String sql, long id) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, id);
             log.info("{}", preparedStatement);
             return preparedStatement.executeUpdate() != 0;
+        }
+    }
+
+    @Override
+    public boolean queryByString(Connection connection, String sql, String value) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, value);
+            log.info("{}", preparedStatement);
+            return preparedStatement.execute();
         }
     }
 
