@@ -57,6 +57,7 @@
                     </select>
                 </label>
             </div>
+<%--                //TODO add min max instead pattern--%>
             <div class="mb-3">
                 <label for="date-publication" class="form-label">
                     <fmt:message key="books.datePublication"/>
@@ -75,7 +76,8 @@
                 </label>
             </div>
             <div class="mb-3">
-                <label for="fine" class="form-label">
+                <%--                TODO fine doesnt show--%>
+                <label for="fine" class="appform-label">
                     <fmt:message key="books.fine"/>
                     <input type="number" class="form-control" id="fine" name="fine" placeholder="${placeholderFine}"
                            pattern="^\d{4}$"

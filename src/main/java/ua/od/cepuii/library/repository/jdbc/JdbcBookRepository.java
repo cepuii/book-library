@@ -7,7 +7,8 @@ import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.repository.BookRepository;
-import ua.od.cepuii.library.repository.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutorImpl;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.sql.Connection;
@@ -64,9 +65,9 @@ public class JdbcBookRepository implements BookRepository {
     private static final String INSERT_AUTHOR = "INSERT INTO author(name) VALUES (?);";
     private static final String GET_BY_TITLE = "SELECT book.id b_id FROM book WHERE book.title = ?";
 
-    public JdbcBookRepository(DbExecutor<Book> executor, DbExecutor<Author> authorExecutor, ConnectionPool connectionPool) {
-        this.executor = executor;
-        this.authorExecutor = authorExecutor;
+    public JdbcBookRepository(ConnectionPool connectionPool) {
+        this.executor = new DbExecutorImpl<>();
+        this.authorExecutor = new DbExecutorImpl<>();
         this.connectionPool = connectionPool;
     }
 

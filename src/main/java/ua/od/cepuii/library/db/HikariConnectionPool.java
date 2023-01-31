@@ -8,10 +8,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class HikariConnectionPool implements ConnectionPool {
-    private static final HikariConfig config = new HikariConfig("/hikaridatasource.properties");
-    private static final HikariDataSource ds;
+    private final HikariDataSource ds;
 
-    static {
+
+    public HikariConnectionPool(String hikariProperties) {
+        HikariConfig config = new HikariConfig(hikariProperties);
         ds = new HikariDataSource(config);
     }
 
@@ -24,6 +25,11 @@ public class HikariConnectionPool implements ConnectionPool {
         } catch (SQLException exception) {
             throw new DbConfigurationException("Can`t get connection", exception);
         }
+    }
+
+    @Override
+    public void close() {
+        ds.close();
     }
 }
 

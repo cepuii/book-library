@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.repository.executor;
+package ua.od.cepuii.library.repository.jdbc.executor;
 
 import ua.od.cepuii.library.entity.AbstractEntity;
 

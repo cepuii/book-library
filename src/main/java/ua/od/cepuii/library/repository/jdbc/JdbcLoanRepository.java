@@ -7,7 +7,8 @@ import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.repository.LoanRepository;
-import ua.od.cepuii.library.repository.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutorImpl;
 
 import java.sql.*;
 import java.util.*;
@@ -60,8 +61,8 @@ public class JdbcLoanRepository implements LoanRepository {
             "  AND loan.status_id <> 3";
     private static final String SUBTRACT_FINE_BY_USER_ID = "UPDATE users SET fine = fine - ? WHERE id = ?;";
 
-    public JdbcLoanRepository(DbExecutor<Loan> executor, ConnectionPool connectionPool) {
-        this.executor = executor;
+    public JdbcLoanRepository(ConnectionPool connectionPool) {
+        this.executor = new DbExecutorImpl<>();
         this.connectionPool = connectionPool;
     }
 

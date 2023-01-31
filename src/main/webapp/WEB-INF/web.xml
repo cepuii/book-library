@@ -8,6 +8,11 @@
         <welcome-file>/jsp/main.jsp</welcome-file>
     </welcome-file-list>
 
+    <context-param>
+        <param-name>contextProperties</param-name>
+        <param-value>/context.properties</param-value>
+    </context-param>
+
     <servlet>
         <servlet-name>Controller</servlet-name>
         <servlet-class>ua.od.cepuii.library.controller.Controller</servlet-class>

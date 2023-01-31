@@ -9,7 +9,7 @@ import org.postgresql.jdbc.PSQLSavepoint;
 import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Loan;
-import ua.od.cepuii.library.repository.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutor;
 import ua.od.cepuii.library.util.BookUtil;
 
 import java.sql.*;
@@ -38,7 +38,7 @@ class JdbcLoanRepositoryTest {
     ResultSet mockResultSet;
 
     @InjectMocks
-    private JdbcLoanRepository loanRepository = new JdbcLoanRepository(mockDbExecutor, mockConnectionPool);
+    private JdbcLoanRepository loanRepository = new JdbcLoanRepository(mockConnectionPool);
 
     @BeforeEach
     void setUp() throws SQLException {

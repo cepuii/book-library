@@ -36,7 +36,7 @@
             <div class="mb-auto">
                 <label class="form-check-label" for="flexCheckDefault"><fmt:message key="users.password.show"/>
                     <input class="form-check-input" type="checkbox" id="flexCheckDefault"
-                           onclick="show();">
+                           onclick="show('password');">
                 </label>
             </div>
 
@@ -50,7 +50,7 @@
             </button>
         </form>
     </div>
-    <script src="${pageContext.request.contextPath}/js/scripts.js"></script>
+    <script src="${pageContext.request.contextPath}/js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
 </body>

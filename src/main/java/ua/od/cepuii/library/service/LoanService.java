@@ -11,8 +11,6 @@ import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.LoanRepository;
-import ua.od.cepuii.library.repository.RepositoryFactory;
-import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
 import ua.od.cepuii.library.resource.MessageManager;
 
 import java.util.Collection;
@@ -20,7 +18,6 @@ import java.util.Optional;
 
 public class LoanService implements Service {
     private static final Logger log = LoggerFactory.getLogger(LoanService.class);
-    RepositoryFactory repositoryFactory = new JdbcRepositoryFactory();
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
 

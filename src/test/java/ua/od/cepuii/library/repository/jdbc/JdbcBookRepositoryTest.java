@@ -10,7 +10,7 @@ import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
-import ua.od.cepuii.library.repository.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +38,7 @@ class JdbcBookRepositoryTest {
     ResultSet mockResultSet;
 
     @InjectMocks
-    private JdbcBookRepository bookRepository = new JdbcBookRepository(mockDbExecutor, mockDbExecutorAuthor, mockConnectionPool);
+    private JdbcBookRepository bookRepository = new JdbcBookRepository(mockConnectionPool);
 
     @BeforeEach
     void setUp() throws SQLException {

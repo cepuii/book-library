@@ -1,4 +1,4 @@
-package ua.od.cepuii.library.repository.executor;
+package ua.od.cepuii.library.repository.jdbc.executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +115,7 @@ public class DbExecutorImpl<T extends AbstractEntity> implements DbExecutor<T> {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, value);
             log.info("{}", preparedStatement);
-            return preparedStatement.execute();
+            return preparedStatement.executeQuery().next();
         }
     }
 

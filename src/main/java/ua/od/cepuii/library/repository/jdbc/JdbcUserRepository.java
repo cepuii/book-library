@@ -6,7 +6,8 @@ import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.UserRepository;
-import ua.od.cepuii.library.repository.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.DbExecutorImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,8 +43,8 @@ public class JdbcUserRepository implements UserRepository {
     private static final String SELECT_BY_EMAIL = SELECT_ALL + " WHERE email = ?";
 
 
-    public JdbcUserRepository(DbExecutor<User> dbExecutor, ConnectionPool connectionPool) {
-        this.dbExecutor = dbExecutor;
+    public JdbcUserRepository(ConnectionPool connectionPool) {
+        this.dbExecutor = new DbExecutorImpl<>();
         this.connectionPool = connectionPool;
     }
 

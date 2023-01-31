@@ -61,6 +61,7 @@ public class UserService implements Service {
     }
 
     public boolean isExistEmail(String email) {
+        //TODO change repository implementation
         return userRepository.getByEmail(email).isPresent();
     }
 
