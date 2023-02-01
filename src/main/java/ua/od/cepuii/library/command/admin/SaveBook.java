@@ -8,9 +8,9 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Book;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.BookService;
+import ua.od.cepuii.library.util.PathManager;
 
 public class SaveBook implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(SaveBook.class);
@@ -27,12 +27,12 @@ public class SaveBook implements ActionCommand {
             boolean update = bookService.createOrUpdate(book);
             if (update) {
                 request.getSession().setAttribute("success", MessageManager.getProperty("message.book.add"));
-                return ConfigurationManager.getProperty("path.controller.books");
+                return PathManager.getProperty("controller.books");
             }
 
             request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.edit"));
         }
         request.setAttribute("book", book);
-        return ConfigurationManager.getProperty("path.page.edit.book.forward");
+        return PathManager.getProperty("page.edit.book.forward");
     }
 }

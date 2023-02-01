@@ -8,8 +8,8 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Loan;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.LoanService;
+import ua.od.cepuii.library.util.PathManager;
 
 public class SetOrderStatus implements ActionCommand {
 
@@ -23,8 +23,8 @@ public class SetOrderStatus implements ActionCommand {
         boolean b = loanService.setOrderStatus(loan, fineSubtract);
         log.info("update loan {} ", b);
         if (b) {
-            return ConfigurationManager.getProperty("path.controller.orders.success");
+            return PathManager.getProperty("controller.orders.success");
         }
-        return ConfigurationManager.getProperty("path.controller.orders");
+        return PathManager.getProperty("controller.orders");
     }
 }

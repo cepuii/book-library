@@ -11,9 +11,9 @@ import ua.od.cepuii.library.dto.BookTO;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.BookService;
 import ua.od.cepuii.library.service.LoanService;
+import ua.od.cepuii.library.util.PathManager;
 
 import java.util.Collection;
 
@@ -26,13 +26,13 @@ public class ShowBooks implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         FilterParams filterParam = RequestParser.getFilterParams(request, "titleSearch", "authorSearch");
-        Page page = RequestParser.getPageFromSession(request, bookService, filterParam);
+        Page page = RequestParser.getPage(request, bookService, filterParam);
         Collection<BookTO> books = bookService.getAll(page, filterParam);
         request.setAttribute("books", books);
         request.setAttribute("data", "receive");
         HttpSession session = request.getSession();
         session.setAttribute("filter", filterParam);
-        session.setAttribute("page", page);
+        request.setAttribute("page", page);
         long userId = RequestParser.getLong(request, "userId");
         if (userId != 0 && session.getAttribute("loanItems") == null) {
             Collection<Long> booksIdsByUserId = loanService.getBooksIdsByUserId(userId);
@@ -42,6 +42,6 @@ public class ShowBooks implements ActionCommand {
         RequestParser.setFromSessionToRequest(request, "wrongAction");
         RequestParser.setFromSessionToRequest(request, "success");
         log.info("page attributes {}", page);
-        return ConfigurationManager.getProperty("path.page.main");
+        return PathManager.getProperty("page.main");
     }
 }

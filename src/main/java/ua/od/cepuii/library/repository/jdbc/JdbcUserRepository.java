@@ -6,8 +6,7 @@ import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.UserRepository;
-import ua.od.cepuii.library.repository.jdbc.executor.DbExecutor;
-import ua.od.cepuii.library.repository.jdbc.executor.DbExecutorImpl;
+import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,7 +22,7 @@ import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.validateForLik
 
 public class JdbcUserRepository implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(JdbcUserRepository.class);
-    private final DbExecutor<User> dbExecutor;
+    private final QueryExecutor<User> queryExecutor;
     private final ConnectionPool connectionPool;
     private static final String INSERT_USER = "INSERT INTO users (email, password, role_id) VALUES (?,?,?)";
     private static final String UPDATE_USER_EMAIL = "UPDATE users SET email = ? WHERE id=?";
@@ -43,8 +42,8 @@ public class JdbcUserRepository implements UserRepository {
     private static final String SELECT_BY_EMAIL = SELECT_ALL + " WHERE email = ?";
 
 
-    public JdbcUserRepository(ConnectionPool connectionPool) {
-        this.dbExecutor = new DbExecutorImpl<>();
+    public JdbcUserRepository(QueryExecutor<User> userExecutor, ConnectionPool connectionPool) {
+        this.queryExecutor = userExecutor;
         this.connectionPool = connectionPool;
     }
 
@@ -53,7 +52,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                long insert = dbExecutor.insert(connection, INSERT_USER, List.of(user.getEmail(), user.getPassword(), user.getRole().ordinal()));
+                long insert = queryExecutor.insert(connection, INSERT_USER, List.of(user.getEmail(), user.getPassword(), user.getRole().ordinal()));
                 connection.commit();
                 return insert;
             } catch (Exception e) {
@@ -69,7 +68,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> getById(long id) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.selectById(connection, SELECT_BY_ID, id, RepositoryUtil::fillUser);
+            return queryExecutor.selectByParams(connection, SELECT_BY_ID, List.of(id), RepositoryUtil::fillUser);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -81,7 +80,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.update(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
+                boolean update = queryExecutor.update(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
                 connection.commit();
                 return update;
             } catch (Exception e) {
@@ -99,7 +98,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.update(connection, UPDATE_USER_PASSWORD, List.of(password, userId));
+                boolean update = queryExecutor.update(connection, UPDATE_USER_PASSWORD, List.of(password, userId));
                 connection.commit();
                 return update;
             } catch (Exception e) {
@@ -117,7 +116,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean b = dbExecutor.queryById(connection, DELETE_BY_ID, id);
+                boolean b = queryExecutor.queryById(connection, DELETE_BY_ID, id);
                 connection.commit();
                 return b;
             } catch (Exception e) {
@@ -135,7 +134,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             String firstParam = prepareForLike(validateForLike(params.getFirstParam()));
             String secondParam = prepareForLike(validateForLike(params.getSecondParam()));
-            return dbExecutor.selectAllWithLimit(connection, SELECT_ALL_WITH_WHERE + orderBy + LIMIT_OFFSET, firstParam, secondParam, limit, offset, RepositoryUtil::fillUsers);
+            return queryExecutor.selectAll(connection, SELECT_ALL_WITH_WHERE + orderBy + LIMIT_OFFSET, List.of(firstParam, secondParam, limit, offset), RepositoryUtil::fillUsers);
         } catch (SQLException e) {
             log.error(e.getMessage());
             return Collections.emptyList();
@@ -145,7 +144,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> getByEmail(String email) {
         try (Connection connection = connectionPool.getConnection()) {
-            return dbExecutor.selectAllByParam(connection, SELECT_BY_EMAIL, email, RepositoryUtil::fillUsers).stream().findAny();
+            return queryExecutor.selectAll(connection, SELECT_BY_EMAIL, List.of(email), RepositoryUtil::fillUsers).stream().findAny();
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -176,7 +175,7 @@ public class JdbcUserRepository implements UserRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = dbExecutor.update(connection, UPDATE_USER_BLOCK, List.of(isBlocked, id));
+                boolean update = queryExecutor.update(connection, UPDATE_USER_BLOCK, List.of(isBlocked, id));
                 connection.commit();
                 return update;
 

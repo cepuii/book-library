@@ -8,9 +8,9 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
+import ua.od.cepuii.library.util.PathManager;
 
 public class SaveUserChange implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(SaveUserChange.class);
@@ -26,6 +26,6 @@ public class SaveUserChange implements ActionCommand {
             userService.createOrUpdate(user);
             request.getSession().setAttribute("userEmail", user.getEmail());
         }
-        return ConfigurationManager.getProperty("path.controller.profile");
+        return PathManager.getProperty("controller.profile");
     }
 }

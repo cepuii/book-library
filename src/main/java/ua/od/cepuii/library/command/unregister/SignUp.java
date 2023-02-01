@@ -8,10 +8,10 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
+import ua.od.cepuii.library.util.PathManager;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 public class SignUp implements ActionCommand {
@@ -22,7 +22,7 @@ public class SignUp implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         if (request.getMethod().equalsIgnoreCase("get")) {
-            return ConfigurationManager.getProperty("path.page.signUp");
+            return PathManager.getProperty("page.signUp");
         }
         User user = RequestParser.getUser(request);
         boolean forwardBack = validateUser(request, user);
@@ -33,13 +33,13 @@ public class SignUp implements ActionCommand {
         }
         if (forwardBack) {
             request.setAttribute("userEmail", user.getEmail());
-            return ConfigurationManager.getProperty("path.page.signUp.forward");
+            return PathManager.getProperty("page.signUp.forward");
         }
         long userId = userService.createOrUpdate(user);
         user.setId(userId);
         RequestParser.setUserInfo(request, user);
         CookieUtil.setUserToCookie(response, user);
-        return ConfigurationManager.getProperty("path.controller.books");
+        return PathManager.getProperty("controller.books");
     }
 
     private static boolean validateUser(HttpServletRequest request, User user) {

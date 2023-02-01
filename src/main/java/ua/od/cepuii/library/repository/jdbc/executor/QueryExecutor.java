@@ -10,15 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public interface DbExecutor<T extends AbstractEntity> {
+public interface QueryExecutor<T extends AbstractEntity> {
 
     long insert(Connection connection, String sql, List<Object> params) throws SQLException;
 
-    Optional<T> selectByParams(Connection connection, String sql, List<Object> params, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
-
     boolean insertWithoutGeneratedKey(Connection connection, String sql, List<Object> params) throws SQLException;
 
-    Optional<T> selectById(Connection connection, String sql, long id, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
+    Optional<T> selectByParams(Connection connection, String sql, List<Object> params, Function<ResultSet, Optional<T>> rsHandler) throws SQLException;
 
     boolean update(Connection connection, String sql, List<Object> params) throws SQLException;
 
@@ -26,11 +24,7 @@ public interface DbExecutor<T extends AbstractEntity> {
 
     boolean queryByString(Connection connection, String sql, String value) throws SQLException;
 
-    Collection<T> selectAllByParam(Connection connection, String sql, Object param, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
-
-    Collection<T> selectAllWithLimit(Connection connection, String sql, String titleFilter, String authorFilter, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
-
-    Collection<T> selectAllById(Connection connection, String sql, long id, int limit, int offset, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
+    Collection<T> selectAll(Connection connection, String sql, List<Object> params, Function<ResultSet, Collection<T>> rsHandler) throws SQLException;
 
     int selectCount(Connection connection, String countSelectAllFilter, List<Object> strings) throws SQLException;
 }

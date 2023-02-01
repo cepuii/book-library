@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.LoanService;
+import ua.od.cepuii.library.util.PathManager;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +33,6 @@ public class RemoveBookFromOrder implements ActionCommand {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        return ConfigurationManager.getProperty("path.controller.orders");
+        return PathManager.getProperty("controller.orders");
     }
 }

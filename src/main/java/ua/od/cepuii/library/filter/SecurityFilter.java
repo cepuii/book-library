@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.enums.Role;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
+import ua.od.cepuii.library.util.PathManager;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,7 +52,7 @@ public class SecurityFilter implements Filter {
             log.info("access deny");
             HttpServletRequest req = (HttpServletRequest) request;
             req.getSession().setAttribute("wrongAction", MessageManager.getProperty("message.access.deny"));
-            req.getRequestDispatcher(ConfigurationManager.getProperty("path.controller.profile")).forward(request, response);
+            req.getRequestDispatcher(PathManager.getProperty("controller.profile")).forward(request, response);
         }
     }
 

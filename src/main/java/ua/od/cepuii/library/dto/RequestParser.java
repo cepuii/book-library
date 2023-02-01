@@ -24,15 +24,15 @@ public class RequestParser {
     private RequestParser() {
     }
 
-    public static Page getPageFromSession(HttpServletRequest request, Service service, FilterParams filterParam) {
-        Page page = getPageFromSession(request);
+    public static Page getPage(HttpServletRequest request, Service service, FilterParams filterParam) {
+        Page page = getPage(request);
         int pageAmount = service.getPageAmount(page, filterParam);
         page.setPageAmount(pageAmount);
         return page;
     }
 
-    public static Page getPageFromSession(HttpServletRequest request) {
-        Page page = (Page) request.getSession().getAttribute("page");
+    public static Page getPage(HttpServletRequest request) {
+        Page page = (Page) request.getAttribute("page");
         if (page == null || request.getParameter("modified") != null) {
             page = Page.builder()
                     .currentPage(1)

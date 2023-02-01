@@ -8,10 +8,10 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
+import ua.od.cepuii.library.util.PathManager;
 
 public class Login implements ActionCommand {
 
@@ -23,7 +23,7 @@ public class Login implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         if (request.getMethod().equalsIgnoreCase("get")) {
-            return ConfigurationManager.getProperty("path.page.login");
+            return PathManager.getProperty("page.login");
         }
         String page;
         String email = request.getParameter(PARAM_NAME_EMAIL);
@@ -34,13 +34,13 @@ public class Login implements ActionCommand {
             RequestParser.setUserInfo(request, user);
             CookieUtil.setUserToCookie(response, user);
             log.info("user login: {}", user);
-            page = ConfigurationManager.getProperty("path.controller.books");
+            page = PathManager.getProperty("controller.books");
         } else {
             log.info("error incorrect login");
             request.setAttribute("userEmail", email);
             request.setAttribute("errorLoginPassMessage",
                     MessageManager.getProperty("message.loginError"));
-            page = ConfigurationManager.getProperty("path.page.login.forward");
+            page = PathManager.getProperty("page.login.forward");
         }
         return page;
     }

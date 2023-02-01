@@ -10,7 +10,7 @@
 <body>
 <div class="container">
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
-
+    <c:set var="actionCommand" scope="request" value="show_profile"/>
     <jsp:include page="/jsp/fragments/showResult.jsp"/>
     <div class="container">
         <h5><fmt:message key="profile"/></h5>
@@ -105,32 +105,34 @@
                 </tbody>
             </table>
 
-            <ul class="pagination justify-content-center" style="margin:20px 0">
+            <%--            <ul class="pagination justify-content-center" style="margin:20px 0">--%>
 
-                <c:if test="${sessionScope.page.currentPage ne 1}">
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="${pageContext.request.contextPath}/controller?command=show_profile&currentPage=${sessionScope.page.currentPage-1}">
-                            <fmt:message key="main.prev"/></a>
-                    </li>
-                </c:if>
-                <c:forEach begin="${sessionScope.page.currentPage > 2 ? sessionScope.page.currentPage - 1 : 1}"
-                           end="${sessionScope.page.pageAmount > 5 ? 5 : sessionScope.page.pageAmount}"
-                           varStatus="loop">
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="${pageContext.request.contextPath}/controller?command=show_profile&currentPage=${loop.index}">
-                                ${loop.index}</a>
-                    </li>
-                </c:forEach>
-                <c:if test="${sessionScope.page.pageAmount ne 0 || sessionScope.page.currentPage ne sessionScope.page.pageAmount}">
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="${pageContext.request.contextPath}/controller?command=show_profile&currentPage=${sessionScope.page.currentPage+1}">
-                            <fmt:message key="main.next"/></a>
-                    </li>
-                </c:if>
-            </ul>
+            <%--                <c:if test="${sessionScope.page.currentPage ne 1}">--%>
+            <%--                    <li class="page-item">--%>
+            <%--                        <a class="page-link"--%>
+            <%--                           href="${pageContext.request.contextPath}/controller?command=show_profile&currentPage=${sessionScope.page.currentPage-1}">--%>
+            <%--                            <fmt:message key="main.prev"/></a>--%>
+            <%--                    </li>--%>
+            <%--                </c:if>--%>
+            <%--                <c:forEach begin="${sessionScope.page.currentPage > 2 ? sessionScope.page.currentPage - 1 : 1}"--%>
+            <%--                           end="${sessionScope.page.pageAmount > 5 ? 5 : sessionScope.page.pageAmount}"--%>
+            <%--                           varStatus="loop">--%>
+            <%--                    <li class="page-item">--%>
+            <%--                        <a class="page-link"--%>
+            <%--                           href="${pageContext.request.contextPath}/controller?command=show_profile&currentPage=${loop.index}">--%>
+            <%--                                ${loop.index}</a>--%>
+            <%--                    </li>--%>
+            <%--                </c:forEach>--%>
+            <%--                <c:if test="${sessionScope.page.pageAmount ne 0 || sessionScope.page.currentPage ne sessionScope.page.pageAmount}">--%>
+            <%--                    <li class="page-item">--%>
+            <%--                        <a class="page-link"--%>
+            <%--                           href="${pageContext.request.contextPath}/controller?command=show_profile&currentPage=${sessionScope.page.currentPage+1}">--%>
+            <%--                            <fmt:message key="main.next"/></a>--%>
+            <%--                    </li>--%>
+            <%--                </c:if>--%>
+            <%--            </ul>--%>
+            <jsp:include page="/jsp/fragments/pagination.jsp"/>
+
         </c:if>
     </div>
     <jsp:include page="/jsp/fragments/footer.jsp"/>

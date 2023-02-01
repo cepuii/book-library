@@ -61,7 +61,7 @@
             <div class="mb-auto">
                 <label class="form-check-label" for="flexCheckDefault"><fmt:message key="users.password.show"/>
                     <input class="form-check-input" type="checkbox" id="flexCheckDefault"
-                           onclose="show('password');show('confirm_password');">
+                           onclick="show('password');show('confirm_password');">
                 </label>
             </div>
             <br/>
@@ -75,8 +75,9 @@
 
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
-<script src="${pageContext.request.contextPath}/js/showPass.js"></script>
+
 <script src="${pageContext.request.contextPath}/js/validateField.js"></script>
+<script src="${pageContext.request.contextPath}/js/showPass.js"></script>
 
 </body>
 </html>

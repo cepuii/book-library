@@ -1,5 +1,5 @@
 function show(elementId) {
-    var element = '#' + elementId;
+    let element = '#' + elementId;
     if ($(element)[0].getAttribute('type') === 'password') {
         $(element)[0].removeAttribute('type');
         $(element)[0].setAttribute('type', 'text');
@@ -8,4 +8,5 @@ function show(elementId) {
         $(element)[0].setAttribute('type', 'password');
     }
 }
+
 

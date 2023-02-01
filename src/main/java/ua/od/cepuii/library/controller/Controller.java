@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.command.ActionFactory;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
+import ua.od.cepuii.library.util.PathManager;
 
 import java.io.IOException;
 public class Controller extends HttpServlet {
@@ -41,7 +41,7 @@ public class Controller extends HttpServlet {
         } else {
             String msg = MessageManager.getProperty("message.nullPage");
             log.error(msg);
-            page = ConfigurationManager.getProperty("path.page.error");
+            page = PathManager.getProperty("page.error");
             request.getSession().setAttribute("nullPage", msg);
         }
         return page;

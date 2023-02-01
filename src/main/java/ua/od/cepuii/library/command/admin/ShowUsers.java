@@ -10,8 +10,8 @@ import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.dto.UserTO;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.service.UserService;
+import ua.od.cepuii.library.util.PathManager;
 
 import java.util.Collection;
 
@@ -24,17 +24,17 @@ public class ShowUsers implements ActionCommand {
     public String execute(HttpServletRequest request, HttpServletResponse response) {
 
         FilterParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
-        Page currentPage = RequestParser.getPageFromSession(request, userService, filterParam);
+        Page currentPage = RequestParser.getPage(request, userService, filterParam);
 
         Collection<UserTO> users = userService.getAll(currentPage, filterParam);
         request.setAttribute("users", users);
 
         request.getSession().setAttribute("filter", filterParam);
-        request.getSession().setAttribute("page", currentPage);
+        request.setAttribute("page", currentPage);
         log.info("page attributes {}", currentPage);
         log.info("filter attributes {}", filterParam);
 
         RequestParser.setFromSessionToRequest(request, "wrongAction");
-        return ConfigurationManager.getProperty("path.page.users");
+        return PathManager.getProperty("page.users");
     }
 }

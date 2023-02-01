@@ -50,8 +50,8 @@
             </button>
         </form>
     </div>
-    <script src="${pageContext.request.contextPath}/js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
+<script src="${pageContext.request.contextPath}/js/showPass.js"></script>
 </body>
 </html>

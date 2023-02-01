@@ -9,9 +9,9 @@ import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.BookTO;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.exception.RequestParserException;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.BookService;
+import ua.od.cepuii.library.util.PathManager;
 
 public class EditBook implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(EditBook.class);
@@ -25,11 +25,11 @@ public class EditBook implements ActionCommand {
                 BookTO bookTO = bookService.getById(bookId);
                 request.setAttribute("book", bookTO);
             }
-            return ConfigurationManager.getProperty("path.page.edit.book");
+            return PathManager.getProperty("page.edit.book");
         } catch (RequestParserException e) {
             log.error(e.getMessage());
             request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.edit"));
-            return ConfigurationManager.getProperty("path.controller.books");
+            return PathManager.getProperty("controller.books");
         }
     }
 }

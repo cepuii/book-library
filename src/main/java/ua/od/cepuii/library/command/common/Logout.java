@@ -3,8 +3,8 @@ package ua.od.cepuii.library.command.common;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ua.od.cepuii.library.command.ActionCommand;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.util.CookieUtil;
+import ua.od.cepuii.library.util.PathManager;
 
 public class Logout implements ActionCommand {
     @Override
@@ -14,7 +14,7 @@ public class Logout implements ActionCommand {
         request.getSession().invalidate();
         request.getSession(true).setAttribute("logout", "true");
         request.getSession().setAttribute("lang", lang);
-        return ConfigurationManager.getProperty("path.controller.books");
+        return PathManager.getProperty("controller.books");
     }
 
 }

@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.BookService;
+import ua.od.cepuii.library.util.PathManager;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 public class RemoveBook implements ActionCommand {
@@ -25,6 +25,6 @@ public class RemoveBook implements ActionCommand {
                 request.getSession().setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.delete"));
             }
         }
-        return ConfigurationManager.getProperty("path.controller.books");
+        return PathManager.getProperty("controller.books");
     }
 }

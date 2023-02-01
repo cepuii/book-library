@@ -10,9 +10,9 @@ import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.exception.RepositoryException;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.LoanService;
+import ua.od.cepuii.library.util.PathManager;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.HashSet;
@@ -30,7 +30,7 @@ public class AddBookToOrder implements ActionCommand {
         if (!ValidationUtil.isDigit(days)) {
             log.error("wrong duration");
             request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
-            return ConfigurationManager.getProperty("path.controller.books.forward");
+            return PathManager.getProperty("controller.books.forward");
         }
         try {
             Loan loan = RequestParser.getLoan(request);
@@ -51,8 +51,8 @@ public class AddBookToOrder implements ActionCommand {
         } catch (RepositoryException e) {
             log.error(e.getMessage());
             request.setAttribute("wrongDuration", e.getMessage());
-            return ConfigurationManager.getProperty("path.controller.books.forward");
+            return PathManager.getProperty("controller.books.forward");
         }
-        return ConfigurationManager.getProperty("path.controller.books.success");
+        return PathManager.getProperty("controller.books.success");
     }
 }

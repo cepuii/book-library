@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.resource.ConfigurationManager;
 import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
+import ua.od.cepuii.library.util.PathManager;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 public class ChangePassword implements ActionCommand {
@@ -20,7 +20,7 @@ public class ChangePassword implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         if (request.getMethod().equalsIgnoreCase("get")) {
-            return ConfigurationManager.getProperty("path.page.changePassword");
+            return PathManager.getProperty("page.changePassword");
         }
         //TODO move Validation
         String oldPassword = request.getParameter("oldPassword");
@@ -31,11 +31,11 @@ public class ChangePassword implements ActionCommand {
             if (userService.updatePassword(userId, newPassword)) {
                 log.info("userId: {}, changePassword", userId);
                 request.getSession().setAttribute("success", MessageManager.getProperty("message.password.change"));
-                return ConfigurationManager.getProperty("path.controller.profile.success");
+                return PathManager.getProperty("controller.profile.success");
             }
             request.setAttribute("badPassword", MessageManager.getProperty("message.signUp.password"));
         }
-        return ConfigurationManager.getProperty("path.page.changePassword.forward");
+        return PathManager.getProperty("page.changePassword.forward");
     }
 
     private boolean validatePasswords(HttpServletRequest request, long userId, String oldPassword, String newPassword) {
