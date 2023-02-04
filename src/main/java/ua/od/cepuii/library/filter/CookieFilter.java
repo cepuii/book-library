@@ -8,6 +8,7 @@ import java.io.IOException;
 public class CookieFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        //TODO move to command
         HttpServletRequest req = (HttpServletRequest) request;
         if (req.getSession().getAttribute("userEmail") == null && req.getSession().getAttribute("logout") == null) {
             checkUserInCookie(req);

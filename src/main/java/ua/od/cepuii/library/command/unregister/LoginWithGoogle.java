@@ -12,21 +12,16 @@ import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
 import ua.od.cepuii.library.util.PathManager;
 
-public class Login implements ActionCommand {
+public class LoginWithGoogle implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(Login.class);
     private final UserService userService = AppContext.getInstance().getUserService();
-    private static final String PARAM_NAME_EMAIL = "email";
-    private static final String PARAM_NAME_PASSWORD = "password";
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getMethod().equalsIgnoreCase("get")) {
-            return PathManager.getProperty("page.login");
-        }
         String page;
-        String email = request.getParameter(PARAM_NAME_EMAIL);
-        String password = request.getParameter(PARAM_NAME_PASSWORD);
+        String email = (String) request.getAttribute("email");
+        String password = (String) request.getAttribute("password");
         User user = userService.getUserByEmailAndPassword(email, password);
         if (user != null) {
             request.getSession().removeAttribute("logout");
@@ -43,6 +38,4 @@ public class Login implements ActionCommand {
         }
         return page;
     }
-
-
 }

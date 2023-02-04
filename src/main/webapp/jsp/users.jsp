@@ -15,8 +15,9 @@
 
     <c:set var="actionCommand" value="show_users" scope="request"/>
 
-    <div class="container">
+    <jsp:include page="/jsp/fragments/showResult.jsp"/>
 
+    <div class="container">
 
         <div class="row">
             <div class="col-8">
@@ -283,7 +284,6 @@
     </div>
     <hr/>
 
-    <jsp:include page="/jsp/fragments/showResult.jsp"/>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
 </body>

@@ -5,15 +5,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.dto.Page;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.dto.UserTO;
 import ua.od.cepuii.library.service.UserService;
-import ua.od.cepuii.library.util.PathManager;
 
 import java.util.Collection;
+
+import static ua.od.cepuii.library.constants.AttributesName.*;
 
 public class ShowUsers implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowUsers.class);
@@ -23,18 +25,19 @@ public class ShowUsers implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
 
+        //TODO change filter, make the same names
         FilterParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
-        Page currentPage = RequestParser.getPage(request, userService, filterParam);
+        Page page = RequestParser.getPage(request, userService, filterParam);
 
-        Collection<UserTO> users = userService.getAll(currentPage, filterParam);
-        request.setAttribute("users", users);
+        Collection<UserTO> users = userService.getAll(page, filterParam);
+        request.setAttribute(USERS, users);
 
-        request.getSession().setAttribute("filter", filterParam);
-        request.setAttribute("page", currentPage);
-        log.info("page attributes {}", currentPage);
+        request.getSession().setAttribute(FILTER, filterParam);
+        request.setAttribute(PAGE, page);
+        log.info("page attributes {}", page);
         log.info("filter attributes {}", filterParam);
 
-        RequestParser.setFromSessionToRequest(request, "wrongAction");
-        return PathManager.getProperty("page.users");
+        RequestParser.setMapFromSessionToRequest(request, REPORTS);
+        return Path.USERS_PAGE;
     }
 }

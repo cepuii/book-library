@@ -34,6 +34,7 @@ public class ShowBooks implements ActionCommand {
         session.setAttribute("filter", filterParam);
         request.setAttribute("page", page);
         long userId = RequestParser.getLong(request, "userId");
+
         if (userId != 0 && session.getAttribute("loanItems") == null) {
             Collection<Long> booksIdsByUserId = loanService.getBooksIdsByUserId(userId);
             session.setAttribute("loanItems", booksIdsByUserId);
@@ -41,6 +42,7 @@ public class ShowBooks implements ActionCommand {
 
         RequestParser.setFromSessionToRequest(request, "wrongAction");
         RequestParser.setFromSessionToRequest(request, "success");
+        RequestParser.setMapFromSessionToRequest(request, "reports");
         log.info("page attributes {}", page);
         return PathManager.getProperty("page.main");
     }

@@ -5,12 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
-import ua.od.cepuii.library.util.PathManager;
+
+import static ua.od.cepuii.library.constants.AttributesName.NEW_USER;
+import static ua.od.cepuii.library.constants.AttributesName.REPORTS;
 
 public class SaveLibrarian implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(SaveLibrarian.class);
@@ -19,20 +22,18 @@ public class SaveLibrarian implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        User user = RequestParser.getUser(request);
-        if (userService.isExistEmail(user.getEmail())) {
-            request.setAttribute("wrongAction", MessageManager.getProperty("message.signUp.email.exist"));
-            log.error("can`t add user {}", user.getEmail());
-            return PathManager.getProperty("controller.add.librarian.forward");
-        }
-        long l = userService.createOrUpdate(user);
-        if (l == -1) {
-            request.setAttribute("newUser", user);
-            request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.add"));
-            log.error("can`t add user {}", user);
-            return PathManager.getProperty("controller.add.librarian.forward");
 
+        User user = RequestParser.getUser(request);
+        Report report = userService.createOrUpdate(user);
+
+        if (report.hasErrors()) {
+            request.setAttribute(NEW_USER, user);
+            request.setAttribute(REPORTS, report);
+            return Path.ADD_LIBRARIAN_FORWARD;
         }
-        return PathManager.getProperty("controller.users.success");
+
+        log.info("librarian save, userId: {}", user.getId());
+        request.getSession().setAttribute(REPORTS, report);
+        return Path.SHOW_USERS;
     }
 }

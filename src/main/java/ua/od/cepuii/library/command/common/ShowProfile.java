@@ -38,6 +38,7 @@ public class ShowProfile implements ActionCommand {
         RequestParser.setFromSessionToRequest(request, "emailExist");
         RequestParser.setFromSessionToRequest(request, "wrongAction");
         RequestParser.setFromSessionToRequest(request, "success");
+        RequestParser.setMapFromSessionToRequest(request, "reports");
         return PathManager.getProperty("page.profile.forward");
     }
 }

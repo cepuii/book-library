@@ -42,7 +42,7 @@ class BookServiceTest {
     @Test
     void insertEmptyBook() {
         when(bookRepository.insert(EMPTY_BOOK)).thenReturn(CREATE_BOOK_ID);
-        assertTrue(() -> bookService.createOrUpdate(EMPTY_BOOK));
+        assertFalse(() -> bookService.createOrUpdate(EMPTY_BOOK).hasErrors());
         verify(bookRepository, times(1)).insert(EMPTY_BOOK);
         verify(bookRepository, times(0)).update(any(Book.class));
     }
@@ -62,7 +62,7 @@ class BookServiceTest {
     @Test
     void update() {
         when(bookRepository.update(BOOK)).thenReturn(true);
-        assertTrue(() -> bookService.createOrUpdate(BOOK));
+        assertFalse(() -> bookService.createOrUpdate(BOOK).hasErrors());
         verify(bookRepository, times(0)).insert(any(Book.class));
         verify(bookRepository, times(1)).update(BOOK);
     }
@@ -70,7 +70,7 @@ class BookServiceTest {
     @Test
     void updateNotExistBook() {
         when(bookRepository.update(BOOK_NOT_EXIST)).thenReturn(false);
-        assertFalse(() -> bookService.createOrUpdate(BOOK_NOT_EXIST));
+        assertTrue(() -> bookService.createOrUpdate(BOOK_NOT_EXIST).hasErrors());
         verify(bookRepository, times(0)).insert(any(Book.class));
         verify(bookRepository, times(1)).update(BOOK_NOT_EXIST);
     }
@@ -78,7 +78,7 @@ class BookServiceTest {
     @Test
     void delete() {
         when(bookRepository.delete(LOAN_ID)).thenReturn(true);
-        assertTrue(() -> bookService.delete(LOAN_ID));
+        assertFalse(() -> bookService.delete(LOAN_ID).hasErrors());
         verify(bookRepository, times(1)).delete(anyLong());
     }
 

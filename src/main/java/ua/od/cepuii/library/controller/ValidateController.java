@@ -27,9 +27,9 @@ public class ValidateController extends HttpServlet {
         log.info("validationController type: {} - {}", type, value);
         boolean existType = false;
         if (type.equals("email")) {
-            existType = userService.isExistEmail(value);
+            existType = userService.isExistEmail(value).hasErrors();
         } else {
-            existType = bookService.isExistTitle(value);
+            existType = bookService.isExistTitle(value).hasErrors();
         }
         resp.setContentType("text/plain");
         resp.setCharacterEncoding("UTF-8");

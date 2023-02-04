@@ -5,11 +5,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
-import ua.od.cepuii.library.resource.MessageManager;
+import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.service.UserService;
-import ua.od.cepuii.library.util.PathManager;
 
+import static ua.od.cepuii.library.constants.AttributesName.*;
 import static ua.od.cepuii.library.dto.RequestParser.getBoolean;
 import static ua.od.cepuii.library.dto.RequestParser.getLong;
 
@@ -21,18 +22,15 @@ public class BlockUser implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long blockUserId = getLong(request, "blockUserId");
-        boolean isBlocked = getBoolean(request, "isBlocked");
-        long userId = getLong(request, "userId");
-        String path;
-        if (blockUserId == userId) {
-            request.getSession().setAttribute("wrongAction", MessageManager.getProperty("message.block.yourself"));
-            path = PathManager.getProperty("controller.users");
-        } else {
-            boolean blockUnblock = userService.blockUnblock(blockUserId, isBlocked);
-            log.info("user {} blockUnblock isComplete {}", blockUserId, blockUnblock);
-            path = PathManager.getProperty("controller.users.success");
-        }
-        return path;
+        long blockUserId = getLong(request, BLOCK_USER_ID);
+        boolean isBlocked = getBoolean(request, IS_BLOCKED);
+        long userId = getLong(request, USER_ID);
+
+        Report report = userService.blockUnblock(userId, blockUserId, isBlocked);
+
+        request.getSession().setAttribute(REPORTS, report.getReports());
+        log.info("user block/enable, userId: {}, {}", blockUserId, report);
+
+        return Path.SHOW_USERS;
     }
 }

@@ -8,7 +8,6 @@ import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.PathManager;
 
@@ -19,9 +18,9 @@ public class SaveUserChange implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         User user = RequestParser.getUser(request);
-        if (userService.isExistEmail(user.getEmail())) {
+        if (userService.isExistEmail(user.getEmail()).hasErrors()) {
             log.error("email already exist: {}", user.getEmail());
-            request.getSession().setAttribute("emailExist", MessageManager.getProperty("message.signUp.email.exist"));
+            request.getSession().setAttribute("emailExist", "message.signUp.email.exist");
         } else {
             userService.createOrUpdate(user);
             request.getSession().setAttribute("userEmail", user.getEmail());

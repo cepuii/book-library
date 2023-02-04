@@ -9,9 +9,13 @@
 </head>
 <body>
 <div class="container">
+
     <jsp:include page="/jsp/fragments/bodyHeader.jsp"/>
+
     <c:set var="actionCommand" scope="request" value="show_profile"/>
+
     <jsp:include page="/jsp/fragments/showResult.jsp"/>
+
     <div class="container">
         <h5><fmt:message key="profile"/></h5>
         <hr>

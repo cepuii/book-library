@@ -1,5 +1,6 @@
 package ua.od.cepuii.library.util;
 
+import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.entity.AbstractEntity;
 import ua.od.cepuii.library.entity.User;
 
@@ -34,5 +35,21 @@ public class ValidationUtil {
 
     public static boolean validateUser(User user) {
         return validateEmail(user.getEmail()) && validatePass(user.getPassword());
+    }
+
+    public static Report validatePasswords(String oldPassword, String newPassword, String confirmPassword) {
+        Report report = Report.newInstance();
+        if (!validatePass(oldPassword)) {
+            report.addError("badOldPassword", "message.signUp.password");
+        } else if (!validatePass(newPassword)) {
+            report.addError("badPassword", "message.signUp.password");
+        } else if (oldPassword.equals(newPassword)) {
+            report.addError("badPasswords", "message.change.password.same");
+        } else if (!validatePass(confirmPassword)) {
+            report.addError("badConfirm", "message.signUp.password.confirm");
+        } else if (!confirmPassword.equals(newPassword)) {
+            report.addError("badConfirm", "message.signUp.password.confirm");
+        }
+        return report;
     }
 }

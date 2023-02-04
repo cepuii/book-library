@@ -49,6 +49,25 @@
                 <fmt:message key="books.filter.cansel"/>
             </button>
         </form>
+
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <div id="g_id_onload"
+             data-client_id="453363600410-g5168pvimaearhqkj1erithac4glm141.apps.googleusercontent.com"
+             data-login_uri="${pageContext.request.contextPath}/controller?command=verify_token"
+        <%--             data-auto_prompt="false"--%>
+        >
+
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-shape="rectangular"
+             data-logo_alignment="left">
+        </div>
+
+
     </div>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>

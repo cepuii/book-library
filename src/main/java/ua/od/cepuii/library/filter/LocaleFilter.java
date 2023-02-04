@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.od.cepuii.library.resource.MessageManager;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -29,11 +28,6 @@ public class LocaleFilter implements Filter {
             localeCookie.setMaxAge(60 * 60 * 24);
             localeCookie.setPath("/");
             resp.addCookie(localeCookie);
-            if (lang.equals("uk")) {
-                MessageManager.setResourceBundleLocale(UA);
-            } else {
-                MessageManager.setResourceBundleLocale(Locale.ENGLISH);
-            }
             log.info("set locale to session: {}", lang);
             resp.sendRedirect(req.getHeader("REFERER".toLowerCase()));
         } else {

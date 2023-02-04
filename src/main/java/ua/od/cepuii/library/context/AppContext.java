@@ -27,6 +27,9 @@ public class AppContext {
     private final LoanService loanService;
     private ConnectionPool connectionPool;
 
+
+    private final String CLIENT_ID;
+
     private AppContext(Properties properties) {
 
         try {
@@ -42,7 +45,7 @@ public class AppContext {
         bookService = serviceFactory.getBookService();
         loanService = serviceFactory.getLoanService();
         log.info("context initialize finish");
-
+        CLIENT_ID = properties.getProperty("google.client.id");
     }
 
     private ServiceFactory createServiceFactory(Properties properties) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -64,6 +67,10 @@ public class AppContext {
 
     }
 
+
+    public String getClientId() {
+        return CLIENT_ID;
+    }
 
     public static AppContext getInstance() {
         return appContext;

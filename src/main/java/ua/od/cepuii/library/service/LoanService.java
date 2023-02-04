@@ -11,7 +11,6 @@ import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.LoanRepository;
-import ua.od.cepuii.library.resource.MessageManager;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -29,7 +28,7 @@ public class LoanService implements Service {
     public long create(Loan loan) {
         Optional<Book> book = bookRepository.getById(loan.getBookId());
         if (book.isEmpty()) {
-            throw new RepositoryException(MessageManager.getProperty("message.nullPage"));
+            throw new RepositoryException("message.nullPage");
         }
         return loanRepository.insert(loan);
     }

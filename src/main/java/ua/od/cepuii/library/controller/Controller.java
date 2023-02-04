@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.command.ActionFactory;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.util.PathManager;
 
 import java.io.IOException;
@@ -18,12 +17,14 @@ public class Controller extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String s = processRequest(req, resp);
+        log.info("doGet, go to {}", s);
         req.getRequestDispatcher(s).forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String s = processRequest(req, resp);
+        log.info("doPost, go to {}", s);
         if (s.endsWith("forward=true")) {
             log.info("post forward");
             req.getRequestDispatcher(s).forward(req, resp);
@@ -36,10 +37,8 @@ public class Controller extends HttpServlet {
         ActionFactory client = new ActionFactory();
         ActionCommand command = client.defineCommand(request);
         String page = command.execute(request, response);
-        if (page != null) {
-            log.info("go to page: {}", page);
-        } else {
-            String msg = MessageManager.getProperty("message.nullPage");
+        if (page == null) {
+            String msg = "message.nullPage";
             log.error(msg);
             page = PathManager.getProperty("page.error");
             request.getSession().setAttribute("nullPage", msg);

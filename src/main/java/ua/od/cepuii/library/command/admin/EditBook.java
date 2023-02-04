@@ -5,13 +5,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.BookTO;
 import ua.od.cepuii.library.dto.RequestParser;
-import ua.od.cepuii.library.exception.RequestParserException;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.BookService;
-import ua.od.cepuii.library.util.PathManager;
+
+import java.util.Map;
+
+import static ua.od.cepuii.library.constants.AttributesName.*;
+import static ua.od.cepuii.library.constants.Constants.WRONG_ACTION;
 
 public class EditBook implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(EditBook.class);
@@ -19,17 +22,16 @@ public class EditBook implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            long bookId = RequestParser.getLong(request, "bookId");
-            if (bookId != 0) {
-                BookTO bookTO = bookService.getById(bookId);
-                request.setAttribute("book", bookTO);
-            }
-            return PathManager.getProperty("page.edit.book");
-        } catch (RequestParserException e) {
-            log.error(e.getMessage());
-            request.setAttribute("wrongAction", MessageManager.getProperty("message.wrongAction.edit"));
-            return PathManager.getProperty("controller.books");
+        long bookId = RequestParser.getLong(request, BOOK_ID);
+
+        if (bookId != 0) {
+            log.info("edit book, bookId: {}", bookId);
+            BookTO bookTO = bookService.getById(bookId);
+            request.setAttribute(BOOK, bookTO);
+            return Path.EDIT_BOOK_PAGE;
         }
+
+        request.setAttribute(REPORTS, Map.of(WRONG_ACTION, "message.wrongAction.edit"));
+        return Path.SHOW_BOOKS;
     }
 }

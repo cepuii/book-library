@@ -17,6 +17,7 @@ import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 public class RequestParser {
     private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
@@ -158,7 +159,13 @@ public class RequestParser {
     public static User getUser(HttpServletRequest request) {
         long userId = getLong(request, "userId");
         String email = request.getParameter("email");
+        if (email == null) {
+            email = (String) request.getAttribute("email");
+        }
         String password = request.getParameter("password");
+        if (password == null) {
+            password = (String) request.getAttribute("password");
+        }
         Role role = getRole(request);
         log.info("user: {}, {}", email, role);
         return User.builder()
@@ -189,7 +196,18 @@ public class RequestParser {
     }
 
     public static void setFromSessionToRequest(HttpServletRequest request, String s) {
-        request.setAttribute(s, request.getSession().getAttribute(s));
-        request.getSession().removeAttribute(s);
+        Object attribute = request.getSession().getAttribute(s);
+        if (attribute != null) {
+            request.setAttribute(s, attribute);
+            request.getSession().removeAttribute(s);
+        }
+    }
+
+    public static void setMapFromSessionToRequest(HttpServletRequest request, String s) {
+        Map<String, String> attribute = (Map<String, String>) request.getSession().getAttribute(s);
+        if (attribute != null) {
+            request.setAttribute(s, attribute);
+            request.getSession().removeAttribute(s);
+        }
     }
 }

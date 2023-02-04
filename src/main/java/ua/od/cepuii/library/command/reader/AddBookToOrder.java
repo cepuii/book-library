@@ -10,7 +10,6 @@ import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.exception.RepositoryException;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.LoanService;
 import ua.od.cepuii.library.util.PathManager;
 import ua.od.cepuii.library.util.ValidationUtil;
@@ -29,7 +28,7 @@ public class AddBookToOrder implements ActionCommand {
         String days = request.getParameter("days");
         if (!ValidationUtil.isDigit(days)) {
             log.error("wrong duration");
-            request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
+            request.setAttribute("wrongDuration", "message.wrongDuration");
             return PathManager.getProperty("controller.books.forward");
         }
         try {

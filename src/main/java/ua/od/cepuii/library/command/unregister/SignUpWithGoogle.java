@@ -12,22 +12,19 @@ import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
 import ua.od.cepuii.library.util.PathManager;
-import ua.od.cepuii.library.util.ValidationUtil;
 
 import static ua.od.cepuii.library.constants.AttributesName.USER_ID;
 
-public class SignUp implements ActionCommand {
+
+public class SignUpWithGoogle implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(SignUp.class);
     private final UserService userService = AppContext.getInstance().getUserService();
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getMethod().equalsIgnoreCase("get")) {
-            return PathManager.getProperty("page.signUp");
-        }
         User user = RequestParser.getUser(request);
-        boolean forwardBack = validateUser(request, user);
+        boolean forwardBack = false;
         if (userService.isExistEmail(user.getEmail()).hasErrors()) {
             forwardBack = true;
             log.error("email already exist: {}", user.getEmail());
@@ -43,23 +40,5 @@ public class SignUp implements ActionCommand {
         RequestParser.setUserInfo(request, user);
         CookieUtil.setUserToCookie(response, user);
         return PathManager.getProperty("controller.books");
-    }
-
-    private static boolean validateUser(HttpServletRequest request, User user) {
-        boolean forwardBack = false;
-        if (!ValidationUtil.validatePass(user.getPassword())) {
-            forwardBack = true;
-            request.setAttribute("badPassword", "message.signUp.password");
-        }
-        if (!ValidationUtil.validateEmail(user.getEmail())) {
-            forwardBack = true;
-            request.setAttribute("badEmail", "message.signUp.email");
-        }
-        String confirmPassword = request.getParameter("confirmPassword");
-        if (confirmPassword == null || user.getPassword().equals(confirmPassword)) {
-            forwardBack = true;
-            request.setAttribute("badConfirm", "message.signUp.password.confirm");
-        }
-        return forwardBack;
     }
 }
