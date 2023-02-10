@@ -43,13 +43,13 @@
         </c:when>
         <c:otherwise>
             <form class="col-2" action="${pageContext.request.contextPath}/controller" method="get">
-                <input type="hidden" name="command" value="login">
+                <input type="hidden" name="command" value="show_login_page">
                 <button type="submit" class="btn btn-outline-primary me-2">
                     <fmt:message key="header.login"/>
                 </button>
             </form>
             <form class="col-2" action="${pageContext.request.contextPath}/controller" method="get">
-                <input type="hidden" name="command" value="sign_up">
+                <input type="hidden" name="command" value="show_sign_up_page">
                 <button type="submit" class="btn btn-primary">
                     <fmt:message key="header.signup"/>
                 </button>
