@@ -5,43 +5,46 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
-import ua.od.cepuii.library.util.PathManager;
+
+import static ua.od.cepuii.library.constants.AttributesName.*;
+import static ua.od.cepuii.library.constants.Constants.SUCCESS;
+import static ua.od.cepuii.library.constants.Constants.WRONG_ACTION;
 
 public class Login implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(Login.class);
     private final UserService userService = AppContext.getInstance().getUserService();
-    private static final String PARAM_NAME_EMAIL = "email";
-    private static final String PARAM_NAME_PASSWORD = "password";
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getMethod().equalsIgnoreCase("get")) {
-            return PathManager.getProperty("page.login");
-        }
-        String page;
-        String email = request.getParameter(PARAM_NAME_EMAIL);
-        String password = request.getParameter(PARAM_NAME_PASSWORD);
+        String email = RequestParser.getParameterOrAttribute(request, EMAIL);
+        String password = RequestParser.getParameterOrAttribute(request, EMAIL);
+
         User user = userService.getUserByEmailAndPassword(email, password);
-        if (user != null) {
-            request.getSession().removeAttribute("logout");
-            RequestParser.setUserInfo(request, user);
-            CookieUtil.setUserToCookie(response, user);
-            log.info("user login: {}", user);
-            page = PathManager.getProperty("controller.books");
-        } else {
+        Report report = Report.newInstance();
+
+        if (user == null) {
             log.info("error incorrect login");
-            request.setAttribute("userEmail", email);
-            request.setAttribute("errorLoginPassMessage",
-                    "message.loginError");
-            page = PathManager.getProperty("page.login.forward");
+            report.addReport(USER_EMAIL, email);
+            report.addError(WRONG_ACTION, "message.loginError");
+            request.setAttribute(REPORTS, report);
+            return Path.LOGIN_PAGE_FORWARD;
         }
-        return page;
+
+        request.getSession().removeAttribute(LOGOUT);
+        RequestParser.setUserInfo(request, user);
+        CookieUtil.setUserToCookie(response, user);
+        log.info("user login: {}", user);
+        report.addReport(SUCCESS, "message.user.greets");
+        request.getSession().setAttribute(REPORTS, report);
+        return Path.SHOW_BOOKS;
     }
 
 

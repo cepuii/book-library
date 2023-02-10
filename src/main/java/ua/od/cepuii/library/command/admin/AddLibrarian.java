@@ -11,7 +11,6 @@ import static ua.od.cepuii.library.constants.AttributesName.REPORTS;
 public class AddLibrarian implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-
         RequestParser.setMapFromSessionToRequest(request, REPORTS);
         return Path.ADD_LIBRARIAN_PAGE;
     }

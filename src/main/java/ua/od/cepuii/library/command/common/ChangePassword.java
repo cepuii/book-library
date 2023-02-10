@@ -10,7 +10,6 @@ import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.service.UserService;
-import ua.od.cepuii.library.util.PathManager;
 
 import static ua.od.cepuii.library.constants.AttributesName.*;
 
@@ -25,19 +24,17 @@ public class ChangePassword implements ActionCommand {
             RequestParser.setMapFromSessionToRequest(request, REPORTS);
             return Path.CHANGE_PASSWORD_PAGE;
         }
-
         String oldPassword = request.getParameter(OLD_PASS);
-        String newPassword = request.getParameter(PASSWORD);
-        String confirmPassword = request.getParameter(CONFIRM_PASS);
+        String newPassword = request.getParameter(NEW_PASSWORD);
 
         long userId = RequestParser.getLong(request, USER_ID);
-        Report report = userService.updatePassword(userId, oldPassword, newPassword, confirmPassword);
+        Report report = userService.updatePassword(userId, oldPassword, newPassword);
         request.getSession().setAttribute(REPORTS, report.getReports());
         if (report.hasErrors()) {
             return Path.CHANGE_PASSWORD;
         }
         log.info("userId: {}, changePassword", userId);
-        return PathManager.getProperty("controller.profile");
+        return Path.SHOW_PROFILE;
     }
 
 

@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import static ua.od.cepuii.library.constants.AttributesName.*;
+
 public class RequestParser {
     private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
 
@@ -177,8 +179,8 @@ public class RequestParser {
     }
 
     public static Role getRole(HttpServletRequest request) {
-        String roleRequest = request.getParameter("role");
-        String roleSession = (String) request.getSession().getAttribute("userRole");
+        String roleRequest = request.getParameter(ROLE);
+        String roleSession = (String) request.getSession().getAttribute(USER_ROLE);
         if (roleRequest != null) {
             return Role.valueOf(roleRequest);
         } else if (roleSession != null) {
@@ -189,25 +191,24 @@ public class RequestParser {
 
     public static void setUserInfo(HttpServletRequest request, User user) {
         HttpSession session = request.getSession();
-        session.setAttribute("userId", user.getId());
-        session.setAttribute("userEmail", user.getEmail());
-        session.setAttribute("userRole", user.getRole().toString());
+        session.setAttribute(USER_ID, user.getId());
+        session.setAttribute(USER_EMAIL, user.getEmail());
+        session.setAttribute(USER_ROLE, user.getRole().toString());
 
     }
 
-    public static void setFromSessionToRequest(HttpServletRequest request, String s) {
-        Object attribute = request.getSession().getAttribute(s);
-        if (attribute != null) {
-            request.setAttribute(s, attribute);
-            request.getSession().removeAttribute(s);
-        }
-    }
-
+    @SuppressWarnings("unchecked")
     public static void setMapFromSessionToRequest(HttpServletRequest request, String s) {
         Map<String, String> attribute = (Map<String, String>) request.getSession().getAttribute(s);
         if (attribute != null) {
             request.setAttribute(s, attribute);
             request.getSession().removeAttribute(s);
         }
+    }
+
+    public static String getParameterOrAttribute(HttpServletRequest request, String s) {
+        String parameter = request.getParameter(s);
+        String attribute = (String) request.getAttribute(s);
+        return parameter == null ? attribute : parameter;
     }
 }

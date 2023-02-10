@@ -5,13 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.*;
 import ua.od.cepuii.library.service.LoanService;
 import ua.od.cepuii.library.service.UserService;
-import ua.od.cepuii.library.util.PathManager;
 
 import java.util.Collection;
+
+import static ua.od.cepuii.library.constants.AttributesName.*;
 
 public class ShowProfile implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowProfile.class);
@@ -21,24 +23,23 @@ public class ShowProfile implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        long userId = RequestParser.getLong(request, "userId");
+
+        long userId = RequestParser.getLong(request, USER_ID);
         UserTO user = userService.getById(userId);
 
         log.info("show user profile, {}", user);
 
-        request.setAttribute("user", user);
+        request.setAttribute(USER, user);
 
         //TODO finish search
         FilterParams filterParam = RequestParser.getFilterParams(request, "userSearch", "userRoleSearch");
         Page page = RequestParser.getPage(request, loanService, filterParam);
         Collection<LoanTO> loanHistory = loanService.getLoanHistory(userId, page);
 
-        request.setAttribute("page", page);
-        request.setAttribute("loans", loanHistory);
-        RequestParser.setFromSessionToRequest(request, "emailExist");
-        RequestParser.setFromSessionToRequest(request, "wrongAction");
-        RequestParser.setFromSessionToRequest(request, "success");
+        request.setAttribute(PAGE, page);
+        request.setAttribute(LOANS, loanHistory);
         RequestParser.setMapFromSessionToRequest(request, "reports");
-        return PathManager.getProperty("page.profile.forward");
+
+        return Path.PROFILE_PAGE_FORWARD;
     }
 }

@@ -5,16 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
-import ua.od.cepuii.library.util.PathManager;
-import ua.od.cepuii.library.util.ValidationUtil;
 
-import static ua.od.cepuii.library.constants.AttributesName.USER_ID;
+import static ua.od.cepuii.library.constants.AttributesName.*;
 
 public class SignUp implements ActionCommand {
 
@@ -23,43 +22,23 @@ public class SignUp implements ActionCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getMethod().equalsIgnoreCase("get")) {
-            return PathManager.getProperty("page.signUp");
-        }
         User user = RequestParser.getUser(request);
-        boolean forwardBack = validateUser(request, user);
-        if (userService.isExistEmail(user.getEmail()).hasErrors()) {
-            forwardBack = true;
-            log.error("email already exist: {}", user.getEmail());
-            request.setAttribute("emailExist", "message.signUp.email.exist");
-        }
-        if (forwardBack) {
-            request.setAttribute("userEmail", user.getEmail());
-            return PathManager.getProperty("page.signUp.forward");
-        }
-//        long userId = userService.createOrUpdate(user);
+
         Report report = userService.createOrUpdate(user);
+        request.getSession().setAttribute(REPORTS, report);
+
+        if (report.hasErrors()) {
+            log.error("user doesn`t sign up, user: {}", user);
+            request.setAttribute(USER_EMAIL, user.getEmail());
+            return Path.SIGN_UP_PAGE_FORWARD;
+        }
+
+        log.info("user sign-up, userId: {}", report.getReport(USER_ID));
         user.setId(Long.parseLong(report.getReport(USER_ID)));
         RequestParser.setUserInfo(request, user);
         CookieUtil.setUserToCookie(response, user);
-        return PathManager.getProperty("controller.books");
+        return Path.SHOW_BOOKS;
     }
 
-    private static boolean validateUser(HttpServletRequest request, User user) {
-        boolean forwardBack = false;
-        if (!ValidationUtil.validatePass(user.getPassword())) {
-            forwardBack = true;
-            request.setAttribute("badPassword", "message.signUp.password");
-        }
-        if (!ValidationUtil.validateEmail(user.getEmail())) {
-            forwardBack = true;
-            request.setAttribute("badEmail", "message.signUp.email");
-        }
-        String confirmPassword = request.getParameter("confirmPassword");
-        if (confirmPassword == null || user.getPassword().equals(confirmPassword)) {
-            forwardBack = true;
-            request.setAttribute("badConfirm", "message.signUp.password.confirm");
-        }
-        return forwardBack;
-    }
+
 }

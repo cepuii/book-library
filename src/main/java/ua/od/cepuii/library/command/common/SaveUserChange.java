@@ -5,11 +5,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.service.UserService;
-import ua.od.cepuii.library.util.PathManager;
+
+import static ua.od.cepuii.library.constants.AttributesName.REPORTS;
 
 public class SaveUserChange implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(SaveUserChange.class);
@@ -18,13 +21,16 @@ public class SaveUserChange implements ActionCommand {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         User user = RequestParser.getUser(request);
-        if (userService.isExistEmail(user.getEmail()).hasErrors()) {
+
+        Report reports = userService.isExistEmail(user.getEmail());
+        request.getSession().setAttribute(REPORTS, reports);
+
+        if (reports.hasErrors()) {
             log.error("email already exist: {}", user.getEmail());
-            request.getSession().setAttribute("emailExist", "message.signUp.email.exist");
         } else {
             userService.createOrUpdate(user);
-            request.getSession().setAttribute("userEmail", user.getEmail());
         }
-        return PathManager.getProperty("controller.profile");
+
+        return Path.SHOW_PROFILE;
     }
 }
