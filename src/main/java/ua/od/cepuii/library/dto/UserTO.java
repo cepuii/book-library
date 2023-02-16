@@ -8,7 +8,13 @@ import ua.od.cepuii.library.entity.enums.Role;
 
 import java.io.Serializable;
 import java.util.Date;
-
+/**
+ * The UserTO class is a Transfer Object (DTO) class that represents a user in the library system.
+ * It includes the user's id, email, registered date, blocked status, fine amount, and role.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -13,7 +13,9 @@
     <div class="container p-5 my-5 border">
         <h5><fmt:message key="greeting"/></h5>
         <hr>
-        <ctg:showMessage error="${requestScope.errorLoginPassMessage}"/>
+
+        <jsp:include page="/jsp/fragments/showResult.jsp"/>
+
         <form name="LoginForm" method="post">
             <input type="hidden" name="command" value="sign_up">
             <div class="mb-1">
@@ -21,7 +23,7 @@
                     <fmt:message key="users.email"/>:
                     <input class="form-control" type="email" name="email"
                            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required
-                           value="${sessionScope.userEmail}">
+                           value="${requestScope.reports.userEmail}">
                 </label>
             </div>
             <div class="mb-1">

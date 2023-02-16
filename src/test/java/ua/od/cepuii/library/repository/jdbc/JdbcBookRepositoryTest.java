@@ -149,39 +149,40 @@ class JdbcBookRepositoryTest {
 
     @Test
     void delete() throws SQLException {
-        when(mockBookExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockBookExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertTrue(() -> bookRepository.delete(LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockBookExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockBookExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void deleteCatchException() throws SQLException {
-        when(mockBookExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
+        when(mockBookExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
 
         assertFalse(() -> bookRepository.delete(LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockBookExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockBookExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(0)).commit();
         verify(mockConnection, times(1)).rollback();
     }
 
     @Test
     void deleteNotFoundId() throws SQLException {
-        when(mockBookExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
+        when(mockBookExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
 
         assertFalse(() -> bookRepository.delete(NOT_FOUND_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockBookExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
-        verify(mockConnection, times(1)).commit();
+        verify(mockBookExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
+        verify(mockConnection, times(0)).commit();
+        verify(mockConnection, times(1)).rollback();
     }
 
     @Test

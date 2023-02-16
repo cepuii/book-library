@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static ua.od.cepuii.library.util.BookUtil.*;
 
-class BookServiceTest {
+class BookPageableTest {
 
     @Mock
     private BookRepository bookRepository;

@@ -7,6 +7,12 @@ import jakarta.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * A custom tag used in JSP pages to check if a loan item with the specified book ID is present in the current user's loan items.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class IsContainCustomTag extends TagSupport {
 
     private long bookId;

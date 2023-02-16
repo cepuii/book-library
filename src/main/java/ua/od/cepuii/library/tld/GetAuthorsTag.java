@@ -7,10 +7,14 @@ import ua.od.cepuii.library.entity.Author;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
-
+/**
+ * Custom tag that generates a string of author names from a collection of Author objects.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class GetAuthorsTag extends TagSupport {
     private Collection<Author> authorSet;
-
     public void setAuthorSet(Collection<Author> authorSet) {
         this.authorSet = authorSet;
     }
@@ -28,4 +32,5 @@ public class GetAuthorsTag extends TagSupport {
 
         return SKIP_BODY;
     }
+
 }

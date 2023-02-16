@@ -20,7 +20,7 @@ import static ua.od.cepuii.library.util.BookUtil.*;
 import static ua.od.cepuii.library.util.LoanUtil.LOAN_ID;
 import static ua.od.cepuii.library.util.LoanUtil.*;
 
-class LoanServiceTest {
+class LoanPageableTest {
     @Mock
     private LoanRepository loanRepository;
     @Mock
@@ -37,14 +37,14 @@ class LoanServiceTest {
     void create() {
         when(loanRepository.insert(NEW_LOAN)).thenReturn(LOAN_ID);
         when(bookRepository.getById(anyLong())).thenReturn(Optional.of(BOOK));
-        assertEquals(LOAN_ID, loanService.create(NEW_LOAN));
+        assertEquals(String.valueOf(LOAN_ID), loanService.create(NEW_LOAN).getReport("loanId"));
         verify(loanRepository, times(1)).insert(NEW_LOAN);
     }
 
     @Test
     void delete() {
         when(loanRepository.deleteAndDecreaseBookBorrow(LOAN_ID, BOOK_ID)).thenReturn(true);
-        assertTrue(() -> loanService.delete(LOAN_ID, BOOK_ID));
+        assertFalse(() -> loanService.delete(LOAN_ID, BOOK_ID).hasErrors());
         verify(loanRepository, times(0)).delete(anyLong());
         verify(loanRepository, times(1)).deleteAndDecreaseBookBorrow(anyLong(), anyLong());
     }
@@ -75,7 +75,7 @@ class LoanServiceTest {
     @Test
     void setOrderStatus() {
         when(loanRepository.updateStatus(LOAN, false)).thenReturn(true);
-        assertTrue(() -> loanService.setOrderStatus(LOAN, false));
+        assertFalse(() -> loanService.setOrderStatus(LOAN, false).hasErrors());
         verify(loanRepository, times(1)).updateStatus(any(Loan.class), anyBoolean());
     }
 

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.constants.AttributesName;
-import ua.od.cepuii.library.constants.Constants;
 import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
 import ua.od.cepuii.library.dto.BookTO;
@@ -36,7 +35,7 @@ public class ShowBooks implements ActionCommand {
 
         Collection<BookTO> books = bookService.getAll(page, filterParam);
         request.setAttribute(AttributesName.BOOKS, books);
-        request.setAttribute(AttributesName.DATA, Constants.RECEIVE);
+        request.setAttribute(AttributesName.DATA, RECEIVE);
 
         HttpSession session = request.getSession();
         session.setAttribute(FILTER, filterParam);

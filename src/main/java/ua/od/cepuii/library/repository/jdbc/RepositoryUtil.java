@@ -16,6 +16,12 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * This class provides utility methods for filling objects with data from the database.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class RepositoryUtil {
 
     private static final Logger log = LoggerFactory.getLogger(RepositoryUtil.class);
@@ -23,7 +29,12 @@ public class RepositoryUtil {
     private RepositoryUtil() {
     }
 
-
+    /**
+     * Returns a collection of Book objects filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Book data
+     * @return a collection of Book objects
+     */
     public static Collection<Book> fillBooks(ResultSet resultSet) {
         Collection<Book> books = new ArrayList<>();
         try {
@@ -38,6 +49,12 @@ public class RepositoryUtil {
         return books;
     }
 
+    /**
+     * Returns an Optional Book object filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Book data
+     * @return an Optional Book object
+     */
     public static Optional<Book> getBook(ResultSet resultSet) {
         try {
             long id = resultSet.getLong("b_id");
@@ -56,11 +73,17 @@ public class RepositoryUtil {
         return Optional.empty();
     }
 
+    /**
+     * Returns a collection of Author objects filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Author data
+     * @return a collection of Author objects
+     */
     public static Collection<Author> fillAuthors(ResultSet resultSet) {
-        String[] authorsIds = new String[0];
+
         Collection<Author> authorSet = new TreeSet<>(Comparator.comparing(Author::getName));
         try {
-            authorsIds = resultSet.getString("authors_id").split(", ");
+            String[] authorsIds = resultSet.getString("authors_id").split(", ");
             String[] authors = resultSet.getString("authors").split(", ");
             for (int i = 0; i < authorsIds.length; i++) {
                 authorSet.add(new Author(Long.parseLong(authorsIds[i]), authors[i]));
@@ -71,6 +94,12 @@ public class RepositoryUtil {
         return authorSet;
     }
 
+    /**
+     * Returns an Optional Author object filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Author data
+     * @return an Optional Author object
+     */
     public static Optional<Author> fillAuthor(ResultSet resultSet) {
         try {
             return Optional.of(new Author(resultSet.getInt("a_id"), resultSet.getString("a_name")));
@@ -80,6 +109,12 @@ public class RepositoryUtil {
         return Optional.empty();
     }
 
+    /**
+     * Returns an Optional User object filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the User data
+     * @return an Optional User object
+     */
     public static Optional<User> fillUser(ResultSet resultSet) {
         try {
             resultSet.next();
@@ -90,6 +125,13 @@ public class RepositoryUtil {
         return Optional.empty();
     }
 
+    /**
+     * Returns an Optional User object filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the User data
+     * @return an Optional User object
+     * @throws SQLException if a database access error occurs
+     */
     private static Optional<User> getUser(ResultSet resultSet) throws SQLException {
         User user = User.builder()
                 .id(resultSet.getLong("users_id"))
@@ -103,7 +145,12 @@ public class RepositoryUtil {
         return Optional.of(user);
     }
 
-
+    /**
+     * Returns a collection of Users objects filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the User data
+     * @return a collection of User objects
+     */
     public static Collection<User> fillUsers(ResultSet resultSet) {
         try {
             Collection<User> users = new ArrayList<>();
@@ -118,6 +165,12 @@ public class RepositoryUtil {
         return Collections.emptyList();
     }
 
+    /**
+     * Returns an Optional Loan object filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Loan data
+     * @return an Optional Loan object
+     */
     public static Optional<Loan> fillLoan(ResultSet resultSet) {
         try {
             resultSet.next();
@@ -128,6 +181,13 @@ public class RepositoryUtil {
         return Optional.empty();
     }
 
+    /**
+     * Returns an Optional Loan object filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Loan data
+     * @return an Optional Loan object
+     * @throws SQLException if a database access error occurs
+     */
     private static Optional<Loan> getLoan(ResultSet resultSet) throws SQLException {
         Loan loan = Loan.builder()
                 .bookId(resultSet.getInt("l_bookId"))
@@ -148,6 +208,12 @@ public class RepositoryUtil {
         return startTime.toLocalDateTime().toLocalDate();
     }
 
+    /**
+     * Returns a collection of Loan objects filled with data from the specified ResultSet.
+     *
+     * @param resultSet the ResultSet containing the Loan data
+     * @return a collection of Loan objects
+     */
     public static Collection<Loan> fillLoans(ResultSet resultSet) {
         Collection<Loan> loans = new HashSet<>();
         try {
@@ -162,20 +228,4 @@ public class RepositoryUtil {
     }
 
 
-    public static String prepareForLike(String title) {
-        return "%" + validateForLike(title) + "%";
-    }
-
-    public static String validateForLike(String title) {
-        return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
-    }
-
-    public static boolean isExistResult(ResultSet resultSet) {
-        try {
-            return resultSet.next();
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return false;
-    }
 }

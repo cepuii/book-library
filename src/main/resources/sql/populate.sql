@@ -1,6 +1,6 @@
 INSERT INTO users (email, password, role_id)
 VALUES ('ivan@email.com',
-        '$argon2id$v=19$m=1048576,t=4,p=8$eUDJSTxGL9M4gXSbjX2Fmw$isGrGa+erC6lGq4ZyIGWkvVWloFLy/dWc0940QSZKzg', 1);
+        '$argon2id$v=19$m=1048576,t=4,p=8$KaCy6izfH4iPMCRWp2oIaQ$sRaCvgtwfi0otU+JP2qUNR/7Rzka1c6y8BAsVzSw6eU', 1);
 
 INSERT INTO author
 VALUES (DEFAULT, 'Blinov'),
@@ -89,9 +89,9 @@ FROM val;
 
 INSERT INTO users (email, password, role_id)
 VALUES ('admin@admin.com',
-        '$argon2id$v=19$m=1048576,t=4,p=8$eUDJSTxGL9M4gXSbjX2Fmw$isGrGa+erC6lGq4ZyIGWkvVWloFLy/dWc0940QSZKzg', 3),
+        '$argon2id$v=19$m=1048576,t=4,p=8$KaCy6izfH4iPMCRWp2oIaQ$sRaCvgtwfi0otU+JP2qUNR/7Rzka1c6y8BAsVzSw6eU', 3),
        ('librarian@email.com',
-        '$argon2id$v=19$m=1048576,t=4,p=8$eUDJSTxGL9M4gXSbjX2Fmw$isGrGa+erC6lGq4ZyIGWkvVWloFLy/dWc0940QSZKzg', 2);
+        '$argon2id$v=19$m=1048576,t=4,p=8$KaCy6izfH4iPMCRWp2oIaQ$sRaCvgtwfi0otU+JP2qUNR/7Rzka1c6y8BAsVzSw6eU', 2);
 
 INSERT INTO book (title, publication_id, date_publication, total)
 VALUES ('Python for everyone', 3, '2021', 15),

@@ -14,7 +14,12 @@ import ua.od.cepuii.library.service.UserService;
 import java.util.Collection;
 
 import static ua.od.cepuii.library.constants.AttributesName.*;
-
+/**
+ * This class is responsible for showing user`s profile information and orders history.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class ShowProfile implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowProfile.class);
 

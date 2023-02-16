@@ -14,18 +14,31 @@ import ua.od.cepuii.library.service.UserService;
 import ua.od.cepuii.library.util.CookieUtil;
 
 import static ua.od.cepuii.library.constants.AttributesName.*;
-import static ua.od.cepuii.library.constants.Constants.SUCCESS;
-import static ua.od.cepuii.library.constants.Constants.WRONG_ACTION;
 
+/**
+ * This class is responsible for logging user in the system.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class Login implements ActionCommand {
 
     private static final Logger log = LoggerFactory.getLogger(Login.class);
     private final UserService userService = AppContext.getInstance().getUserService();
 
+    /**
+     * Logs in a user by validating their email and password. If the login information is valid, the user information
+     * is stored in the session and a cookie. If the login information is invalid, an error message is added to the
+     * report and the user is redirected back to the login page.
+     *
+     * @param request  the servlet request
+     * @param response the servlet response
+     * @return the path to the next page
+     */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         String email = RequestParser.getParameterOrAttribute(request, EMAIL);
-        String password = RequestParser.getParameterOrAttribute(request, EMAIL);
+        String password = RequestParser.getParameterOrAttribute(request, PASSWORD);
 
         User user = userService.getUserByEmailAndPassword(email, password);
         Report report = Report.newInstance();
@@ -34,7 +47,7 @@ public class Login implements ActionCommand {
             log.info("error incorrect login");
             report.addReport(USER_EMAIL, email);
             report.addError(WRONG_ACTION, "message.loginError");
-            request.setAttribute(REPORTS, report);
+            request.setAttribute(REPORTS, report.getReports());
             return Path.LOGIN_PAGE_FORWARD;
         }
 
@@ -43,7 +56,7 @@ public class Login implements ActionCommand {
         CookieUtil.setUserToCookie(response, user);
         log.info("user login: {}", user);
         report.addReport(SUCCESS, "message.user.greets");
-        request.getSession().setAttribute(REPORTS, report);
+        request.getSession().setAttribute(REPORTS, report.getReports());
         return Path.SHOW_BOOKS;
     }
 

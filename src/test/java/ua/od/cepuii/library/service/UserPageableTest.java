@@ -20,7 +20,7 @@ import static ua.od.cepuii.library.util.BookUtil.NOT_FOUND_ID;
 import static ua.od.cepuii.library.util.BookUtil.NO_OF_RECORDS;
 import static ua.od.cepuii.library.util.UserUtil.*;
 
-class UserServiceTest {
+class UserPageableTest {
 
     @Mock
     private UserRepository userRepository;
@@ -46,7 +46,7 @@ class UserServiceTest {
     @Test
     void insert() {
         when(userRepository.insert(NEW_USER)).thenReturn(USER_ID);
-        assertEquals(USER_ID, userService.createOrUpdate(NEW_USER));
+        assertEquals(String.valueOf(USER_ID), userService.createOrUpdate(NEW_USER).getReport("userId"));
         verify(userRepository, times(1)).insert(NEW_USER);
         verify(userRepository, times(0)).update(any(User.class));
 
@@ -55,17 +55,11 @@ class UserServiceTest {
     @Test
     void update() {
         when(userRepository.update(USER)).thenReturn(true);
-        assertEquals(USER_ID, userService.createOrUpdate(USER));
+        assertEquals("message.user.update", userService.createOrUpdate(USER).getReport("success"));
         verify(userRepository, times(0)).insert(any(User.class));
         verify(userRepository, times(1)).update(USER);
 
     }
-
-//    @Test
-//    void getUserByEmailAndPassword() {
-//        when(userRepository.getByEmail(USER.getEmail())).thenReturn(Optional.of(USER));
-//        assertEquals(USER, userService.getUserByEmailAndPassword(USER.getEmail(), USER.getPassword()));
-//    }
 
     @Test
     void getUserByEmailAndPasswordNotFound() {
@@ -106,7 +100,7 @@ class UserServiceTest {
     @Test
     void isExist() {
         when(userRepository.getByEmail(USER_EMAIL)).thenReturn(Optional.ofNullable(USER));
-        assertFalse(() -> userService.isExistEmail(USER_EMAIL).hasErrors());
+        assertTrue(() -> userService.isExistEmail(USER_EMAIL).hasErrors());
     }
 
     @Test

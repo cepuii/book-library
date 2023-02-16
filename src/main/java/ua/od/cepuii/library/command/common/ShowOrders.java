@@ -18,7 +18,12 @@ import java.util.Collection;
 
 import static ua.od.cepuii.library.constants.AttributesName.*;
 import static ua.od.cepuii.library.dto.RequestParser.*;
-
+/**
+ * This class is responsible for showing orders.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class ShowOrders implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowOrders.class);
     private final LoanService loanService = AppContext.getInstance().getLoanService();

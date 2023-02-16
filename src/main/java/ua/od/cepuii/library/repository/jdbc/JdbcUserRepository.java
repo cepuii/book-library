@@ -5,25 +5,28 @@ import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.User;
+import ua.od.cepuii.library.repository.AbstractRepository;
+import ua.od.cepuii.library.repository.LoanRepository;
 import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.prepareForLike;
-import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.validateForLike;
-
-public class JdbcUserRepository implements UserRepository {
+/**
+ * A JDBC implementation of the {@link LoanRepository} interface. This class provides methods
+ * to interact with the database to perform CRUD operations
+ * on Loan entities. The class extends {@link AbstractRepository} to inherit the basic functionality of repositories.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
+public class JdbcUserRepository extends AbstractRepository<User> implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(JdbcUserRepository.class);
     private final QueryExecutor<User> queryExecutor;
-    private final ConnectionPool connectionPool;
     private static final String INSERT_USER = "INSERT INTO users (email, password, role_id) VALUES (?,?,?)";
     private static final String UPDATE_USER_EMAIL = "UPDATE users SET email = ? WHERE id=?";
     private static final String UPDATE_USER_PASSWORD = "UPDATE users SET password = ? WHERE id=?";
@@ -43,56 +46,65 @@ public class JdbcUserRepository implements UserRepository {
 
 
     public JdbcUserRepository(QueryExecutor<User> userExecutor, ConnectionPool connectionPool) {
+        super(connectionPool);
         this.queryExecutor = userExecutor;
-        this.connectionPool = connectionPool;
     }
 
+    /**
+     * Inserts a new User object into the database and returns the generated ID of the new record.
+     *
+     * @param connection the database connection to use
+     * @param user       the User object to insert
+     * @return the generated ID of the new record, or -1 if the insert fails
+     */
     @Override
-    public long insert(User user) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                long insert = queryExecutor.insert(connection, INSERT_USER, List.of(user.getEmail(), user.getPassword(), user.getRole().ordinal()));
-                connection.commit();
-                return insert;
-            } catch (Exception e) {
-                connection.rollback();
-                log.error(e.getMessage());
-            }
-        } catch (SQLException e) {
+    protected long insertAndGetId(Connection connection, User user) {
+        try {
+            return queryExecutor.insert(connection, INSERT_USER, List.of(user.getEmail(), user.getPassword(), user.getRole().ordinal()));
+        } catch (Exception e) {
             log.error(e.getMessage());
+            return -1;
         }
-        return -1;
     }
 
+    /**
+     * Retrieves a User object from the database by its ID.
+     *
+     * @param connection the database connection to use
+     * @param id         the ID of the User to retrieve
+     * @return an Optional containing the retrieved User object, or an empty Optional if no User was found with the given ID
+     * @throws SQLException if there is an error executing the query
+     */
     @Override
-    public Optional<User> getById(long id) {
-        try (Connection connection = connectionPool.getConnection()) {
-            return queryExecutor.selectByParams(connection, SELECT_BY_ID, List.of(id), RepositoryUtil::fillUser);
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return Optional.empty();
+    protected Optional<User> selectById(Connection connection, long id) throws SQLException {
+        return queryExecutor.selectByParams(connection, SELECT_BY_ID, List.of(id), RepositoryUtil::fillUser);
     }
 
+    /**
+     * Updates a User object in the database.
+     *
+     * @param connection the database connection to use
+     * @param entity     the User object to update
+     * @return true if the update succeeds, false otherwise
+     * @throws SQLException if there is an error executing the update
+     */
     @Override
-    public boolean update(User entity) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                boolean update = queryExecutor.update(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
-                connection.commit();
-                return update;
-            } catch (Exception e) {
-                connection.rollback();
-                log.error(e.getMessage());
-            }
-        } catch (SQLException e) {
+    protected boolean update(Connection connection, User entity) throws SQLException {
+        try {
+            return queryExecutor.update(connection, UPDATE_USER_EMAIL, List.of(entity.getEmail(), entity.getId()));
+        } catch (Exception e) {
             log.error(e.getMessage());
+            return false;
         }
-        return false;
     }
 
+    /**
+     * Updates the password for a User with the given ID.
+     *
+     * @param userId   the ID of the User to update
+     * @param password the new password to set
+     * @return true if the update succeeds, false otherwise
+     */
     @Override
     public boolean updatePassword(long userId, String password) {
         try (Connection connection = connectionPool.getConnection()) {
@@ -111,36 +123,43 @@ public class JdbcUserRepository implements UserRepository {
         return false;
     }
 
+    /**
+     * Deletes a User record from the database by its ID.
+     *
+     * @param connection the database connection to use
+     * @param id         the ID of the User to delete
+     * @return true if the delete succeeds, false otherwise
+     */
     @Override
-    public boolean delete(long id) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                boolean b = queryExecutor.queryById(connection, DELETE_BY_ID, id);
-                connection.commit();
-                return b;
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                connection.rollback();
-            }
-        } catch (SQLException e) {
+    protected boolean delete(Connection connection, long id) {
+        try {
+            return queryExecutor.isExistResultById(connection, DELETE_BY_ID, id);
+        } catch (Exception e) {
             log.error(e.getMessage());
-        }
-        return false;
-    }
-
-    @Override
-    public Collection<User> getAll(FilterParams params, String orderBy, int limit, int offset) {
-        try (Connection connection = connectionPool.getConnection()) {
-            String firstParam = prepareForLike(validateForLike(params.getFirstParam()));
-            String secondParam = prepareForLike(validateForLike(params.getSecondParam()));
-            return queryExecutor.selectAll(connection, SELECT_ALL_WITH_WHERE + orderBy + LIMIT_OFFSET, List.of(firstParam, secondParam, limit, offset), RepositoryUtil::fillUsers);
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
+            return false;
         }
     }
 
+    /**
+     * Retrieves all User objects from the database that match the specified filter parameters.
+     *
+     * @param connection the database connection to use
+     * @param params     a List of parameter values to use in the query
+     * @param orderBy    the column to order the results by
+     * @return a Collection of User objects that match the filter parameters
+     * @throws SQLException if there is an error executing the query
+     */
+    @Override
+    protected Collection<User> selectAll(Connection connection, List<Object> params, String orderBy) throws SQLException {
+        return queryExecutor.selectAll(connection, SELECT_ALL_WITH_WHERE + orderBy + LIMIT_OFFSET, params, RepositoryUtil::fillUsers);
+    }
+
+    /**
+     * Retrieves a User object from the database by its email address.
+     *
+     * @param email the email address to search for
+     * @return an Optional containing the retrieved User object, or an empty Optional if no User was found with the given email
+     */
     @Override
     public Optional<User> getByEmail(String email) {
         try (Connection connection = connectionPool.getConnection()) {
@@ -151,31 +170,33 @@ public class JdbcUserRepository implements UserRepository {
         return Optional.empty();
     }
 
+    /**
+     * Retrieves the number of User objects that match the specified filter parameters.
+     *
+     * @param connection   the database connection to use
+     * @param filterParams a FilterParams object that specifies the filter parameters to use in the query
+     * @return the number of User objects that match the filter parameters
+     * @throws SQLException if there is an error executing the query
+     */
     @Override
-    public int getCount(FilterParams filterParam) {
-        try (Connection connection = connectionPool.getConnection();
-             PreparedStatement statement = connection.prepareStatement(GET_COUNT)) {
-            String userForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
-            String userRoleForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
-            statement.setString(1, userForSearch);
-            statement.setString(2, userRoleForSearch);
-            log.info("{}", statement);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return 0;
+    protected int getCount(Connection connection, FilterParams filterParams) throws SQLException {
+        return queryExecutor.selectCount(connection, GET_COUNT,
+                List.of(filterParams.getFirstParamForQuery(), filterParams.getSecondParamForQuery()));
     }
 
+    /**
+     * Updates the blocked status for a User with the given ID.
+     *
+     * @param userId    the ID of the User to update
+     * @param isBlocked the new blocked status to set
+     * @return true if the update succeeds, false otherwise
+     */
     @Override
-    public boolean updateBlocked(long id, boolean isBlocked) {
+    public boolean updateBlocked(long userId, boolean isBlocked) {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean update = queryExecutor.update(connection, UPDATE_USER_BLOCK, List.of(isBlocked, id));
+                boolean update = queryExecutor.update(connection, UPDATE_USER_BLOCK, List.of(isBlocked, userId));
                 connection.commit();
                 return update;
 

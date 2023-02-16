@@ -6,6 +6,12 @@ import ua.od.cepuii.library.entity.enums.Role;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Class that represents a user in the library system.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
