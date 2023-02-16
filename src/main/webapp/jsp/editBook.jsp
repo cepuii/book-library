@@ -27,7 +27,14 @@
                 <label for="title" class="form-label"><fmt:message key="books.title"/>
                     <input type="text" class="form-control" id="title" name="title" placeholder="${placeholderTitle}"
                            title="<fmt:message key="books.required.title"/>" required
-                           value="${requestScope.book.title}">
+                           value="${requestScope.book.title}"
+                           onfocus="clearClass('title')" onblur="validate('title')">
+                    <div class="valid-feedback">
+                        <fmt:message key="ok"/>
+                    </div>
+                    <div class="invalid-feedback">
+                        <fmt:message key="message.book.title.exist"/>
+                    </div>
                 </label>
             </div>
             <div class="mb-3">
@@ -50,12 +57,12 @@
                     </select>
                 </label>
             </div>
+            <%--                //TODO add min max instead pattern--%>
             <div class="mb-3">
                 <label for="date-publication" class="form-label">
                     <fmt:message key="books.datePublication"/>
                     <input type="number" class="form-control" id="date-publication" name="datePublication"
-                           placeholder="${placeholderDate}"
-                           pattern="^\d{4}$"
+                           placeholder="${placeholderDate}" min="1800" max="3000"
                            value="${requestScope.book.datePublication}" required>
                 </label>
             </div>
@@ -63,15 +70,16 @@
                 <label for="total" class="form-label">
                     <fmt:message key="books.total"/>
                     <input type="number" class="form-control" id="total" name="total" placeholder="${placeholderTotal}"
-                           pattern="^\d{4}$"
+                           min="0" max="1000"
                            value="${requestScope.book.total}" required>
                 </label>
             </div>
             <div class="mb-3">
+                <%--                TODO fine doesnt show--%>
                 <label for="fine" class="form-label">
                     <fmt:message key="books.fine"/>
                     <input type="number" class="form-control" id="fine" name="fine" placeholder="${placeholderFine}"
-                           pattern="^\d{4}$"
+                           min="0" max="1000"
                            value="${requestScope.book.fine}" required>
                 </label>
             </div>
@@ -118,21 +126,10 @@
                    formaction="${pageContext.request.contextPath}/controller?command=save_book">
         </form>
     </div>
-    <script type="text/JavaScript">
-        function createNewElement() {
-            // First create a DIV element.
-            var txtNewInputBox = document.createElement('div');
-            txtNewInputBox.className = "form-group mb-2";
-            // Then add the content (a new input box) of the element.
-            txtNewInputBox.innerHTML = "<input type='text' class='form-control' name='newAuthor' required>";
-
-            // Finally put it where it is supposed to appear.
-            document.getElementById("new-providers").appendChild(txtNewInputBox);
-        }
-    </script>
 
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
-
+<script src="${pageContext.request.contextPath}/js/addInput.js"></script>
+<script src="${pageContext.request.contextPath}/js/validateField.js"></script>
 </body>
 </html>

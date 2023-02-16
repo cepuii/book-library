@@ -2,10 +2,8 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.od.cepuii.library.dto.FilterParams;
-import ua.od.cepuii.library.dto.Mapper;
-import ua.od.cepuii.library.dto.Page;
-import ua.od.cepuii.library.dto.UserTO;
+import ua.od.cepuii.library.constants.AttributesName;
+import ua.od.cepuii.library.dto.*;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.UserRepository;
 import ua.od.cepuii.library.util.PasswordUtil;
@@ -15,6 +13,8 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static ua.od.cepuii.library.constants.AttributesName.USER_ID;
+
 public class UserService implements Service {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
@@ -23,15 +23,24 @@ public class UserService implements Service {
         this.userRepository = userRepository;
     }
 
-    public long createOrUpdate(User user) {
-        if (ValidationUtil.isNew(user)) {
-            long insert = userRepository.insert(user);
-            log.info("user create and save, userId: {}", insert);
-            return insert;
+    public Report createOrUpdate(User user) {
+        Report report = isExistEmail(user.getEmail());
+        if (!report.hasErrors()) {
+            if (ValidationUtil.isNew(user)) {
+                user.setPassword(PasswordUtil.getHash(user.getPassword().getBytes()));
+                long insert = userRepository.insert(user);
+                log.info("user create , userId: {}", insert);
+                report.addReport(USER_ID, String.valueOf(insert));
+                report.addReport(AttributesName.SUCCESS, "message.user.create");
+                return report;
+            } else if (userRepository.update(user)) {
+                log.info("user update, userId: {}", user.getId());
+                report.addReport(AttributesName.SUCCESS, "message.user.update");
+            } else {
+                report.addError(AttributesName.WRONG_ACTION, "message.wrongAction.add");
+            }
         }
-        userRepository.update(user);
-        log.info("user update, userId: {}", user.getId());
-        return user.getId();
+        return report;
     }
 
     public User getUserByEmailAndPassword(String email, String password) {
@@ -42,8 +51,16 @@ public class UserService implements Service {
         return null;
     }
 
-    public boolean blockUnblock(long id, boolean isBlocked) {
-        return userRepository.updateBlocked(id, isBlocked);
+    public Report blockUnblock(long userId, long blockUserId, boolean isBlocked) {
+        Report report = Report.newInstance();
+        if (userId == blockUserId) {
+            report.addError(AttributesName.WRONG_ACTION, "message.block.yourself");
+        } else if (userRepository.updateBlocked(blockUserId, isBlocked)) {
+            report.addReport(AttributesName.SUCCESS, isBlocked ? "message.block.success" : "message.unblock.success");
+        } else {
+            report.addError(AttributesName.WRONG_ACTION, "message.somethingWrong.pass");
+        }
+        return report;
     }
 
     public int getPageAmount(Page page, FilterParams filterParam) {
@@ -59,8 +76,12 @@ public class UserService implements Service {
         return Mapper.mapToUserTO(users);
     }
 
-    public boolean isExistEmail(String email) {
-        return userRepository.getByEmail(email).isPresent();
+    public Report isExistEmail(String email) {
+        Report report = Report.newInstance();
+        if (userRepository.getByEmail(email).isPresent()) {
+            report.addError("wrongAction", "message.signUp.email.exist");
+        }
+        return report;
     }
 
     public UserTO getById(long userId) {
@@ -68,9 +89,20 @@ public class UserService implements Service {
         return Mapper.getUserTO(byId.orElseThrow(NoSuchElementException::new));
     }
 
-    public boolean updatePassword(long userId, String newPassword) {
-        String hash = PasswordUtil.getHash(newPassword.getBytes());
-        return userRepository.updatePassword(userId, hash);
+    public Report updatePassword(long userId, String oldPassword, String newPassword) {
+        Report report = ValidationUtil.validatePasswords(oldPassword, newPassword);
+        if (!checkPassword(userId, oldPassword)) {
+            report.addError(AttributesName.BAD_OLD_PASS, "message.change.password");
+        }
+        if (!report.hasErrors()) {
+            String hash = PasswordUtil.getHash(newPassword.getBytes());
+            if (userRepository.updatePassword(userId, hash)) {
+                report.addReport(AttributesName.SUCCESS, "message.password.change");
+            } else {
+                report.addError(AttributesName.WRONG_ACTION, "message.somethingWrong.pass");
+            }
+        }
+        return report;
     }
 
     public boolean checkPassword(long userId, String oldPassword) {

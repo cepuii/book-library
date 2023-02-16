@@ -10,6 +10,13 @@ import ua.od.cepuii.library.entity.enums.PublicationType;
 import java.io.Serializable;
 import java.util.Collection;
 
+/**
+ * The BookTO class is a Transfer Object (DTO) class that represents a book in the library system.
+ * It includes the book's title, publication type, publication date, authors, total number of copies, and fine amount.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

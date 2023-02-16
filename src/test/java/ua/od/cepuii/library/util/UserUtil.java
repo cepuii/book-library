@@ -11,6 +11,7 @@ import java.util.Date;
 public class UserUtil {
 
     public static final long USER_ID = 1000;
+    public static final long ADMIN_ID = 2000;
     public static final long NOT_FOUND_USER_ID = 999;
     public static final long NEW_ID = 0;
 

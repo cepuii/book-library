@@ -20,17 +20,17 @@ import static ua.od.cepuii.library.util.BookUtil.NOT_FOUND_ID;
 import static ua.od.cepuii.library.util.BookUtil.NO_OF_RECORDS;
 import static ua.od.cepuii.library.util.UserUtil.*;
 
- class UserServiceTest {
+class UserServiceTest {
 
-     @Mock
-     private UserRepository userRepository;
-     @InjectMocks
-     private UserService userService;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private UserService userService;
 
-     @BeforeEach
-     void setUp() {
-         MockitoAnnotations.openMocks(this);
-     }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 //
 //    ublic long createOrUpdate(User user) {
 //        if (ValidationUtil.isNew(user)) {
@@ -46,38 +46,31 @@ import static ua.od.cepuii.library.util.UserUtil.*;
     @Test
     void insert() {
         when(userRepository.insert(NEW_USER)).thenReturn(USER_ID);
-        assertEquals(USER_ID, userService.createOrUpdate(NEW_USER));
+        assertEquals(String.valueOf(USER_ID), userService.createOrUpdate(NEW_USER).getReport("userId"));
         verify(userRepository, times(1)).insert(NEW_USER);
         verify(userRepository, times(0)).update(any(User.class));
 
     }
 
-     @Test
-     void update() {
-         when(userRepository.update(USER)).thenReturn(true);
-         assertEquals(USER_ID, userService.createOrUpdate(USER));
-         verify(userRepository, times(0)).insert(any(User.class));
-         verify(userRepository, times(1)).update(USER);
+    @Test
+    void update() {
+        when(userRepository.update(USER)).thenReturn(true);
+        assertEquals("message.user.update", userService.createOrUpdate(USER).getReport("success"));
+        verify(userRepository, times(0)).insert(any(User.class));
+        verify(userRepository, times(1)).update(USER);
 
-     }
+    }
 
-//    @Test
-//    void getUserByEmailAndPassword() {
-//        when(userRepository.getByEmail(USER.getEmail())).thenReturn(Optional.of(USER));
-//        assertEquals(USER, userService.getUserByEmailAndPassword(USER.getEmail(), USER.getPassword()));
-//    }
+    @Test
+    void getUserByEmailAndPasswordNotFound() {
+        when(userRepository.getByEmail(NOT_FOUND_USER.getEmail())).thenReturn(Optional.empty());
+        assertNull(userService.getUserByEmailAndPassword(NOT_FOUND_USER.getEmail(), NOT_FOUND_USER.getPassword()));
+    }
 
-     @Test
-     void getUserByEmailAndPasswordNotFound() {
-         when(userRepository.getByEmail(NOT_FOUND_USER.getEmail())).thenReturn(Optional.empty());
-         assertNull(userService.getUserByEmailAndPassword(NOT_FOUND_USER.getEmail(), NOT_FOUND_USER.getPassword()));
-     }
-
-     @Test
-     void blockUser() {
-         when(userRepository.updateBlocked(USER_ID, true)).thenReturn(true);
-        assertTrue(() -> userService.blockUnblock(USER_ID, true));
-
+    @Test
+    void blockUser() {
+        when(userRepository.updateBlocked(USER_ID, true)).thenReturn(true);
+        assertFalse(() -> userService.blockUnblock(ADMIN_ID, USER_ID, true).hasErrors());
     }
 
 
@@ -107,7 +100,7 @@ import static ua.od.cepuii.library.util.UserUtil.*;
     @Test
     void isExist() {
         when(userRepository.getByEmail(USER_EMAIL)).thenReturn(Optional.ofNullable(USER));
-        assertTrue(() -> userService.isExistEmail(USER_EMAIL));
+        assertTrue(() -> userService.isExistEmail(USER_EMAIL).hasErrors());
     }
 
     @Test
@@ -116,11 +109,11 @@ import static ua.od.cepuii.library.util.UserUtil.*;
         assertEquals(USER_TO, userService.getById(USER_ID));
     }
 
-     @Test
-     void getByIdNotFound() {
-         when(userRepository.getById(NOT_FOUND_ID)).thenReturn(Optional.empty());
-         assertThrows(NoSuchElementException.class, () -> userService.getById(USER_ID));
-     }
+    @Test
+    void getByIdNotFound() {
+        when(userRepository.getById(NOT_FOUND_ID)).thenReturn(Optional.empty());
+        assertThrows(NoSuchElementException.class, () -> userService.getById(USER_ID));
+    }
 
 //    @Test
 //    void updatePassword() {
@@ -129,4 +122,4 @@ import static ua.od.cepuii.library.util.UserUtil.*;
 //    }
 
 
- }
+}

@@ -47,8 +47,16 @@ public class FilterParams implements Serializable {
         return firstParam;
     }
 
+    public String getFirstParamForQuery() {
+        return prepareForLike(validateForLike(firstParam));
+    }
+
     public String getSecondParam() {
         return secondParam;
+    }
+
+    public String getSecondParamForQuery() {
+        return prepareForLike(validateForLike(secondParam));
     }
 
     public void setFirstParam(String firstParam) {
@@ -57,6 +65,14 @@ public class FilterParams implements Serializable {
 
     public void setSecondParam(String secondParam) {
         this.secondParam = secondParam == null ? "" : secondParam;
+    }
+
+    private String prepareForLike(String title) {
+        return "%" + validateForLike(title) + "%";
+    }
+
+    private String validateForLike(String title) {
+        return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
     }
 
     public long getId() {

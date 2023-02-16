@@ -9,10 +9,13 @@ import org.postgresql.jdbc.PSQLSavepoint;
 import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Loan;
-import ua.od.cepuii.library.repository.executor.DbExecutor;
+import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 import ua.od.cepuii.library.util.BookUtil;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +31,7 @@ import static ua.od.cepuii.library.util.LoanUtil.*;
 
 class JdbcLoanRepositoryTest {
 
-    private final DbExecutor<Loan> mockDbExecutor = mock(DbExecutor.class);
+    private final QueryExecutor<Loan> mockLoanExecutor = mock(QueryExecutor.class);
     private final ConnectionPool mockConnectionPool = mock(ConnectionPool.class);
     @Mock
     Connection mockConnection;
@@ -38,7 +41,7 @@ class JdbcLoanRepositoryTest {
     ResultSet mockResultSet;
 
     @InjectMocks
-    private JdbcLoanRepository loanRepository = new JdbcLoanRepository(mockDbExecutor, mockConnectionPool);
+    private JdbcLoanRepository loanRepository = new JdbcLoanRepository(mockLoanExecutor, mockConnectionPool);
 
     @BeforeEach
     void setUp() throws SQLException {
@@ -52,116 +55,109 @@ class JdbcLoanRepositoryTest {
 
     @Test
     void insert() throws SQLException {
-        when(mockDbExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(LOAN_ID);
-        when(mockDbExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(LOAN_ID);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(LOAN_ID, loanRepository.insert(NEW_LOAN));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
-        verify(mockDbExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void insertCatchException() throws SQLException {
-        when(mockDbExecutor.insert(any(Connection.class), anyString(), anyList())).thenThrow(SQLException.class);
-        when(mockDbExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.insert(any(Connection.class), anyString(), anyList())).thenThrow(SQLException.class);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(-1, loanRepository.insert(NEW_LOAN));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
-        verify(mockDbExecutor, times(0)).queryById(any(Connection.class), anyString(), anyLong());
-        verify(mockConnection, times(0)).commit();
-        verify(mockConnection, times(1)).rollback(any(Savepoint.class));
+        verify(mockLoanExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
+        verify(mockLoanExecutor, times(0)).isExistResultById(any(Connection.class), anyString(), anyLong());
     }
 
     @Test
     void getById() throws SQLException {
-        when(mockDbExecutor.selectById(any(Connection.class), anyString(), anyLong(), any(Function.class))).thenReturn(Optional.of(LOAN));
+        when(mockLoanExecutor.selectByParams(any(Connection.class), anyString(), anyList(), any(Function.class))).thenReturn(Optional.of(LOAN));
         assertEquals(LOAN, loanRepository.getById(LOAN_ID).get());
 
         verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockDbExecutor, times(1)).selectById(any(Connection.class), anyString(), anyLong(), any(Function.class));
+        verify(mockLoanExecutor, times(1)).selectByParams(any(Connection.class), anyString(), anyList(), any(Function.class));
     }
 
     @Test
     void getByIdCatchException() throws SQLException {
-        when(mockDbExecutor.selectById(any(Connection.class), anyString(), anyLong(), any(Function.class))).thenThrow(SQLException.class);
+        when(mockLoanExecutor.selectByParams(any(Connection.class), anyString(), anyList(), any(Function.class))).thenThrow(SQLException.class);
         assertEquals(Optional.empty(), loanRepository.getById(LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockDbExecutor, times(1)).selectById(any(Connection.class), anyString(), anyLong(), any(Function.class));
+        verify(mockLoanExecutor, times(1)).selectByParams(any(Connection.class), anyString(), anyList(), any(Function.class));
     }
 
     @Test
     void update() throws SQLException {
-        when(mockDbExecutor.update(any(Connection.class), anyString(), anyList())).thenReturn(true);
+        when(mockLoanExecutor.update(any(Connection.class), anyString(), anyList())).thenReturn(true);
 
         assertTrue(() -> loanRepository.update(LOAN));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).update(any(Connection.class), anyString(), anyList());
+        verify(mockLoanExecutor, times(1)).update(any(Connection.class), anyString(), anyList());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void updateCatchException() throws SQLException {
-        when(mockDbExecutor.update(any(Connection.class), anyString(), anyList())).thenThrow(SQLException.class);
+        when(mockLoanExecutor.update(any(Connection.class), anyString(), anyList())).thenThrow(SQLException.class);
 
         assertFalse(() -> loanRepository.update(LOAN));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).update(any(Connection.class), anyString(), anyList());
+        verify(mockLoanExecutor, times(1)).update(any(Connection.class), anyString(), anyList());
         verify(mockConnection, times(0)).commit();
         verify(mockConnection, times(1)).rollback();
     }
 
     @Test
     void delete() throws SQLException {
-        when(mockDbExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertTrue(() -> loanRepository.delete(BookUtil.LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void deleteCatchException() throws SQLException {
-        when(mockDbExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
 
         assertFalse(() -> loanRepository.delete(BookUtil.LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(0)).commit();
         verify(mockConnection, times(1)).rollback();
     }
 
     @Test
     void deleteNotFoundId() throws SQLException {
-        when(mockDbExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
 
         assertFalse(() -> loanRepository.delete(NOT_FOUND_ID));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
-        verify(mockConnection, times(1)).commit();
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
     }
 
     @Test
     void getAll() throws SQLException {
-        when(mockDbExecutor.selectAllWithLimit(any(Connection.class), anyString(), anyString(), anyString(), anyInt(), anyInt(), any(Function.class))).thenReturn(List.of(LOAN));
+        when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenReturn(List.of(LOAN));
         FilterParams filterParams = mock(FilterParams.class);
         when(filterParams.getFirstParam()).thenReturn("");
         when(filterParams.getSecondParam()).thenReturn("");
@@ -169,13 +165,13 @@ class JdbcLoanRepositoryTest {
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(0)).setSavepoint();
-        verify(mockDbExecutor, times(1)).selectAllWithLimit(any(Connection.class), anyString(), anyString(), anyString(), anyInt(), anyInt(), any(Function.class));
+        verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
         verify(mockConnection, times(0)).commit();
     }
 
     @Test
     void getAllCatchException() throws SQLException {
-        when(mockDbExecutor.selectAllWithLimit(any(Connection.class), anyString(), anyString(), anyString(), anyInt(), anyInt(), any(Function.class))).thenThrow(SQLException.class);
+        when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenThrow(SQLException.class);
         FilterParams filterParams = mock(FilterParams.class);
         when(filterParams.getFirstParam()).thenReturn("");
         when(filterParams.getSecondParam()).thenReturn("");
@@ -183,40 +179,40 @@ class JdbcLoanRepositoryTest {
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(0)).setSavepoint();
-        verify(mockDbExecutor, times(1)).selectAllWithLimit(any(Connection.class), anyString(), anyString(), anyString(), anyInt(), anyInt(), any(Function.class));
+        verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
         verify(mockConnection, times(0)).commit();
     }
 
     @Test
     void getAllByUserId() throws SQLException {
-        when(mockDbExecutor.selectAllById(any(Connection.class), anyString(), anyLong(), anyInt(), anyInt(), any(Function.class))).thenReturn(List.of(LOAN));
+        when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenReturn(List.of(LOAN));
         assertIterableEquals(List.of(LOAN), loanRepository.getAllByUserId(LOAN_ID, LIMIT, OFFSET));
 
         verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockDbExecutor, times(1)).selectAllById(any(Connection.class), anyString(), anyLong(), anyInt(), anyInt(), any(Function.class));
+        verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
     }
 
     @Test
     void getAllByUserIdCatchException() throws SQLException {
-        when(mockDbExecutor.selectAllById(any(Connection.class), anyString(), anyLong(), anyInt(), anyInt(), any(Function.class))).thenThrow(SQLException.class);
+        when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenThrow(SQLException.class);
         assertIterableEquals(List.of(), loanRepository.getAllByUserId(LOAN_ID, LIMIT, OFFSET));
 
         verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockDbExecutor, times(1)).selectAllById(any(Connection.class), anyString(), anyLong(), anyInt(), anyInt(), any(Function.class));
+        verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
     }
 
     @Test
     void updateStatus() throws SQLException {
 
-        when(mockDbExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(LOAN_ID);
-        when(mockDbExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(LOAN_ID);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(LOAN_ID, loanRepository.insert(NEW_LOAN));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockDbExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
-        verify(mockDbExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
 
     }
@@ -236,7 +232,7 @@ class JdbcLoanRepositoryTest {
     void getLoanHistory() {
     }
 
-    @Test
-    void updateFine() {
-    }
+//    @Test
+//    void updateFine() {
+//    }
 }

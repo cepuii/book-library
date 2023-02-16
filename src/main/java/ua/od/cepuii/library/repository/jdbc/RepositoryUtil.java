@@ -57,10 +57,10 @@ public class RepositoryUtil {
     }
 
     public static Collection<Author> fillAuthors(ResultSet resultSet) {
-        String[] authorsIds = new String[0];
+
         Collection<Author> authorSet = new TreeSet<>(Comparator.comparing(Author::getName));
         try {
-            authorsIds = resultSet.getString("authors_id").split(", ");
+            String[] authorsIds = resultSet.getString("authors_id").split(", ");
             String[] authors = resultSet.getString("authors").split(", ");
             for (int i = 0; i < authorsIds.length; i++) {
                 authorSet.add(new Author(Long.parseLong(authorsIds[i]), authors[i]));
@@ -134,7 +134,7 @@ public class RepositoryUtil {
                 .userId(resultSet.getInt("l_userId"))
                 .startDate(toLocalDate(resultSet.getTimestamp("l_start_time")))
                 .duration(resultSet.getInt("l_duration"))
-                .bookInfo(resultSet.getString("b_title") + " ," + resultSet.getInt("b_date"))
+                .bookInfo(resultSet.getString("b_title") + ", " + resultSet.getInt("b_date"))
                 .status(LoanStatus.valueOf(resultSet.getString("l_status")))
                 .userEmail(resultSet.getString("u_email"))
                 .fine(resultSet.getInt("b_fine"))
@@ -162,11 +162,4 @@ public class RepositoryUtil {
     }
 
 
-    public static String prepareForLike(String title) {
-        return "%" + validateForLike(title) + "%";
-    }
-
-    public static String validateForLike(String title) {
-        return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
-    }
 }

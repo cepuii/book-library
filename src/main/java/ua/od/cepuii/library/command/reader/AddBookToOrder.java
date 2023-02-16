@@ -2,57 +2,46 @@ package ua.od.cepuii.library.command.reader;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
+import ua.od.cepuii.library.constants.Path;
 import ua.od.cepuii.library.context.AppContext;
+import ua.od.cepuii.library.dto.Report;
 import ua.od.cepuii.library.dto.RequestParser;
 import ua.od.cepuii.library.entity.Loan;
-import ua.od.cepuii.library.exception.RepositoryException;
-import ua.od.cepuii.library.resource.ConfigurationManager;
-import ua.od.cepuii.library.resource.MessageManager;
 import ua.od.cepuii.library.service.LoanService;
-import ua.od.cepuii.library.util.ValidationUtil;
 
-import java.util.HashSet;
-import java.util.Set;
+import static ua.od.cepuii.library.constants.AttributesName.REPORTS;
 
+/**
+ * This class is responsible for adding a book to a loan (order)
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class AddBookToOrder implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(AddBookToOrder.class);
 
     private final LoanService loanService = AppContext.getInstance().getLoanService();
 
+    /**
+     * The execute method takes in HttpServletRequest and HttpServletResponse objects as arguments,
+     * retrieves a Loan object from RequestParser.getLoan(request) method,
+     * creates a loan by calling the LoanService.create(loan) method and
+     * sets the resulting report in the session attribute REPORTS.
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @return Path.SHOW_BOOKS a string constant representing the path to show the books.
+     */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
-        String days = request.getParameter("days");
-        if (!ValidationUtil.isDigit(days)) {
-            log.error("wrong duration");
-            request.setAttribute("wrongDuration", MessageManager.getProperty("message.wrongDuration"));
-            return ConfigurationManager.getProperty("path.controller.books.forward");
-        }
-        try {
-            Loan loan = RequestParser.getLoan(request);
-            long loanCreate = loanService.create(loan);
-            if (loanCreate != 0) {
-                long bookId = Long.parseLong(request.getParameter("bookId"));
-                String loanItems1 = "loanItems";
-                if (session.getAttribute(loanItems1) == null) {
-                    session.setAttribute(loanItems1, new HashSet<>());
-                }
-                @SuppressWarnings("unchecked")
-                Set<Long> loanItems = (HashSet<Long>) session.getAttribute(loanItems1);
-                log.info("add bookId: {} to session", bookId);
-                loanItems.add(bookId);
-                log.info("loan create: {}", loanCreate);
-                session.setAttribute(loanItems1, loanItems);
-            }
-        } catch (RepositoryException e) {
-            log.error(e.getMessage());
-            request.setAttribute("wrongDuration", e.getMessage());
-            return ConfigurationManager.getProperty("path.controller.books.forward");
-        }
-        return ConfigurationManager.getProperty("path.controller.books.success");
+
+        Loan loan = RequestParser.getLoan(request);
+        Report report = loanService.create(loan);
+        request.getSession().setAttribute(REPORTS, report.getReports());
+        log.info("create loan: {}", loan);
+        return Path.SHOW_BOOKS;
     }
 }

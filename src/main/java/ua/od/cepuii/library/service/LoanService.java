@@ -2,25 +2,19 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.od.cepuii.library.dto.FilterParams;
-import ua.od.cepuii.library.dto.LoanTO;
-import ua.od.cepuii.library.dto.Mapper;
-import ua.od.cepuii.library.dto.Page;
+import ua.od.cepuii.library.dto.*;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.entity.Loan;
-import ua.od.cepuii.library.exception.RepositoryException;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.LoanRepository;
-import ua.od.cepuii.library.repository.RepositoryFactory;
-import ua.od.cepuii.library.repository.jdbc.JdbcRepositoryFactory;
-import ua.od.cepuii.library.resource.MessageManager;
 
 import java.util.Collection;
 import java.util.Optional;
 
+import static ua.od.cepuii.library.constants.AttributesName.*;
+
 public class LoanService implements Service {
     private static final Logger log = LoggerFactory.getLogger(LoanService.class);
-    RepositoryFactory repositoryFactory = new JdbcRepositoryFactory();
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
 
@@ -29,16 +23,36 @@ public class LoanService implements Service {
         this.bookRepository = bookRepository;
     }
 
-    public long create(Loan loan) {
-        Optional<Book> book = bookRepository.getById(loan.getBookId());
-        if (book.isEmpty()) {
-            throw new RepositoryException(MessageManager.getProperty("message.nullPage"));
+    public Report create(Loan loan) {
+        Report report = Report.newInstance();
+        if (loan.getDuration() == 0) {
+            report.addError(WRONG_ACTION, "message.wrongDuration");
+        } else {
+            Optional<Book> book = bookRepository.getById(loan.getBookId());
+            if (book.isEmpty()) {
+                report.addError(WRONG_ACTION, "message.book.finished");
+            }
         }
-        return loanRepository.insert(loan);
+        if (!report.hasErrors()) {
+            long insert = loanRepository.insert(loan);
+            if (insert == -1) {
+                report.addError(WRONG_ACTION, "message.somethingWrong.create");
+            } else {
+                report.addReport(LOAN_ID, String.valueOf(insert));
+                report.addReport(SUCCESS, "message.addOrder.success");
+            }
+        }
+        return report;
     }
 
-    public boolean delete(long loanId, long bookId) {
-        return loanRepository.deleteAndDecreaseBookBorrow(loanId, bookId);
+    public Report delete(long loanId, long bookId) {
+        Report report = Report.newInstance();
+        if (loanRepository.deleteAndDecreaseBookBorrow(loanId, bookId)) {
+            report.addReport(SUCCESS, "message.addOrder.success");
+        } else {
+            report.addError(WRONG_ACTION, "message.somethingWrong.create");
+        }
+        return report;
     }
 
     public Collection<LoanTO> getAll(FilterParams filter, Page page) {
@@ -49,8 +63,14 @@ public class LoanService implements Service {
         return Mapper.mapToLoanTO(loanRepository.getAllByUserId(userId, page.getLimit(), page.getOffset()));
     }
 
-    public boolean setOrderStatus(Loan loan, boolean fineSubtract) {
-        return loanRepository.updateStatus(loan, fineSubtract);
+    public Report setOrderStatus(Loan loan, boolean fineSubtract) {
+        Report report = Report.newInstance();
+        if (loanRepository.updateStatus(loan, fineSubtract)) {
+            report.addReport(SUCCESS, "message.order.setStatus");
+        } else {
+            report.addError(WRONG_ACTION, "message.somethingWrong.setStatus");
+        }
+        return report;
     }
 
     public Collection<Long> getBooksIdsByUserId(long userId) {

@@ -6,11 +6,17 @@ import ua.od.cepuii.library.entity.enums.Role;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Class that represents a user in the library system.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString
+@ToString(exclude = "password")
 public class User extends AbstractEntity implements Serializable {
 
     private static final long serialVersionUID = 1;

@@ -12,24 +12,50 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * ContextListener is a class to initialize and destroy the servlet context.
+ *
+ * <p>
+ * The {@link #contextInitialized(ServletContextEvent)} method is called when the servlet context is initialized.
+ * It initializes the {@link AppContext} by calling {@link AppContext#createAppContext(String)}, with the context properties passed in as a servlet context parameter.
+ * It then starts a scheduled task to update the fine periodically using the {@link LoanService#updateFine()} method.
+ *
+ * <p>
+ * The {@link #contextDestroyed(ServletContextEvent)} method is called when the servlet context is destroyed.
+ * It calls {@link AppContext#destroyContext()} to clean up resources.
+ *
+ * @author Sergei Chernousov
+ * @see ServletContextListener
+ * @see AppContext
+ * @see LoanService
+ */
 public class ContextListener implements ServletContextListener {
     private static final Logger log = LoggerFactory.getLogger(ContextListener.class);
-    private static final AppContext appContext = AppContext.getInstance();
     private static final int UPDATE_FINE_PERIOD_HOURS = 24;
-    private static final LoanService loanService = appContext.getLoanService();
+    private AppContext appContext;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         log.info("initialise context");
 
-        ScheduledExecutorService executorService = Executors
-                .newSingleThreadScheduledExecutor();
-        //TODO run once in a day at the night
+        String contextProperties = sce.getServletContext().getInitParameter("contextProperties");
+        AppContext.createAppContext(contextProperties);
+        appContext = AppContext.getInstance();
+
         //TODO add email sender before last day," attention please return a book"
 
 
-        int delayHours = UPDATE_FINE_PERIOD_HOURS - LocalTime.now().getHour();
+        ScheduledExecutorService executorService = Executors
+                .newSingleThreadScheduledExecutor();
 
+        int delayHours = UPDATE_FINE_PERIOD_HOURS - LocalTime.now().getHour();
+        log.info("task start after {} hours", delayHours);
+        LoanService loanService = appContext.getServiceFactory().getLoanService();
         executorService.scheduleAtFixedRate(loanService::updateFine, delayHours, UPDATE_FINE_PERIOD_HOURS, TimeUnit.HOURS);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        appContext.destroyContext();
     }
 }

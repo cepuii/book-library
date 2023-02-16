@@ -6,6 +6,12 @@ import ua.od.cepuii.library.entity.enums.LoanStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+/**
+ * Class that represents a loan in the library system.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

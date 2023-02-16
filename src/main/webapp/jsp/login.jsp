@@ -13,7 +13,9 @@
     <div class="container p-5 my-5 border">
         <h5><fmt:message key="greeting"/></h5>
         <hr>
-        <ctg:showMessage error="${requestScope.errorLoginPassMessage}"/>
+
+        <jsp:include page="/jsp/fragments/showResult.jsp"/>
+
         <form name="LoginForm" method="post">
             <input type="hidden" name="command" value="sign_up">
             <div class="mb-1">
@@ -21,7 +23,7 @@
                     <fmt:message key="users.email"/>:
                     <input class="form-control" type="email" name="email"
                            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" required
-                           value="${sessionScope.userEmail}">
+                           value="${requestScope.reports.userEmail}">
                 </label>
             </div>
             <div class="mb-1">
@@ -36,7 +38,7 @@
             <div class="mb-auto">
                 <label class="form-check-label" for="flexCheckDefault"><fmt:message key="users.password.show"/>
                     <input class="form-check-input" type="checkbox" id="flexCheckDefault"
-                           onclick="show();">
+                           onclick="show('password');">
                 </label>
             </div>
 
@@ -49,9 +51,28 @@
                 <fmt:message key="books.filter.cansel"/>
             </button>
         </form>
+
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <div id="g_id_onload"
+             data-client_id="453363600410-g5168pvimaearhqkj1erithac4glm141.apps.googleusercontent.com"
+             data-login_uri="${pageContext.request.contextPath}/controller?command=verify_token"
+        <%--             data-auto_prompt="false"--%>
+        >
+
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-shape="rectangular"
+             data-logo_alignment="left">
+        </div>
+
+
     </div>
-    <script src="../js/showPass.js"></script>
     <jsp:include page="/jsp/fragments/footer.jsp"/>
 </div>
+<script src="${pageContext.request.contextPath}/js/showPass.js"></script>
 </body>
 </html>

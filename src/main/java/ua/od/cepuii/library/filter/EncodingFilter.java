@@ -6,6 +6,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+/**
+ * EncodingFilter class is used to set the encoding for the request and response.
+ * The encoding is set to the value specified in the filter's init parameter.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class EncodingFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(EncodingFilter.class);
     private String encoding;
@@ -23,6 +30,7 @@ public class EncodingFilter implements Filter {
         if (reqEncoding == null) {
             log.info("set character encoding: {}", encoding);
             request.setCharacterEncoding(encoding);
+            response.setCharacterEncoding(encoding);
         }
         chain.doFilter(request, response);
     }

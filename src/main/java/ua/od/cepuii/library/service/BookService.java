@@ -2,10 +2,7 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.od.cepuii.library.dto.BookTO;
-import ua.od.cepuii.library.dto.FilterParams;
-import ua.od.cepuii.library.dto.Mapper;
-import ua.od.cepuii.library.dto.Page;
+import ua.od.cepuii.library.dto.*;
 import ua.od.cepuii.library.entity.Book;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.util.ValidationUtil;
@@ -13,6 +10,9 @@ import ua.od.cepuii.library.util.ValidationUtil;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static ua.od.cepuii.library.constants.AttributesName.SUCCESS;
+import static ua.od.cepuii.library.constants.AttributesName.WRONG_ACTION;
 
 public class BookService implements Service {
     private static final Logger log = LoggerFactory.getLogger(BookService.class);
@@ -23,17 +23,35 @@ public class BookService implements Service {
     }
 
 
-    public boolean createOrUpdate(Book book) {
-        if (ValidationUtil.isNew(book)) {
-            long insert = bookRepository.insert(book);
-            log.info("book create and save, bookId: {}", insert);
-            return true;
+    public Report createOrUpdate(Book book) {
+
+        Report report = isExistTitle(book.getTitle());
+
+        if (!report.hasErrors()) {
+            if (ValidationUtil.isNew(book)) {
+                long insert = bookRepository.insert(book);
+                log.info("book create, bookId: {}", insert);
+                report.addReport(SUCCESS, "message.book.add");
+                return report;
+            }
+
+            if (bookRepository.update(book)) {
+                report.addReport(SUCCESS, "message.book.save");
+            } else {
+                report.addError(WRONG_ACTION, "message.wrongAction.edit");
+            }
         }
-        return bookRepository.update(book);
+        return report;
     }
 
-    public boolean delete(long id) {
-        return bookRepository.delete(id);
+    public Report delete(long id) {
+        Report report = Report.newInstance();
+        if (bookRepository.delete(id)) {
+            report.addReport("success", "message.book.delete");
+        } else {
+            report.addError("wrongAction", "message.wrongAction.delete");
+        }
+        return report;
     }
 
     public BookTO getById(long id) {
@@ -44,23 +62,21 @@ public class BookService implements Service {
     @Override
     public int getPageAmount(Page page, FilterParams filterParam) {
         int recordsAmount = bookRepository.getCount(filterParam);
-        log.info("get records amount: {}", recordsAmount);
         int noOfRecords = page.getNoOfRecords();
-        int pageAmount = (recordsAmount % noOfRecords) == 0 ? (recordsAmount / noOfRecords) : (1 + (recordsAmount / noOfRecords));
-        log.info("get page amount: {}", pageAmount);
-        return pageAmount;
+        return (recordsAmount % noOfRecords) == 0 ? (recordsAmount / noOfRecords) : (1 + (recordsAmount / noOfRecords));
     }
 
     public Collection<BookTO> getAll(Page page, FilterParams filterParam) {
         String orderBy = (filterParam.getOrderBy().isBlank() ? "b_title" : filterParam.getOrderBy()) + (filterParam.isDescending() ? " DESC" : "");
-        log.info("getAll books:filter {}; {}; order {}, descending {}, limit {}, offset {}",
-                filterParam.getFirstParam(), filterParam.getSecondParam(), filterParam.getOrderBy(), filterParam.isDescending(), page.getLimit(), page.getOffset());
         Collection<Book> books = bookRepository.getAll(filterParam, orderBy, page.getLimit(), page.getOffset());
         return Mapper.mapToBookTo(books);
     }
 
-    public boolean isExistTitle(Book book) {
-        Optional<Book> bookOptional = bookRepository.getByTitle(book.getTitle());
-        return bookOptional.isPresent();
+    public Report isExistTitle(String title) {
+        Report report = Report.newInstance();
+        if (bookRepository.isExistTitle(title)) {
+            report.addError("wrongAction", "message.book.title.exist");
+        }
+        return report;
     }
 }

@@ -11,13 +11,14 @@ import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.entity.enums.LoanStatus;
 import ua.od.cepuii.library.entity.enums.PublicationType;
 import ua.od.cepuii.library.entity.enums.Role;
-import ua.od.cepuii.library.exception.RequestParserException;
 import ua.od.cepuii.library.service.Service;
-import ua.od.cepuii.library.util.PasswordUtil;
 import ua.od.cepuii.library.util.ValidationUtil;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
+
+import static ua.od.cepuii.library.constants.AttributesName.*;
 
 public class RequestParser {
     private static final Logger log = LoggerFactory.getLogger(RequestParser.class);
@@ -25,22 +26,22 @@ public class RequestParser {
     private RequestParser() {
     }
 
-    public static Page getPageFromSession(HttpServletRequest request, Service service, FilterParams filterParam) {
-        Page page = getPageFromSession(request);
+    public static Page getPage(HttpServletRequest request, Service service, FilterParams filterParam) {
+        Page page = getPage(request);
         int pageAmount = service.getPageAmount(page, filterParam);
         page.setPageAmount(pageAmount);
         return page;
     }
 
-    public static Page getPageFromSession(HttpServletRequest request) {
-        Page page = (Page) request.getSession().getAttribute("page");
-        if (page == null || request.getParameter("modified") != null) {
+    public static Page getPage(HttpServletRequest request) {
+        Page page = (Page) request.getAttribute(PAGE);
+        if (page == null || request.getParameter(MODIFIED) != null) {
             page = Page.builder()
                     .currentPage(1)
                     .noOfRecords(5)
                     .build();
         }
-        String currentPage = request.getParameter("currentPage");
+        String currentPage = request.getParameter(CURRENT_PAGE);
         if (ValidationUtil.isDigit(currentPage)) {
             page.setCurrentPage(Integer.parseInt(currentPage));
         }
@@ -48,12 +49,12 @@ public class RequestParser {
     }
 
     public static FilterParams getFilterParams(HttpServletRequest request, String firstParam, String secondParam) {
-        FilterParams filter = (FilterParams) request.getSession().getAttribute("filter");
+        FilterParams filter = (FilterParams) request.getSession().getAttribute(FILTER);
         String firstValue = request.getParameter(firstParam);
         String secondValue = request.getParameter(secondParam);
-        String orderBy = request.getParameter("orderBy");
-        String descending = request.getParameter("descending");
-        if (request.getParameter("cleanFilter") != null) {
+        String orderBy = request.getParameter(ORDER_BY);
+        String descending = request.getParameter(DESCENDING);
+        if (request.getParameter(CLEAN_FILTER) != null) {
             return FilterParams.cleanFilter();
         }
         if (filter == null) {
@@ -76,45 +77,45 @@ public class RequestParser {
 
     public static Loan getLoan(HttpServletRequest request) {
         Loan loan = Loan.builder()
-                .id(getLong(request, "loanId"))
-                .userId(getLong(request, "userId"))
-                .bookId(getLong(request, "bookId"))
-                .fine(getInt(request, "fine"))
+                .id(getLong(request, LOAN_ID))
+                .userId(getLong(request, USER_ID))
+                .bookId(getLong(request, BOOK_ID))
+                .fine(getInt(request, FINE))
                 .status(getStatus(request))
                 .build();
-        if (request.getParameter("days") != null) {
-            loan.setDuration(getInt(request, "days"));
+        if (request.getParameter(DAYS) != null) {
+            loan.setDuration(getInt(request, DAYS));
         }
         log.info("loan parse: {}", loan);
         return loan;
     }
 
     private static LoanStatus getStatus(HttpServletRequest request) {
-        String loanStatus = request.getParameter("loanStatus");
+        String loanStatus = request.getParameter(LOAN_STATUS);
         if (loanStatus == null) {
-            loanStatus = request.getParameter("status");
+            loanStatus = request.getParameter(STATUS);
         }
         return loanStatus == null ? LoanStatus.RAW : LoanStatus.valueOf(loanStatus);
     }
 
-    public static Book getBook(HttpServletRequest request) throws RequestParserException {
+    public static Book getBook(HttpServletRequest request) {
         return Book.builder()
-                .id(getLong(request, "bookId"))
-                .title(getString(request, "title"))
-                .publicationType(PublicationType.valueOf(request.getParameter("publicationType")))
-                .datePublication(getInt(request, "datePublication"))
-                .total(getInt(request, "total"))
-                .fine(getInt(request, "fine"))
+                .id(getLong(request, BOOK_ID))
+                .title(getString(request, TITLE))
+                .publicationType(PublicationType.valueOf(request.getParameter(PUBLICATION_TYPE)))
+                .datePublication(getInt(request, DATE_PUBLICATION))
+                .total(getInt(request, TOTAL))
+                .fine(getInt(request, FINE))
                 .authors(getAuthors(request))
                 .build();
     }
 
-    private static String getString(HttpServletRequest request, String title) {
-        String parameter = request.getParameter(title);
+    private static String getString(HttpServletRequest request, String paramName) {
+        String parameter = request.getParameter(paramName);
         return parameter == null ? "" : parameter;
     }
 
-    private static int getInt(HttpServletRequest request, String paramName) throws RequestParserException {
+    private static int getInt(HttpServletRequest request, String paramName) {
         String stringParam = request.getParameter(paramName);
         if (ValidationUtil.isDigit(stringParam)) {
             return Integer.parseInt(stringParam);
@@ -123,15 +124,15 @@ public class RequestParser {
     }
 
     private static Collection<Author> getAuthors(HttpServletRequest request) {
-        String[] authorIds = request.getParameterValues("authorId");
-        String[] authorNames = request.getParameterValues("authorName");
+        String[] authorIds = request.getParameterValues(AUTHOR_ID);
+        String[] authorNames = request.getParameterValues(AUTHOR_NAME);
         Collection<Author> authors = new HashSet<>();
         if (authorIds != null) {
             for (int i = 0; i < authorIds.length; i++) {
                 authors.add(new Author(Integer.parseInt(authorIds[i]), authorNames[i]));
             }
         }
-        String[] newAuthors = request.getParameterValues("newAuthor");
+        String[] newAuthors = request.getParameterValues(NEW_AUTHOR);
         if (newAuthors != null) {
             for (String newAuthor : newAuthors) {
                 authors.add(new Author(newAuthor));
@@ -157,9 +158,15 @@ public class RequestParser {
     }
 
     public static User getUser(HttpServletRequest request) {
-        long userId = getLong(request, "userId");
-        String email = request.getParameter("email");
-        String password = PasswordUtil.getHash(request.getParameter("password").getBytes());
+        long userId = getLong(request, USER_ID);
+        String email = request.getParameter(EMAIL);
+        if (email == null) {
+            email = (String) request.getAttribute(EMAIL);
+        }
+        String password = request.getParameter(PASSWORD);
+        if (password == null) {
+            password = (String) request.getAttribute(PASSWORD);
+        }
         Role role = getRole(request);
         log.info("user: {}, {}", email, role);
         return User.builder()
@@ -171,8 +178,8 @@ public class RequestParser {
     }
 
     public static Role getRole(HttpServletRequest request) {
-        String roleRequest = request.getParameter("role");
-        String roleSession = (String) request.getSession().getAttribute("userRole");
+        String roleRequest = request.getParameter(ROLE);
+        String roleSession = (String) request.getSession().getAttribute(USER_ROLE);
         if (roleRequest != null) {
             return Role.valueOf(roleRequest);
         } else if (roleSession != null) {
@@ -183,14 +190,24 @@ public class RequestParser {
 
     public static void setUserInfo(HttpServletRequest request, User user) {
         HttpSession session = request.getSession();
-        session.setAttribute("userId", user.getId());
-        session.setAttribute("userEmail", user.getEmail());
-        session.setAttribute("userRole", user.getRole().toString());
+        session.setAttribute(USER_ID, user.getId());
+        session.setAttribute(USER_EMAIL, user.getEmail());
+        session.setAttribute(USER_ROLE, user.getRole().toString());
 
     }
 
-    public static void setFromSessionToRequest(HttpServletRequest request, String s) {
-        request.setAttribute(s, request.getSession().getAttribute(s));
-        request.getSession().removeAttribute(s);
+    @SuppressWarnings("unchecked")
+    public static void setMapFromSessionToRequest(HttpServletRequest request, String s) {
+        Map<String, String> attribute = (Map<String, String>) request.getSession().getAttribute(s);
+        if (attribute != null) {
+            request.setAttribute(s, attribute);
+            request.getSession().removeAttribute(s);
+        }
+    }
+
+    public static String getParameterOrAttribute(HttpServletRequest request, String s) {
+        String parameter = request.getParameter(s);
+        String attribute = (String) request.getAttribute(s);
+        return parameter == null ? attribute : parameter;
     }
 }
