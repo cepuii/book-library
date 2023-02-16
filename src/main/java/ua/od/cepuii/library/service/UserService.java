@@ -2,6 +2,7 @@ package ua.od.cepuii.library.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ua.od.cepuii.library.constants.AttributesName;
 import ua.od.cepuii.library.dto.*;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.UserRepository;
@@ -13,7 +14,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static ua.od.cepuii.library.constants.AttributesName.USER_ID;
-import static ua.od.cepuii.library.constants.Constants.*;
 
 public class UserService implements Service {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
@@ -31,13 +31,13 @@ public class UserService implements Service {
                 long insert = userRepository.insert(user);
                 log.info("user create , userId: {}", insert);
                 report.addReport(USER_ID, String.valueOf(insert));
-                report.addReport(SUCCESS, "message.user.create");
+                report.addReport(AttributesName.SUCCESS, "message.user.create");
                 return report;
             } else if (userRepository.update(user)) {
                 log.info("user update, userId: {}", user.getId());
-                report.addReport(SUCCESS, "message.user.update");
+                report.addReport(AttributesName.SUCCESS, "message.user.update");
             } else {
-                report.addError(WRONG_ACTION, "message.wrongAction.add");
+                report.addError(AttributesName.WRONG_ACTION, "message.wrongAction.add");
             }
         }
         return report;
@@ -54,11 +54,11 @@ public class UserService implements Service {
     public Report blockUnblock(long userId, long blockUserId, boolean isBlocked) {
         Report report = Report.newInstance();
         if (userId == blockUserId) {
-            report.addError(WRONG_ACTION, "message.block.yourself");
+            report.addError(AttributesName.WRONG_ACTION, "message.block.yourself");
         } else if (userRepository.updateBlocked(blockUserId, isBlocked)) {
-            report.addReport(SUCCESS, isBlocked ? "message.block.success" : "message.unblock.success");
+            report.addReport(AttributesName.SUCCESS, isBlocked ? "message.block.success" : "message.unblock.success");
         } else {
-            report.addError(WRONG_ACTION, "message.somethingWrong.pass");
+            report.addError(AttributesName.WRONG_ACTION, "message.somethingWrong.pass");
         }
         return report;
     }
@@ -89,17 +89,17 @@ public class UserService implements Service {
         return Mapper.getUserTO(byId.orElseThrow(NoSuchElementException::new));
     }
 
-    public Report updatePassword(long userId, String oldPassword, String newPassword, String confirmPassword) {
-        Report report = ValidationUtil.validatePasswords(oldPassword, newPassword, confirmPassword);
+    public Report updatePassword(long userId, String oldPassword, String newPassword) {
+        Report report = ValidationUtil.validatePasswords(oldPassword, newPassword);
         if (!checkPassword(userId, oldPassword)) {
-            report.addError(BAD_OLD_PASS, "message.change.password");
+            report.addError(AttributesName.BAD_OLD_PASS, "message.change.password");
         }
         if (!report.hasErrors()) {
             String hash = PasswordUtil.getHash(newPassword.getBytes());
             if (userRepository.updatePassword(userId, hash)) {
-                report.addReport(SUCCESS, "message.password.change");
+                report.addReport(AttributesName.SUCCESS, "message.password.change");
             } else {
-                report.addError(WRONG_ACTION, "message.somethingWrong.pass");
+                report.addError(AttributesName.WRONG_ACTION, "message.somethingWrong.pass");
             }
         }
         return report;

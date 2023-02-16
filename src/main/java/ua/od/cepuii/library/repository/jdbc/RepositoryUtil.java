@@ -57,10 +57,10 @@ public class RepositoryUtil {
     }
 
     public static Collection<Author> fillAuthors(ResultSet resultSet) {
-        String[] authorsIds = new String[0];
+
         Collection<Author> authorSet = new TreeSet<>(Comparator.comparing(Author::getName));
         try {
-            authorsIds = resultSet.getString("authors_id").split(", ");
+            String[] authorsIds = resultSet.getString("authors_id").split(", ");
             String[] authors = resultSet.getString("authors").split(", ");
             for (int i = 0; i < authorsIds.length; i++) {
                 authorSet.add(new Author(Long.parseLong(authorsIds[i]), authors[i]));
@@ -162,20 +162,4 @@ public class RepositoryUtil {
     }
 
 
-    public static String prepareForLike(String title) {
-        return "%" + validateForLike(title) + "%";
-    }
-
-    public static String validateForLike(String title) {
-        return title.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "!]").replace("]", "!]").replace("^", "!^");
-    }
-
-    public static boolean isExistResult(ResultSet resultSet) {
-        try {
-            return resultSet.next();
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return false;
-    }
 }

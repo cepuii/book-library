@@ -16,6 +16,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
+/**
+ * AppContext: A singleton class that manages the context of the application, including creating and holding
+ * instances of RepositoryFactory, ServiceFactory, UserService, BookService, LoanService, and ConnectionPool.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Getter
 public class AppContext {
     private static final Logger log = LoggerFactory.getLogger(AppContext.class);
@@ -28,7 +35,7 @@ public class AppContext {
     private ConnectionPool connectionPool;
 
 
-    private final String CLIENT_ID;
+    private final String clientIdForGoogle;
 
     private AppContext(Properties properties) {
 
@@ -45,7 +52,7 @@ public class AppContext {
         bookService = serviceFactory.getBookService();
         loanService = serviceFactory.getLoanService();
         log.info("context initialize finish");
-        CLIENT_ID = properties.getProperty("google.client.id");
+        clientIdForGoogle = properties.getProperty("google.client.id");
     }
 
     private ServiceFactory createServiceFactory(Properties properties) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -67,15 +74,30 @@ public class AppContext {
 
     }
 
-
+    /**
+     * Get the client id to get credential from Google service.
+     *
+     * @return The client id.
+     */
     public String getClientId() {
-        return CLIENT_ID;
+        return clientIdForGoogle;
     }
 
+    /**
+     * Get instance of the AppContext class.
+     *
+     * @return The singleton instance of the AppContext.
+     */
     public static AppContext getInstance() {
         return appContext;
     }
 
+
+    /**
+     * Create an instance of the AppContext with the properties from the specified file.
+     *
+     * @param contextProperties The name of the file containing the context properties.
+     */
     public static void createAppContext(String contextProperties) {
         Properties properties = loadProperties(contextProperties);
         appContext = new AppContext(properties);
@@ -93,6 +115,9 @@ public class AppContext {
         return new Properties();
     }
 
+    /**
+     * Destroy the context, releasing resources held by the ConnectionPool.
+     */
     public void destroyContext() {
         connectionPool.close();
     }

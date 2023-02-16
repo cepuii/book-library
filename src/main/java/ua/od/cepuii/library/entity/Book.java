@@ -5,7 +5,12 @@ import ua.od.cepuii.library.entity.enums.PublicationType;
 
 import java.io.Serializable;
 import java.util.Collection;
-
+/**
+ * Class that represents a book in the library system.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

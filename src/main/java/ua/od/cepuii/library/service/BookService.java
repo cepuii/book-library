@@ -11,8 +11,8 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static ua.od.cepuii.library.constants.Constants.SUCCESS;
-import static ua.od.cepuii.library.constants.Constants.WRONG_ACTION;
+import static ua.od.cepuii.library.constants.AttributesName.SUCCESS;
+import static ua.od.cepuii.library.constants.AttributesName.WRONG_ACTION;
 
 public class BookService implements Service {
     private static final Logger log = LoggerFactory.getLogger(BookService.class);

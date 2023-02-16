@@ -8,11 +8,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.od.cepuii.library.command.ActionCommand;
 import ua.od.cepuii.library.command.ActionFactory;
-import ua.od.cepuii.library.util.PathManager;
+import ua.od.cepuii.library.constants.Path;
 
 import java.io.IOException;
+
+/**
+ * Controller class is a servlet that is responsible for processing HTTP requests and responses.
+ * This class acts as a central point of control for all requests coming to the application.
+ * <p>
+ * The class extends the HttpServlet and overrides the doGet() and doPost() methods to handle HTTP GET and POST requests respectively.
+ * It uses the processRequest() method to delegate the request to the corresponding action command defined by the ActionFactory.
+ * The processRequest() method returns a String representing the URL of the next page to which the user will be redirected.
+ * <p>
+ * If the returned URL ends with "forward=true", the request will be forwarded to the specified page,
+ * otherwise the response will be redirected to the specified page.
+ *
+ * @author Serhei Chernousov
+ * @version 1.0
+ */
 public class Controller extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
+
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,7 +42,6 @@ public class Controller extends HttpServlet {
         String s = processRequest(req, resp);
         log.info("doPost, go to {}", s);
         if (s.endsWith("forward=true")) {
-            log.info("post forward");
             req.getRequestDispatcher(s).forward(req, resp);
             return;
         }
@@ -40,7 +55,7 @@ public class Controller extends HttpServlet {
         if (page == null) {
             String msg = "message.nullPage";
             log.error(msg);
-            page = PathManager.getProperty("page.error");
+            page = Path.ERROR_PAGE;
             request.getSession().setAttribute("nullPage", msg);
         }
         return page;

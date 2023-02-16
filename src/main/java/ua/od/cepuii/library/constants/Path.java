@@ -1,5 +1,10 @@
 package ua.od.cepuii.library.constants;
 
+/**
+ * The `Path` class is a final class that contains string constants for various paths to controller with different commands
+ * and pages. The attributes names are used in different parts of the application to identify and access request attributes.
+ * This class is not meant to be instantiated, and its constructor is private.
+ */
 public class Path {
     public static final String INDEX_PAGE = "/index.jsp";
     public static final String LOGIN_PAGE = "/jsp/login.jsp";
@@ -24,6 +29,7 @@ public class Path {
     public static final String LOGIN_FORWARD = "/controller?command=login&forward=true";
     public static final String CHANGE_PASSWORD = "/controller?command=change_password";
     public static final String ADD_LIBRARIAN_FORWARD = "/controller?command=add_librarian&forward=true";
+    public static final String EDIT_BOOK_PAGE_FORWARD = "/jsp/editBook.jsp?forward=true";
 
     private Path() {
     }

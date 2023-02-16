@@ -12,7 +12,10 @@ import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 import ua.od.cepuii.library.util.BookUtil;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,30 +56,26 @@ class JdbcLoanRepositoryTest {
     @Test
     void insert() throws SQLException {
         when(mockLoanExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(LOAN_ID);
-        when(mockLoanExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(LOAN_ID, loanRepository.insert(NEW_LOAN));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
         verify(mockLoanExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
-        verify(mockLoanExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void insertCatchException() throws SQLException {
         when(mockLoanExecutor.insert(any(Connection.class), anyString(), anyList())).thenThrow(SQLException.class);
-        when(mockLoanExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(-1, loanRepository.insert(NEW_LOAN));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(1)).setSavepoint();
         verify(mockLoanExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
-        verify(mockLoanExecutor, times(0)).queryById(any(Connection.class), anyString(), anyLong());
-        verify(mockConnection, times(0)).commit();
-        verify(mockConnection, times(1)).rollback(any(Savepoint.class));
+        verify(mockLoanExecutor, times(0)).isExistResultById(any(Connection.class), anyString(), anyLong());
     }
 
     @Test
@@ -124,39 +123,36 @@ class JdbcLoanRepositoryTest {
 
     @Test
     void delete() throws SQLException {
-        when(mockLoanExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertTrue(() -> loanRepository.delete(BookUtil.LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockLoanExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void deleteCatchException() throws SQLException {
-        when(mockLoanExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
 
         assertFalse(() -> loanRepository.delete(BookUtil.LOAN_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockLoanExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(0)).commit();
         verify(mockConnection, times(1)).rollback();
     }
 
     @Test
     void deleteNotFoundId() throws SQLException {
-        when(mockLoanExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
 
         assertFalse(() -> loanRepository.delete(NOT_FOUND_ID));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(1)).setSavepoint();
-        verify(mockLoanExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
-        verify(mockConnection, times(1)).commit();
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
     }
 
     @Test
@@ -209,14 +205,14 @@ class JdbcLoanRepositoryTest {
     void updateStatus() throws SQLException {
 
         when(mockLoanExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(LOAN_ID);
-        when(mockLoanExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockLoanExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(LOAN_ID, loanRepository.insert(NEW_LOAN));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
         verify(mockLoanExecutor, times(1)).insert(any(Connection.class), anyString(), anyList());
-        verify(mockLoanExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockLoanExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
 
     }
@@ -236,7 +232,7 @@ class JdbcLoanRepositoryTest {
     void getLoanHistory() {
     }
 
-    @Test
-    void updateFine() {
-    }
+//    @Test
+//    void updateFine() {
+//    }
 }

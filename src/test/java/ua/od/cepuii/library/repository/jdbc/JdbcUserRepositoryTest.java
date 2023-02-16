@@ -55,7 +55,7 @@ class JdbcUserRepositoryTest {
     @Test
     void insert() throws SQLException {
         when(mockUserExecutor.insert(any(Connection.class), anyString(), anyList())).thenReturn(USER_ID);
-        when(mockUserExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockUserExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertEquals(USER_ID, userRepository.insert(NEW_USER));
 
@@ -124,38 +124,38 @@ class JdbcUserRepositoryTest {
 
     @Test
     void delete() throws SQLException {
-        when(mockUserExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
+        when(mockUserExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(true);
 
         assertTrue(() -> userRepository.delete(USER_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockUserExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockUserExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 
     @Test
     void deleteCatchException() throws SQLException {
-        when(mockUserExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
+        when(mockUserExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenThrow(SQLException.class);
 
         assertFalse(() -> userRepository.delete(USER_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockUserExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockUserExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(0)).commit();
         verify(mockConnection, times(1)).rollback();
     }
 
     @Test
     void deleteNotFoundId() throws SQLException {
-        when(mockUserExecutor.queryById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
+        when(mockUserExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
 
         assertFalse(() -> userRepository.delete(NOT_FOUND_ID));
 
         verify(mockConnectionPool, times(1)).getConnection();
         verify(mockConnection, times(1)).setSavepoint();
-        verify(mockUserExecutor, times(1)).queryById(any(Connection.class), anyString(), anyLong());
+        verify(mockUserExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
         verify(mockConnection, times(1)).commit();
     }
 

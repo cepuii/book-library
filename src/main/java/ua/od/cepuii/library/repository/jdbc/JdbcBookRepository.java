@@ -6,6 +6,7 @@ import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Author;
 import ua.od.cepuii.library.entity.Book;
+import ua.od.cepuii.library.repository.AbstractRepository;
 import ua.od.cepuii.library.repository.BookRepository;
 import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 import ua.od.cepuii.library.util.ValidationUtil;
@@ -13,17 +14,15 @@ import ua.od.cepuii.library.util.ValidationUtil;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.*;
+import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.fillBooks;
 
-public class JdbcBookRepository implements BookRepository {
+public class JdbcBookRepository extends AbstractRepository<Book> implements BookRepository {
     private static final Logger log = LoggerFactory.getLogger(JdbcBookRepository.class);
     private final QueryExecutor<Book> bookExecutor;
     private final QueryExecutor<Author> authorExecutor;
-    private final ConnectionPool connectionPool;
     private static final String INSERT_BOOK = "INSERT INTO book (title, publication_id, date_publication, fine, total) VALUES (?,?,?,?,?);";
     private static final String INSERT_BOOK_AUTHORS = "INSERT INTO book_author (book_id, author_id) VALUES (?,?);";
     private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?;";
@@ -63,28 +62,21 @@ public class JdbcBookRepository implements BookRepository {
     private static final String GET_BY_TITLE = "SELECT book.id b_id FROM book WHERE book.title = ?";
 
     public JdbcBookRepository(QueryExecutor<Book> bookExecutor, QueryExecutor<Author> authorExecutor, ConnectionPool connectionPool) {
+        super(connectionPool);
         this.bookExecutor = bookExecutor;
         this.authorExecutor = authorExecutor;
-        this.connectionPool = connectionPool;
     }
 
     @Override
-    public long insert(Book book) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                long bookId = bookExecutor.insert(connection, INSERT_BOOK, getBookFields(book));
-                updateAuthors(book.getAuthors(), connection, bookId);
-                connection.commit();
-                return bookId;
-            } catch (SQLException e) {
-                connection.rollback();
-                log.error(e.getMessage());
-            }
+    protected long insertAndGetId(Connection connection, Book book) {
+        try {
+            long bookId = bookExecutor.insert(connection, INSERT_BOOK, getBookFields(book));
+            updateAuthors(book.getAuthors(), connection, bookId);
+            return bookId;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            return -1;
         }
-        return -1;
     }
 
     private static List<Object> getBookFields(Book book) {
@@ -92,13 +84,8 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public Optional<Book> getById(long id) {
-        try (Connection connection = connectionPool.getConnection()) {
-            return bookExecutor.selectByParams(connection, SELECT_BY_ID, List.of(id), resultSet -> fillBooks(resultSet).stream().findFirst());
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return Optional.empty();
+    protected Optional<Book> selectById(Connection connection, long id) throws SQLException {
+        return bookExecutor.selectByParams(connection, SELECT_BY_ID, List.of(id), resultSet -> fillBooks(resultSet).stream().findFirst());
     }
 
     private static List<Object> getBookFieldsForUpdate(Book book) {
@@ -106,25 +93,19 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public boolean update(Book book) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                boolean executeUpdate = bookExecutor.update(connection, UPDATE, getBookFieldsForUpdate(book));
-                if (executeUpdate) {
-                    updateAuthors(book.getAuthors(), connection, book.getId());
-                }
-                connection.commit();
-                return executeUpdate;
-            } catch (SQLException e) {
-                connection.rollback();
-                log.error(e.getMessage());
+    protected boolean update(Connection connection, Book book) {
+        try {
+            boolean executeUpdate = bookExecutor.update(connection, UPDATE, getBookFieldsForUpdate(book));
+            if (executeUpdate) {
+                updateAuthors(book.getAuthors(), connection, book.getId());
             }
+            return executeUpdate;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            return false;
         }
-        return false;
     }
+
 
     private void updateAuthors(Collection<Author> authors, Connection connection, long bookId) throws SQLException {
         for (Author author : authors) {
@@ -143,56 +124,35 @@ public class JdbcBookRepository implements BookRepository {
     }
 
     @Override
-    public boolean delete(long id) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                boolean b = bookExecutor.queryById(connection, DELETE_BOOK, id);
-                connection.commit();
-                return b;
-            } catch (SQLException e) {
-                connection.rollback();
-                log.error(e.getMessage());
-            }
+    public boolean delete(Connection connection, long id) {
+        try {
+            return bookExecutor.isExistResultById(connection, DELETE_BOOK, id);
         } catch (SQLException e) {
             log.error(e.getMessage());
-        }
-        return false;
-    }
-
-    @Override
-    public Collection<Book> getAll(FilterParams filterParam, String orderBy, int limit, int offset) {
-        String titleFilter = prepareForLike(validateForLike(filterParam.getFirstParam()));
-        String authorFilter = prepareForLike(validateForLike(filterParam.getSecondParam()));
-
-        try (Connection connection = connectionPool.getConnection()) {
-            return bookExecutor.selectAll(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, List.of(titleFilter, authorFilter, limit, offset), RepositoryUtil::fillBooks);
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
+            return false;
         }
     }
 
     @Override
-    public int getCount(FilterParams filterParam) {
-        String titleForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
-        String authorForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
-        try (Connection connection = connectionPool.getConnection()) {
-            return bookExecutor.selectCount(connection, COUNT_SELECT_ALL_FILTER, List.of(titleForSearch, authorForSearch));
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return 0;
+    protected Collection<Book> selectAll(Connection connection, List<Object> params, String orderBy) throws SQLException {
+        return bookExecutor.selectAll(connection, SELECT_ALL + orderBy + SELECT_ALL_PART2, params, RepositoryUtil::fillBooks);
+    }
+
+
+    @Override
+    protected int getCount(Connection connection, FilterParams filterParam) throws SQLException {
+        return bookExecutor.selectCount(connection, COUNT_SELECT_ALL_FILTER, List.of(filterParam.getFirstParamForQuery(), filterParam.getSecondParamForQuery()));
     }
 
     @Override
     public boolean isExistTitle(String title) {
         try (Connection connection = connectionPool.getConnection()) {
-            return bookExecutor.queryByString(connection, GET_BY_TITLE, title);
+            return bookExecutor.isExistResultByString(connection, GET_BY_TITLE, title);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
         return false;
     }
+
 }
 

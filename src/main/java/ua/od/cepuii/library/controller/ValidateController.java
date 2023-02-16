@@ -13,6 +13,14 @@ import ua.od.cepuii.library.service.UserService;
 
 import java.io.IOException;
 
+/**
+ * This class serves as a servlet for handling the validation requests for email and book title in the library application.
+ * It uses {@link UserService} and {@link BookService} to determine whether the provided email or book title already exists.
+ *
+ * @author Serhei Chernousov
+ * @version 1.0
+ * @since 2022-12-19
+ */
 @WebServlet(name = "ValidationServlet", urlPatterns = "/validate/*")
 public class ValidateController extends HttpServlet {
 

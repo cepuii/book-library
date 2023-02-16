@@ -17,6 +17,12 @@ import java.util.Collection;
 
 import static ua.od.cepuii.library.constants.AttributesName.*;
 
+/**
+ * This class is responsible for showing users.
+ *
+ * @author Sergei Chernousov
+ * @version 1.0
+ */
 public class ShowUsers implements ActionCommand {
     private static final Logger log = LoggerFactory.getLogger(ShowUsers.class);
 

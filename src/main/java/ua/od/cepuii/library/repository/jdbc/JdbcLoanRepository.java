@@ -6,19 +6,19 @@ import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.entity.enums.LoanStatus;
+import ua.od.cepuii.library.repository.AbstractRepository;
 import ua.od.cepuii.library.repository.LoanRepository;
 import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
-import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.prepareForLike;
-import static ua.od.cepuii.library.repository.jdbc.RepositoryUtil.validateForLike;
-
-public class JdbcLoanRepository implements LoanRepository {
+public class JdbcLoanRepository extends AbstractRepository<Loan> implements LoanRepository {
     private static final Logger log = LoggerFactory.getLogger(JdbcLoanRepository.class);
     private final QueryExecutor<Loan> executor;
-    private final ConnectionPool connectionPool;
     private static final String INSERT_LOAN = "INSERT INTO loan (user_id, book_id, duration, status_id) VALUES (?,?,?,?)";
     private static final String SELECT_BY_ID = "SELECT id, user_id,book_id, start_time, duration, status_id, fine FROM loan WHERE id=?  ";
     private static final String SELECT_ALL = "SELECT loan.id l_id, loan.book_id l_bookId, loan.user_id l_userId, u.email u_email, " +
@@ -61,72 +61,67 @@ public class JdbcLoanRepository implements LoanRepository {
     private static final String SUBTRACT_FINE_BY_USER_ID = "UPDATE users SET fine = fine - ? WHERE id = ?;";
 
     public JdbcLoanRepository(QueryExecutor<Loan> loanExecutor, ConnectionPool connectionPool) {
+        super(connectionPool);
         this.executor = loanExecutor;
-        this.connectionPool = connectionPool;
     }
 
+    /**
+     * @param connection
+     * @param loan
+     * @return
+     * @throws SQLException
+     */
     @Override
-    public long insert(Loan loan) {
-        try (Connection connection = connectionPool.getConnection()) {
-            Savepoint savepoint = connection.setSavepoint();
-            try {
-                long loanId = executor.insert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(), loan.getDuration(), loan.getStatus().ordinal()));
-                executor.queryById(connection, INCREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
-                connection.commit();
-                return loanId;
-            } catch (SQLException e) {
-                log.error(e.getMessage());
-                connection.rollback(savepoint);
-            }
+    protected long insertAndGetId(Connection connection, Loan loan) {
+        try {
+            long loanId = executor.insert(connection, INSERT_LOAN, List.of(loan.getUserId(), loan.getBookId(), loan.getDuration(), loan.getStatus().ordinal()));
+            executor.isExistResultById(connection, INCREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
+            return loanId;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            return -1;
         }
-        return -1;
     }
 
+    /**
+     * @param connection
+     * @param id
+     * @return
+     * @throws SQLException
+     */
     @Override
-    public Optional<Loan> getById(long id) {
-        try (Connection connection = connectionPool.getConnection()) {
-            return executor.selectByParams(connection, SELECT_BY_ID, List.of(id), RepositoryUtil::fillLoan);
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-        return Optional.empty();
+    protected Optional<Loan> selectById(Connection connection, long id) throws SQLException {
+        return executor.selectByParams(connection, SELECT_BY_ID, List.of(id), RepositoryUtil::fillLoan);
     }
 
+    /**
+     * @param connection
+     * @param loan
+     * @return
+     */
     @Override
-    public boolean update(Loan loan) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                boolean b = executor.update(connection, UPDATE, List.of(loan.getDuration(), loan.getStatus().ordinal()));
-                connection.commit();
-                return b;
-            } catch (Exception e) {
-                connection.rollback();
-            }
+    protected boolean update(Connection connection, Loan loan) {
+        try {
+            return executor.update(connection, UPDATE, List.of(loan.getDuration(), loan.getStatus().ordinal()));
         } catch (SQLException e) {
             log.error(e.getMessage());
+            return false;
         }
-        return false;
     }
 
+    /**
+     * @param connection
+     * @param id
+     * @return
+     */
     @Override
-    public boolean delete(long id) {
-        try (Connection connection = connectionPool.getConnection()) {
-            connection.setSavepoint();
-            try {
-                boolean deleteLoan = executor.queryById(connection, DELETE_BY_ID, id);
-                connection.commit();
-                return deleteLoan;
-            } catch (SQLException e) {
-                log.error(e.getMessage());
-                connection.rollback();
-            }
+    protected boolean delete(Connection connection, long id) {
+        try {
+            return executor.isExistResultById(connection, DELETE_BY_ID, id);
         } catch (SQLException e) {
             log.error(e.getMessage());
+            return false;
         }
-        return false;
     }
 
     @Override
@@ -134,12 +129,17 @@ public class JdbcLoanRepository implements LoanRepository {
         try (Connection connection = connectionPool.getConnection()) {
             connection.setSavepoint();
             try {
-                boolean deleteLoan = executor.queryById(connection, DELETE_BY_ID, loanId);
+                Optional<Loan> loan = executor.selectByParams(connection, SELECT_BY_ID, List.of(loanId), RepositoryUtil::fillLoan);
+                if (loan.isEmpty() || loan.get().getStatus() != LoanStatus.RAW) {
+                    throw new SQLException("can`t delete loan: {}", loan.toString());
+                }
+                boolean deleteLoan = executor.isExistResultById(connection, DELETE_BY_ID, loanId);
                 if (deleteLoan) {
-                    executor.queryById(connection, DECREASE_BOOK_BORROW_AMOUNT, bookId);
+                    executor.isExistResultById(connection, DECREASE_BOOK_BORROW_AMOUNT, bookId);
                 }
                 connection.commit();
                 return deleteLoan;
+
             } catch (SQLException e) {
                 log.error(e.getMessage());
                 connection.rollback();
@@ -150,17 +150,18 @@ public class JdbcLoanRepository implements LoanRepository {
         return false;
     }
 
+    /**
+     * @param connection
+     * @param params
+     * @param orderBy
+     * @return
+     * @throws SQLException
+     */
     @Override
-    public Collection<Loan> getAll(FilterParams params, String orderBy, int limit, int offset) {
-        String bookTitleSearch = prepareForLike(validateForLike(params.getFirstParam()));
-        String statusSearch = prepareForLike(validateForLike(params.getSecondParam()));
-        try (Connection connection = connectionPool.getConnection()) {
-            return executor.selectAll(connection, SELECT_ALL_WITH_LIMITS, List.of(bookTitleSearch, statusSearch, limit, offset), RepositoryUtil::fillLoans);
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            return Collections.emptyList();
-        }
+    protected Collection<Loan> selectAll(Connection connection, List<Object> params, String orderBy) throws SQLException {
+        return executor.selectAll(connection, SELECT_ALL_WITH_LIMITS, params, RepositoryUtil::fillLoans);
     }
+
 
     @Override
     public Collection<Loan> getAllByUserId(long userId, int limit, int offset) {
@@ -182,7 +183,7 @@ public class JdbcLoanRepository implements LoanRepository {
                     if (fineSubtract) {
                         executor.update(connection, SUBTRACT_FINE_BY_USER_ID, List.of(loan.getFine(), loan.getUserId()));
                     }
-                    executor.queryById(connection, DECREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
+                    executor.isExistResultById(connection, DECREASE_BOOK_BORROW_AMOUNT, loan.getBookId());
                 }
                 connection.commit();
                 return update;
@@ -219,7 +220,8 @@ public class JdbcLoanRepository implements LoanRepository {
     @Override
     public Collection<Loan> getLoanHistory(long userId, int limit, int offset) {
         try (Connection connection = connectionPool.getConnection()) {
-            return executor.selectAll(connection, SELECT_ALL_WITH_STATUS_RETURNED_BY_USER_ID, List.of(userId, limit, offset), RepositoryUtil::fillLoans);
+            return executor.selectAll(connection, SELECT_ALL_WITH_STATUS_RETURNED_BY_USER_ID,
+                    List.of(userId, limit, offset), RepositoryUtil::fillLoans);
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
@@ -262,18 +264,35 @@ public class JdbcLoanRepository implements LoanRepository {
 
     @Override
     public int getCount(FilterParams filterParam) {
-        String titleForSearch = prepareForLike(validateForLike(filterParam.getFirstParam()));
-        String authorForSearch = prepareForLike(validateForLike(filterParam.getSecondParam()));
         try (Connection connection = connectionPool.getConnection()) {
             if (filterParam.getId() == 0) {
-                return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER, List.of(titleForSearch, authorForSearch));
+                return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER,
+                        List.of(filterParam.getFirstParamForQuery(), filterParam.getSecondParamForQuery()));
             } else {
-                return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER_BY_ID, List.of(titleForSearch, authorForSearch, filterParam.getId()));
+                return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER_BY_ID,
+                        List.of(filterParam.getFirstParamForQuery(), filterParam.getSecondParamForQuery(), filterParam.getId()));
             }
         } catch (SQLException e) {
             log.error(e.getMessage());
         }
         return 0;
+    }
+
+    /**
+     * @param connection
+     * @param filterParam
+     * @return
+     * @throws SQLException
+     */
+    @Override
+    protected int getCount(Connection connection, FilterParams filterParam) throws SQLException {
+        if (filterParam.getId() == 0) {
+            return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER,
+                    List.of(filterParam.getFirstParamForQuery(), filterParam.getSecondParamForQuery()));
+        } else {
+            return executor.selectCount(connection, COUNT_SELECT_ALL_FILTER_BY_ID,
+                    List.of(filterParam.getFirstParamForQuery(), filterParam.getSecondParamForQuery(), filterParam.getId()));
+        }
     }
 }
 
