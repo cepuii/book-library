@@ -1,5 +1,33 @@
 package ua.od.cepuii.library.repository.jdbc;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static ua.od.cepuii.library.util.BookUtil.LIMIT;
+import static ua.od.cepuii.library.util.BookUtil.OFFSET;
+import static ua.od.cepuii.library.util.LoanUtil.NOT_FOUND_ID;
+import static ua.od.cepuii.library.util.UserUtil.NEW_USER;
+import static ua.od.cepuii.library.util.UserUtil.PASSWORD;
+import static ua.od.cepuii.library.util.UserUtil.USER;
+import static ua.od.cepuii.library.util.UserUtil.USER_ID;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -10,23 +38,6 @@ import ua.od.cepuii.library.db.ConnectionPool;
 import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.User;
 import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static ua.od.cepuii.library.util.BookUtil.LIMIT;
-import static ua.od.cepuii.library.util.BookUtil.OFFSET;
-import static ua.od.cepuii.library.util.LoanUtil.NOT_FOUND_ID;
-import static ua.od.cepuii.library.util.UserUtil.*;
 
 class JdbcUserRepositoryTest {
 
@@ -149,42 +160,50 @@ class JdbcUserRepositoryTest {
 
     @Test
     void deleteNotFoundId() throws SQLException {
-        when(mockUserExecutor.isExistResultById(any(Connection.class), anyString(), anyLong())).thenReturn(false);
+      when(mockUserExecutor.isExistResultById(any(Connection.class), anyString(),
+          anyLong())).thenReturn(false);
 
-        assertFalse(() -> userRepository.delete(NOT_FOUND_ID));
+      assertFalse(() -> userRepository.delete(NOT_FOUND_ID));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(1)).setSavepoint();
-        verify(mockUserExecutor, times(1)).isExistResultById(any(Connection.class), anyString(), anyLong());
-        verify(mockConnection, times(1)).commit();
+      verify(mockConnectionPool, times(1)).getConnection();
+      verify(mockConnection, times(1)).setSavepoint();
+      verify(mockUserExecutor, times(1)).isExistResultById(any(Connection.class), anyString(),
+          anyLong());
+      verify(mockConnection, times(0)).commit();
+      verify(mockConnection, times(1)).rollback();
     }
 
     @Test
     void getAll() throws SQLException {
-        when(mockUserExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenReturn(List.of(USER));
-        FilterParams filterParams = mock(FilterParams.class);
-        when(filterParams.getFirstParam()).thenReturn("");
-        when(filterParams.getSecondParam()).thenReturn("");
-        assertIterableEquals(List.of(USER), userRepository.getAll(filterParams, "", LIMIT, OFFSET));
+      when(mockUserExecutor.selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class))).thenReturn(List.of(USER));
+      FilterParams filterParams = mock(FilterParams.class);
+      when(filterParams.getFirstParamForQuery()).thenReturn("%%");
+      when(filterParams.getSecondParamForQuery()).thenReturn("%%");
+      assertIterableEquals(List.of(USER), userRepository.getAll(filterParams, "", LIMIT, OFFSET));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(0)).setSavepoint();
-        verify(mockUserExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
-        verify(mockConnection, times(0)).commit();
+      verify(mockConnectionPool, times(1)).getConnection();
+      verify(mockConnection, times(0)).setSavepoint();
+      verify(mockUserExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class));
+      verify(mockConnection, times(0)).commit();
     }
 
     @Test
     void getAllCatchException() throws SQLException {
-        when(mockUserExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenThrow(SQLException.class);
-        FilterParams filterParams = mock(FilterParams.class);
-        when(filterParams.getFirstParam()).thenReturn("");
-        when(filterParams.getSecondParam()).thenReturn("");
-        assertIterableEquals(Collections.emptyList(), userRepository.getAll(filterParams, "", LIMIT, OFFSET));
+      when(mockUserExecutor.selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class))).thenThrow(SQLException.class);
+      FilterParams filterParams = mock(FilterParams.class);
+      when(filterParams.getFirstParamForQuery()).thenReturn("%%");
+      when(filterParams.getSecondParamForQuery()).thenReturn("%%");
+      assertIterableEquals(Collections.emptyList(),
+          userRepository.getAll(filterParams, "", LIMIT, OFFSET));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(0)).setSavepoint();
-        verify(mockUserExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
-        verify(mockConnection, times(0)).commit();
+      verify(mockConnectionPool, times(1)).getConnection();
+      verify(mockConnection, times(0)).setSavepoint();
+      verify(mockUserExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class));
+      verify(mockConnection, times(0)).commit();
     }
 
     @Test

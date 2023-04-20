@@ -1,5 +1,36 @@
 package ua.od.cepuii.library.repository.jdbc;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static ua.od.cepuii.library.util.BookUtil.LIMIT;
+import static ua.od.cepuii.library.util.BookUtil.OFFSET;
+import static ua.od.cepuii.library.util.LoanUtil.BOOK_ID;
+import static ua.od.cepuii.library.util.LoanUtil.LOAN;
+import static ua.od.cepuii.library.util.LoanUtil.LOAN_ID;
+import static ua.od.cepuii.library.util.LoanUtil.NEW_LOAN;
+import static ua.od.cepuii.library.util.LoanUtil.NOT_FOUND_ID;
+import static ua.od.cepuii.library.util.LoanUtil.USER_ID;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,23 +42,6 @@ import ua.od.cepuii.library.dto.FilterParams;
 import ua.od.cepuii.library.entity.Loan;
 import ua.od.cepuii.library.repository.jdbc.executor.QueryExecutor;
 import ua.od.cepuii.library.util.BookUtil;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-import static ua.od.cepuii.library.util.BookUtil.LIMIT;
-import static ua.od.cepuii.library.util.BookUtil.OFFSET;
-import static ua.od.cepuii.library.util.LoanUtil.*;
 
 class JdbcLoanRepositoryTest {
 
@@ -157,30 +171,35 @@ class JdbcLoanRepositoryTest {
 
     @Test
     void getAll() throws SQLException {
-        when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenReturn(List.of(LOAN));
-        FilterParams filterParams = mock(FilterParams.class);
-        when(filterParams.getFirstParam()).thenReturn("");
-        when(filterParams.getSecondParam()).thenReturn("");
-        assertIterableEquals(List.of(LOAN), loanRepository.getAll(filterParams, "", LIMIT, OFFSET));
+      when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class))).thenReturn(List.of(LOAN));
+      FilterParams filterParams = mock(FilterParams.class);
+      when(filterParams.getFirstParamForQuery()).thenReturn("%%");
+      when(filterParams.getSecondParamForQuery()).thenReturn("%%");
+      assertIterableEquals(List.of(LOAN), loanRepository.getAll(filterParams, "", LIMIT, OFFSET));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(0)).setSavepoint();
-        verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
-        verify(mockConnection, times(0)).commit();
+      verify(mockConnectionPool, times(1)).getConnection();
+      verify(mockConnection, times(0)).setSavepoint();
+      verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class));
+      verify(mockConnection, times(0)).commit();
     }
 
     @Test
     void getAllCatchException() throws SQLException {
-        when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(), any(Function.class))).thenThrow(SQLException.class);
-        FilterParams filterParams = mock(FilterParams.class);
-        when(filterParams.getFirstParam()).thenReturn("");
-        when(filterParams.getSecondParam()).thenReturn("");
-        assertIterableEquals(Collections.emptyList(), loanRepository.getAll(filterParams, "", LIMIT, OFFSET));
+      when(mockLoanExecutor.selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class))).thenThrow(SQLException.class);
+      FilterParams filterParams = mock(FilterParams.class);
+      when(filterParams.getFirstParamForQuery()).thenReturn("%%");
+      when(filterParams.getSecondParamForQuery()).thenReturn("%%");
+      assertIterableEquals(Collections.emptyList(),
+          loanRepository.getAll(filterParams, "", LIMIT, OFFSET));
 
-        verify(mockConnectionPool, times(1)).getConnection();
-        verify(mockConnection, times(0)).setSavepoint();
-        verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(), any(Function.class));
-        verify(mockConnection, times(0)).commit();
+      verify(mockConnectionPool, times(1)).getConnection();
+      verify(mockConnection, times(0)).setSavepoint();
+      verify(mockLoanExecutor, times(1)).selectAll(any(Connection.class), anyString(), anyList(),
+          any(Function.class));
+      verify(mockConnection, times(0)).commit();
     }
 
     @Test
